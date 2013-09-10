@@ -1,5 +1,5 @@
-{% assign site_root = 'http://tnick.github.io/aitown' %}
-
+---
+---
 <!DOCTYPE html 
       PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" 
       "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
@@ -18,20 +18,20 @@
 
 		<link rel="icon" 
 			  type="image/png" 
-			  href="{{ site_root }}/images/favicon.png" />
+			  href="{{ site.url }}/images/favicon.png" />
 			  
         <!-- syntax highlighting CSS -->
-        <link rel="stylesheet" href="{{ site_root }}/css/syntax.css">
+        <link rel="stylesheet" href="{{ site.url }}/css/syntax.css">
 
         <!-- Custom CSS -->
-        <link rel="stylesheet" href="{{ site_root }}/css/main.css">
+        <link rel="stylesheet" href="{{ site.url }}/css/main.css">
 
     </head>
     <body>
         <div class="container">
           <div class="site">
             <div class="header">
-              <h1><a href="/">{{ site.name }}</a> - {{ page.title }}</h1>
+              <h1><a href="{{ site.url }}">{{ site.name }}</a> - {{ page.title }}</h1>
             </div>
 			<table><tr>
 				<td class="content">
@@ -42,7 +42,7 @@
 				<td class="sidebar">
 					<ul class="sidebar">
 						<li class="sidebar">
-							<a href="{{ site_root }}/releases">
+							<a href="{{ site.url }}/releases">
 								<div class="greenbutton">Download now</div>
 							</a>
 						</li>
@@ -60,7 +60,7 @@
 							</a>
 						</li>
 						<li class="sidebar">
-							<a href="{{ site_root }}/documentation.html"><div class="lefticon docsbutton">Documentation</div>
+							<a href="{{ site.url }}/documentation.html"><div class="lefticon docsbutton">Documentation</div>
 							</a>
 						</li>
 						<li class="sidebar">

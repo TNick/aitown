@@ -1,6 +1,5 @@
 ---
 ---
-{% assign site_root = 'http://tnick.github.io/aitown' %}
 /*****************************************************************************/
 /*
 /* Common
@@ -106,7 +105,7 @@ li.sidebar 		{
 }
 
 .greenbutton 	{
-	background-image: url('{{ site_root }}/images/green-button.png');
+	background-image: url('{{ site.url }}/images/green-button.png');
 	background-repeat:no-repeat;
 	width: 150px;
 	height: 75px;
@@ -126,16 +125,16 @@ li.sidebar 		{
 }
 
 .windows		{
-	background-image: url('{{ site_root }}/images/windows.png');
+	background-image: url('{{ site.url }}/images/windows.png');
 }
 
 .macos			{
-	background-image: url('{{ site_root }}/images/mac.png');
+	background-image: url('{{ site.url }}/images/mac.png');
 	
 }
 
 .linux			{
-	background-image: url('{{ site_root }}/images/linux.png');
+	background-image: url('{{ site.url }}/images/linux.png');
 }
 
 .lefticon		{
@@ -149,19 +148,19 @@ li.sidebar 		{
 }
 
 .savebutton		{
-	background-image: url('{{ site_root }}/images/save.png');
+	background-image: url('{{ site.url }}/images/save.png');
 }
 
 .gitbutton		{
-	background-image: url('{{ site_root }}/images/git.png');
+	background-image: url('{{ site.url }}/images/git.png');
 }
 
 .docsbutton		{
-	background-image: url('{{ site_root }}/images/information.png');
+	background-image: url('{{ site.url }}/images/information.png');
 }
 
 .bugbutton		{
-	background-image: url('{{ site_root }}/images/bug.png');
+	background-image: url('{{ site.url }}/images/bug.png');
 }
 
 table.btmnav	{
