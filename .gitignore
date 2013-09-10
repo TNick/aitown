@@ -77,3 +77,4 @@ ui_*.h
 *.qm
 id_local
 *.autosave
+_site
