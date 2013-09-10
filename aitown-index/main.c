@@ -208,10 +208,13 @@ static index_error load_config ( index_data_t* index_data_ )
 	
 	// load the file if present
 	if ( fp != NULL ) {
+		dbg_message ("loading config file %s", cfg_file);
 		if ( ini_parse (cfg_file, handler, index_data_) < 0 ) {
 			fprintf (stderr, "Can't load configuration file %s\n", cfg_file);
 			return INDEX_GENERIC_ERROR;
 		}
+	} else {
+		dbg_message ("no config file to load" );
 	}
 	
 	return INDEX_OK;
@@ -225,7 +228,8 @@ zmq_buffer_free (void *data, void *hint) {
 }
 
 //! send a message from server to client
-static index_error send_reply (AiTownIndexReply * input_msg, void *server) {
+static index_error send_reply (AiTownIndexReply * input_msg, void *server)
+{ dbg_message (__func__);
 	// serialize in a buffer
 	void *buff;
 	size_t sz = AiTownIndexReply__pack (input_msg, &buff);
@@ -338,7 +342,7 @@ static index_error send_list (index_data_t *index_data_, void *server)
 }
 
 //! process a request message
-static index_error processRequest ( index_data_t *index_data_, 
+static index_error process_request ( index_data_t *index_data_, 
     void *server, void *data, size_t data_sz)
 { dbg_message (__func__);
 
@@ -371,7 +375,7 @@ static index_error processRequest ( index_data_t *index_data_,
 			send_error (server, "Malformed add request");
 			break;
 		}
-			
+		
 		// allocate a new server structure for this
 		server_data_t * sd;
 		server_data_t * sd_other;
@@ -469,9 +473,7 @@ int            main            ( int argc, char *argv[] )
 	                                                                            dbg_message ("mark 8");
 		sprintf (buffer, "tcp://*:%d", index_data.port);
 	                                                                            dbg_message ("mark 81");
-		//if ( zmq_bind (server, buffer) != 0 ) {
-		if ( zmq_bind (server, "tcp://*:1235") != 0 ) {
-	                                                                            dbg_message ("mark 82");
+		if ( zmq_bind (server, buffer) != 0 ) {
 			fprintf (stderr, "Failed to bind to port %d\n", index_data.port);
 			break;
 		}
@@ -500,7 +502,7 @@ int            main            ( int argc, char *argv[] )
 				
 				// Block until a message is available to be received from socket
 				rc = zmq_msg_recv (&part, server, 0);
-				if ( rc != 0 ) {
+				if ( rc == -1 ) {
 					rc = zmq_errno();
 					if ( rc == 4 ) {
 						log_message ("Exit on user request.");
@@ -517,7 +519,7 @@ int            main            ( int argc, char *argv[] )
 				size_t data_sz = zmq_msg_size (&part);
 				if ( data_sz > 0 ) {
 					INDEX_ASSERT (data != NULL);
-					exitcode = processRequest (&index_data, server,data, data_sz);
+					exitcode = process_request (&index_data, server,data, data_sz);
 					if ( exitcode != INDEX_OK ) {
 						log_message ("Exit on internal error");
 						break;

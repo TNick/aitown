@@ -131,7 +131,6 @@ static aiserver_error parse_command_line (
 		
 		// set any command line default values prior to parsing
 		index_port->ival[0] = 29898;
-		index_addr->sval[0] = NULL;
 		port->ival[0] = 29897;
 		
 		// Parse the command line as defined by argtable[]
@@ -183,19 +182,25 @@ static aiserver_error parse_command_line (
 			addr->sval[0] = strdup ("localhost");
 		}
 		
+#define ARG_STR_DEFAULT(serv_member,arg_member,default_val)		\
+		if ( server_data_->serv_member != NULL ) \
+			free ((void*)server_data_->serv_member); \
+		if ( arg_member->sval[0][0] == 0 ) \
+			server_data_->serv_member = strdup (default_val); \
+		else \
+			server_data_->serv_member = strdup (arg_member->sval[0]);
+#define ARG_STR(serv_member,arg_member)		\
+		if ( server_data_->serv_member != NULL ) \
+			free ((void*)server_data_->serv_member); \
+		if ( arg_member->sval[0][0] != 0 ) \
+			server_data_->serv_member = strdup (arg_member->sval[0]);
+		
 		// copy values to proper place
 		server_data_->index_server_port = index_port->ival[0];
 		server_data_->port = port->ival[0];
-		if ( server_data_->index_server_address != NULL )
-			free ((void*)server_data_->index_server_address);
-		server_data_->index_server_address = strdup (index_addr->sval[0]);
-		if ( server_data_->address != NULL )
-			free ((void*)server_data_->address);
-		server_data_->address = strdup (addr->sval[0]);
-		if ( server_data_->name != NULL )
-			free ((void*)server_data_->name);
-		server_data_->name = strdup (name->sval[0]);
-		
+		ARG_STR_DEFAULT(index_server_address, index_addr,"localhost");
+		ARG_STR_DEFAULT(address, addr,"localhost");
+		ARG_STR(name, name);
 		break;
 	}
 	
@@ -267,10 +272,13 @@ static aiserver_error load_config ( aiserver_data_t* server_data_ )
 	
 	// load the file if present
 	if ( fp != NULL ) {
+		dbg_message ("loading config file %s", cfg_file);
 		if ( ini_parse (cfg_file, handler, server_data_) < 0 ) {
 			fprintf (stderr, "Can't load configuration file %s\n", cfg_file);
 			return AISERVER_GENERIC_ERROR;
 		}
+	} else {
+		dbg_message ("no config file to load" );
 	}
 	
 	return AISERVER_OK;
@@ -283,21 +291,21 @@ zmq_buffer_free (void *data, void *hint) {
 	AISERVER_UNUSED (hint);
 }
 
-
-
 //! inform the index server about our existance (if one is defined)
-static void inform_index_server (aiserver_data_t *server_data_, AiTownIndex*input_msg)
+static aiserver_error inform_index_server (aiserver_data_t *server_data_, AiTownIndex*input_msg)
 {
+	int linger = 0;
 	char *addr_buf = NULL;
 	void *client = NULL;
 	int rc;
 	void *content_buff;
 	zmq_msg_t msg_send;
+	aiserver_error err_code = AISERVER_GENERIC_ERROR;
 	
 	// if not required, exit
 	if ( (server_data_->index_server_address == NULL) || 
 	      (server_data_->index_server_port <= 0)) {
-		return;
+		return err_code;
 	}
 	
 	for (;;) {
@@ -316,7 +324,7 @@ static void inform_index_server (aiserver_data_t *server_data_, AiTownIndex*inpu
 		
 		// allocate a buffer for full address; tcp://ADDRESS:PORT -> 6+len(a)+36+1
 		int addr_buf_sz = 6+strlen(server_data_->index_server_address)+36+1;
-		char * addr_buf = (char*)malloc(addr_buf_sz);
+		addr_buf = (char*)malloc(addr_buf_sz);
 		if ( addr_buf == NULL )
 			break;
 		sprintf (addr_buf, "tcp://%s:%d", 
@@ -327,9 +335,13 @@ static void inform_index_server (aiserver_data_t *server_data_, AiTownIndex*inpu
 		client = zmq_socket (server_data_->context, ZMQ_REQ);
 		if ( client == NULL )
 			break;
+		zmq_setsockopt (client, ZMQ_LINGER, &linger, sizeof (linger));
 		rc = zmq_connect (client, addr_buf);
-		if ( rc != 0 )
+		if ( rc != 0 ) {
+			err_message( "Failed to connect: %s", 
+						 zmq_strerror(zmq_errno()));
 			break;
+		}
 		
 		int retries_left = AISERVER_SERVER_RETRIES;		
 		while (retries_left && keep_running) {
@@ -337,7 +349,8 @@ static void inform_index_server (aiserver_data_t *server_data_, AiTownIndex*inpu
 			// We send a request, then we work to get a reply
 			rc = zmq_msg_send (&msg_send, client, 0); 
 			if (rc != (int)sz) {
-				err_message( "Failed to send message to client");
+				err_message( "Failed to send message: %s", 
+				    zmq_strerror(zmq_errno()));
 				break;
 			}
 			
@@ -346,13 +359,10 @@ static void inform_index_server (aiserver_data_t *server_data_, AiTownIndex*inpu
 				// Poll socket for a reply, with timeout
 				zmq_pollitem_t items [] = { { client, 0, ZMQ_POLLIN, 0 } };
 				rc = zmq_poll (items, 1, AISERVER_SERVER_TIMEOUT * ZMQ_POLL_MSEC);
-				if (rc == -1)
+				if (rc == -1) {
+					retries_left = 0;
 					break; // Interrupted
-				
-				// Here we process a server reply and exit our loop if the
-				// reply is valid. If we didn't a reply we close the client
-				// socket and resend the request. We try a number of times
-				// before finally abandoning:
+				}
 				
 				if (items [0].revents & ZMQ_POLLIN) {
 					// get the reply
@@ -360,7 +370,7 @@ static void inform_index_server (aiserver_data_t *server_data_, AiTownIndex*inpu
 					rc = zmq_msg_init (&msg_recv);
 					AISERVER_ASSERT (rc == 0);
 					rc = zmq_msg_recv (&msg_recv, client, 0);
-					if ( rc != 0 ) {
+					if ( rc < 0 ) {
 						rc = zmq_errno();
 						if ( rc == 4 ) {
 							log_message ("Exit on user request.");
@@ -369,77 +379,94 @@ static void inform_index_server (aiserver_data_t *server_data_, AiTownIndex*inpu
 							err_message ( "code %d while receiving message: %s", 
 										  zmq_errno(), zmq_strerror(rc));
 						}
+						retries_left = 0;
+						zmq_msg_close (&msg_recv);
 						break;
 					}
 					
 					// We got a reply from the server
 					void *data = zmq_msg_data (&msg_recv);
 					size_t data_sz = zmq_msg_size (&msg_recv);
-					if ( data_sz > 0 ) {
-						AISERVER_ASSERT (data != NULL);
-						
-						// decode the message
-						AiTownIndexReply * incoming = AiTownIndexReply__unpack (data_sz, data);
-						if ( incoming == NULL ) {
-							err_message( "Error decoding incoming message from index server");
-							zmq_msg_close (&msg_recv);
-							break;
-						}
-						
-						// check the version - the only one that we know of is 1
-						if ( incoming->version != 1 ) {
-							err_message ("Unsupported version");
-							AiTownIndexReply__free_unpacked (incoming);
-							zmq_msg_close (&msg_recv);
-							break;
-						}
-
-						// type based processing
-						switch ( incoming->type ) {
-						case   AI_TOWN_INDEX_MESSAGE_TYPE__AITMT_INDEX_OK: {
-							log_message ("Index server ack");
-							break; }
-						case   AI_TOWN_INDEX_MESSAGE_TYPE__AITMT_INDEX_ERROR: {
-							err_message ("Index server replied: %s", incoming->error_message);
-							break; }
-						default:
-							err_message( "Unknown reply message from index server: %d", incoming->type );
-						}
-						
-						retries_left = AISERVER_SERVER_TIMEOUT;
+					if ( data_sz == 0 ) {
+						err_message ("Empty response");
+						retries_left = 0;
 						zmq_msg_close (&msg_recv);
 						break;
 					}
+					AISERVER_ASSERT (data != NULL);
+					
+					// decode the message
+					AiTownIndexReply * incoming = AiTownIndexReply__unpack (data_sz, data);
+					if ( incoming == NULL ) {
+						err_message( "Error decoding incoming message from index server");
+						zmq_msg_close (&msg_recv);
+						retries_left = 0;
+						break;
+					}
+					
+					// check the version - the only one that we know of is 1
+					if ( incoming->version != 1 ) {
+						err_message ("Unsupported protocol version: %d", incoming->version);
+						AiTownIndexReply__free_unpacked (incoming);
+						zmq_msg_close (&msg_recv);
+						retries_left = 0;
+						break;
+					}
+					
+					// type based processing
+					switch ( incoming->type ) {
+					case   AI_TOWN_INDEX_MESSAGE_TYPE__AITMT_INDEX_OK: {
+						log_message ("Index server ack");
+						err_code = AISERVER_OK;
+						break; }
+					case   AI_TOWN_INDEX_MESSAGE_TYPE__AITMT_INDEX_ERROR: {
+						err_message ("Index server replied: %s", incoming->error_message);
+						break; }
+					default:
+						err_message( "Unknown reply message from index server: %d", incoming->type );
+					}
+					
+					retries_left = 0;
+					zmq_msg_close (&msg_recv);
+					break;
 				
 				// timeout expired and we had no reply
 				} else {
 					
 					// should we give it another chance
 					if (--retries_left == 0) {
-						err_message( "index server seems to be offline, abandoning" );
+						err_message( "index server seems to be offline, aborting" );
 						break;
 					}
 					
 					// Old socket is confused; close it and open a new one
-					err_message( "no response from index server, retrying…" );
+					err_message( "no response from index server, retrying (%d) ...", retries_left );
 					zmq_close(client);
 					
 					// Send request again, on new socket
 					log_message ("reconnecting to index server…");
 					client = zmq_socket (server_data_->context, ZMQ_REQ);
-					if ( client == NULL )
-						break;
-					rc = zmq_connect (client, addr_buf);
-					if ( rc != 0 )
-						break;
-					// We send a request, then we work to get a reply
-					rc = zmq_msg_send (&msg_send, client, 0); 
-					if (rc != (int)sz) {
-						err_message( "Failed to send message to client");
+					if ( client == NULL ) {
+						err_message ("Unable to connect: %s", zmq_strerror(zmq_errno()));
+						retries_left = 0;
 						break;
 					}
+					zmq_setsockopt (client, ZMQ_LINGER, &linger, sizeof (linger));
+					rc = zmq_connect (client, addr_buf);
+					zmq_msg_close (&msg_send); /** @todo is this required? link */
+					zmq_msg_init (&msg_send);
+					if ( rc != 0 ) {
+						err_message ("Unable to connect: %s", zmq_strerror(zmq_errno()));
+						retries_left = 0;
+						break;
+					}
+					
+					// We send a request, then we work to get a reply
+					rc = zmq_msg_init_data (&msg_send, content_buff, sz, NULL, NULL);
+					AISERVER_ASSERT (rc == 0);
+					break;
 				}
-			} // while (expect_reply)
+			} // for(;;)
 		} // while (retries_left && !zctx_interrupted)
 		break;
 	} // for (;;)
@@ -452,6 +479,7 @@ static void inform_index_server (aiserver_data_t *server_data_, AiTownIndex*inpu
 		free (content_buff);
 	if ( client != NULL )
 		zmq_close(client);
+	return err_code;
 }
 
 //! inform the index server about our existance (if one is defined)
@@ -472,7 +500,9 @@ static void inform_index_server_start (aiserver_data_t *server_data_)
 	add_data.address = (char*)server_data_->address;
 	add_data.has_port = 1;
 	add_data.port = server_data_->port;
-	inform_index_server(server_data_, &input_msg);
+	if ( inform_index_server(server_data_, &input_msg) == AISERVER_OK )
+		server_data_->was_registered = 1;
+	
 }
 
 //! inform the index server that we're being closed (if one is defined)
@@ -480,12 +510,13 @@ static void inform_index_server_end (aiserver_data_t *server_data_)
 {
 	// if not required, exit
 	if ( (server_data_->index_server_address == NULL) || 
-	      (server_data_->index_server_port <= 0)) {
+	      (server_data_->index_server_port <= 0) || 
+	      (server_data_->was_registered == 0) ) {
 		return;
 	}
 	
 	AiTownIndex input_msg = AI_TOWN_INDEX__INIT;
-	input_msg.type = AI_TOWN_INDEX_MESSAGE_TYPE__AITMT_INDEX_ADD;
+	input_msg.type = AI_TOWN_INDEX_MESSAGE_TYPE__AITMT_INDEX_REM;
 	input_msg.version = AISERVER_CURRENT_PROTOCOL_VERSION;
 	AiTownIndexRem rem_data = AI_TOWN_INDEX_REM__INIT;
 	input_msg.rem = &rem_data;
@@ -524,13 +555,17 @@ int			main			( int argc, char *argv[] )
 			sprintf( (char*)server_data.name, "%s:%d", 
 			    server_data.address, server_data.port );
 		}
+		log_message ("Running on address %s:%d under name %s", 
+		    server_data.address,
+		    server_data.port,
+		    server_data.name );
 
 		// prepare zmq
 		/** @todo */
 		
 		inform_index_server_start (&server_data);
 		
-		sleep (4);
+		// sleep (4);
 		
 		inform_index_server_end (&server_data);
 		

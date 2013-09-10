@@ -18,8 +18,10 @@ if   (CMAKE_BUILD_TYPE STREQUAL "Debug")
     add_definitions( -DAITOWN_CORE_DEBUG=1 )
 else (CMAKE_BUILD_TYPE STREQUAL "Debug")
     add_definitions( -DAITOWN_CORE_NOT_DEBUG=1 )
-endif (CMAKE_BUILD_TYPE STREQUAL "Debug")
+endif(CMAKE_BUILD_TYPE STREQUAL "Debug")
+if   (UNIX)
 
+endif(UNIX)
 # ============================================================================
 
 

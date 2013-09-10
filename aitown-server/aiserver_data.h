@@ -39,9 +39,13 @@ extern "C" {
 /// one such structure exists in each program
 typedef struct _aiserver_data_t {
 	void *context; // zmq contenxt
+    
+    // where to register
     const char *index_server_address;
     int index_server_port;
+	int was_registered;
     
+    // our info
 	const char *name;
 	const char *address;
 	int port;

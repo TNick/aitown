@@ -90,7 +90,7 @@ void index_data_end (index_data_t *index_data_)
 	itr_crt = sglib_server_data_t_it_init (&itr, index_data_->first);
 	while (itr_crt!=NULL) {
 		itr_next = sglib_server_data_t_it_next (&itr);
-		server_data_delete (&itr_next);
+		server_data_delete (&itr_crt);
 		itr_crt = itr_next;
 	}
 	
@@ -104,7 +104,7 @@ void index_data_add_server (
 
 	// add the item in the list
 	INDEX_ASSERT( sglib_server_data_t_is_member(
-	    index_data_->first, server_data_) != 0 );
+	    index_data_->first, server_data_) == 0 );
 	sglib_server_data_t_add_before(
 	    &index_data_->first, server_data_);
 	index_data_->server_count++;
@@ -116,7 +116,7 @@ void index_data_rem_server (
 
 	// remove the item from the list
 	INDEX_ASSERT( sglib_server_data_t_is_member(
-	    index_data_->first, server_data_) == 0 );
+	    index_data_->first, server_data_) != 0 );
 	sglib_server_data_t_delete(
 	    &index_data_->first, server_data_);
 	index_data_->server_count--;
