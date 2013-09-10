@@ -41,13 +41,13 @@ allpages:
 <table class="btmnav"><tr>
     <td class="btmnav">
         {% if prev_page_here != '' %}
-        <a href="{{prev_page_here}}" class="btmnav_left" rel="prev">previous</a>
+        <a href="{{ site_root }}{{prev_page_here}}" class="btmnav_left" rel="prev">previous</a>
         {% endif %}
     </td>
-    <td class="btmnav"><a href="/index.html">Home</a></td>
+    <td class="btmnav"><a href="{{ site_root }}/index.html">Home</a></td>
     <td class="btmnav">
         {% if next_page_here %}
-        <a href="{{next_page_here}}" class="btmnav_left" rel="next">next</a>
+        <a href="{{ site_root }}{{next_page_here}}" class="btmnav_left" rel="next">next</a>
         {% endif %}
     </td>
 </tr></table>
@@ -57,13 +57,13 @@ allpages:
 <table class="btmnav"><tr>
     <td class="btmnav">
         {% if prev_page_here != '' %}
-        <a href="{{prev_page_here}}" class="btmnav_left" rel="prev">previous</a>
+        <a href="{{ site_root }}/{{prev_page_here}}" class="btmnav_left" rel="prev">previous</a>
         {% endif %}
     </td>
-    <td class="btmnav"><a href="/index.html">Home</a></td>
+    <td class="btmnav"><a href="{{ site_root }}//index.html">Home</a></td>
     <td class="btmnav">
         {% if next_page_here %}
-        <a href="{{next_page_here}}" class="btmnav_left" rel="next">next</a>
+        <a href="{{ site_root }}/{{next_page_here}}" class="btmnav_left" rel="next">next</a>
         {% endif %}
     </td>
 </tr></table>

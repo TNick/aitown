@@ -1,3 +1,4 @@
+{% assign site_root = 'http://tnick.github.io/aitown' %}
 
 <!DOCTYPE html 
       PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" 
@@ -17,13 +18,13 @@
 
 		<link rel="icon" 
 			  type="image/png" 
-			  href="/images/favicon.png" />
+			  href="{{ site_root }}/images/favicon.png" />
 			  
         <!-- syntax highlighting CSS -->
-        <link rel="stylesheet" href="/css/syntax.css">
+        <link rel="stylesheet" href="{{ site_root }}/css/syntax.css">
 
         <!-- Custom CSS -->
-        <link rel="stylesheet" href="/css/main.css">
+        <link rel="stylesheet" href="{{ site_root }}/css/main.css">
 
     </head>
     <body>
@@ -59,7 +60,7 @@
 							</a>
 						</li>
 						<li class="sidebar">
-							<a href="/documentation.html"><div class="lefticon docsbutton">Documentation</div>
+							<a href="{{ site_root }}/documentation.html"><div class="lefticon docsbutton">Documentation</div>
 							</a>
 						</li>
 						<li class="sidebar">
