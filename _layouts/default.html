@@ -1,0 +1,70 @@
+---
+layout: common
+
+allpages:
+  - /index.html
+  - /documentation.html
+  - /reference/index.html
+  - /license.html
+  - /contributors.html
+
+---
+
+{% assign prev_page_here = '' %}
+{% assign next_page_here = '' %}
+{% assign prev_page = '' %}
+{% assign next_page = page.allpages[1] %}
+{% assign counter_str = ' ' %}
+
+{% assign i_prev = -1 %}
+{% assign i = 0 %}
+{% assign i_next = 1 %}
+
+{% for t in page.allpages %}
+
+    {% if t == page.url %}
+        {% assign prev_page_here = prev_page %}
+        {% assign next_page_here = next_page %}
+    {% endif %}
+    
+    {% assign i_prev = i %}
+    {% assign i = i_next %}
+    {% capture temp %}{{ counter_str }}*{% endcapture %}
+    {% assign counter_str = temp %}
+    {% assign i_next = counter_str.size %}
+    
+    {% assign prev_page = page.allpages[i_prev] %}
+				    	{% assign next_page = page.allpages[i_next] %}
+    
+{% endfor %}
+
+<table class="btmnav"><tr>
+    <td class="btmnav">
+        {% if prev_page_here != '' %}
+        <a href="{{prev_page_here}}" class="btmnav_left" rel="prev">previous</a>
+        {% endif %}
+    </td>
+    <td class="btmnav"><a href="/index.html">Home</a></td>
+    <td class="btmnav">
+        {% if next_page_here %}
+        <a href="{{next_page_here}}" class="btmnav_left" rel="next">next</a>
+        {% endif %}
+    </td>
+</tr></table>
+
+{{ content }}
+
+<table class="btmnav"><tr>
+    <td class="btmnav">
+        {% if prev_page_here != '' %}
+        <a href="{{prev_page_here}}" class="btmnav_left" rel="prev">previous</a>
+        {% endif %}
+    </td>
+    <td class="btmnav"><a href="/index.html">Home</a></td>
+    <td class="btmnav">
+        {% if next_page_here %}
+        <a href="{{next_page_here}}" class="btmnav_left" rel="next">next</a>
+        {% endif %}
+    </td>
+</tr></table>
+

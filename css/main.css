@@ -1,0 +1,434 @@
+/*****************************************************************************/
+/*
+/* Common
+/*
+/*****************************************************************************/
+
+/* Global Reset */
+* {
+  margin: 0;
+  padding: 0;
+}
+
+html, body { height: 100%; }
+
+body {
+    width: 900px;
+	position:relative;
+	margin-left:auto;
+	margin-right:auto;
+	background-color:#E0E0E0;
+	font: 13.34px Helvetica, Arial, sans-serif;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    line-height: 1;
+	margin-top:1em;
+}
+
+h1 {
+    font-size: 3em;
+    letter-spacing: -2px;
+    text-align: center;
+}
+
+h1.subtitle {
+    font-size: 1em;
+    letter-spacing: 2px;
+    text-align: center;
+    color: #505050;
+    margin-bottom: 30px;
+}
+
+h2 {
+    font-size: 1.7em;
+    letter-spacing: -1px;
+    margin-bottom: 30px;
+    text-align: center;
+    font-weight: normal;
+    color: black;
+}
+
+p {
+    font-size: 0.9em;
+    line-height: 1.7em;
+    text-indent: 1.5em;
+    text-align: justify;
+}
+
+.inlinecode {
+	font-family:courier, "courier new", monospace;
+}
+
+a:link		{
+	color:green;
+	text-decoration:none;
+}
+
+a:visited	{
+	color:green;
+	text-decoration:none;
+}
+
+a:hover		{
+	color:red;
+}
+
+a:active	{
+	color:yellow;
+}
+
+td.content {
+	vertical-align:text-top;
+}
+
+ul {
+    margin-left: 3em;
+}
+
+td.sidebar		{
+	vertical-align:text-top;
+	width: 150px;
+	padding-left: 0.8em;
+}
+
+ul.sidebar		{
+	list-style-type: none;
+}
+
+li.sidebar 		{
+	align: left;
+	text-align: left;
+	padding-bottom: 8px;
+}
+
+.greenbutton 	{
+	background-image: url('/images/green-button.png');
+	background-repeat:no-repeat;
+	width: 150px;
+	height: 75px;
+	line-height: 75px;
+	vertical-align:middle;
+	text-align: center;
+}
+
+.osimage		{
+	background-repeat:no-repeat;
+	width: 24px;
+	height: 24px;
+	line-height: 24px;
+	vertical-align:middle;
+	text-align: center;
+	display: inline-block;
+}
+
+.windows		{
+	background-image: url('/images/windows.png');
+}
+
+.macos			{
+	background-image: url('/images/mac.png');
+	
+}
+
+.linux			{
+	background-image: url('/images/linux.png');
+}
+
+.lefticon		{
+	background-repeat:no-repeat;
+	height: 32px;
+	line-height: 32px;
+	vertical-align:middle;
+	text-align: center;
+	display: inline-block;
+	text-indent: 36px;
+}
+
+.savebutton		{
+	background-image: url('/images/save.png');
+}
+
+.gitbutton		{
+	background-image: url('/images/git.png');
+}
+
+.docsbutton		{
+	background-image: url('/images/information.png');
+}
+
+.bugbutton		{
+	background-image: url('/images/bug.png');
+}
+
+table.btmnav	{
+    margin-top: 30px;
+    margin-bottom: 30px;
+	width: 100%;
+}
+
+td.btmnav		{
+	vertical-align:middle;
+	text-align: center;
+	width: 33%;
+}
+
+a.btmnav_left	{
+	
+}
+
+a.btmnav_right	{
+	
+}
+
+dt				{
+    margin-left: 5em;
+    margin-bottom: 0.8em;
+    font-size: 0.9em;
+}
+
+dd				{
+    margin-top: 0.2em;
+    margin-left: 1.5em;
+    font-family:courier, "courier new", monospace;
+    font-weight: bold;
+    color: #505050;
+    font-size: 0.9em;
+}
+
+div.codearea	{
+    font-family:courier, "courier new", monospace;
+    border: 1px solid;
+	background-color:#E3F6CE;
+    padding: 0.5em;
+    font-size: 0.9em;
+}
+
+table {
+  font-size: inherit;
+  font: 100%;
+}
+
+
+
+
+
+
+/*****************************************************************************/
+/*
+/* Home
+/*
+/*****************************************************************************/
+ul.posts {
+  list-style-type: none;
+  margin-bottom: 2em;
+}
+
+ul.posts li {
+  line-height: 1.75em;
+}
+
+ul.posts span {
+  color: #aaa;
+  font-family: Monaco, "Courier New", monospace;
+  font-size: 80%;
+}
+
+/*****************************************************************************/
+/*
+/* Site
+/*
+/*****************************************************************************/
+
+.site {
+  font-size: 115%;
+  text-align: justify;
+  width: 42em;
+  margin: 3em auto 2em;
+  line-height: 1.5em;
+}
+
+.site .header a {
+  font-weight: bold;
+  text-decoration: none;
+}
+
+.site .header h1.title {
+  display: inline-block;
+  margin-bottom: 2em;
+}
+
+.site .header h1.title a {
+  color: #a00;
+}
+
+.site .header h1.title a:hover {
+  color: #000;
+}
+
+.site .header a.extra {
+  color: #aaa;
+  margin-left: 1em;
+}
+
+.site .header a.extra:hover {
+  color: #000;
+}
+
+.site .meta {
+  color: #aaa;
+}
+
+.site .footer {
+  font-size: 80%;
+  color: #666;
+  border-top: 4px solid #eee;
+  margin-top: 2em;
+  overflow: hidden;
+}
+
+.site .footer .contact {
+  float: left;
+  margin-right: 3em;
+}
+
+.site .footer .contact a {
+  color: #8085C1;
+}
+
+.site .footer .rss {
+  margin-top: 1.1em;
+  margin-right: -.2em;
+  float: right;
+}
+
+.site .footer .rss img {
+  border: 0;
+}
+
+.contact {
+    line-height: 0.94em;
+}
+
+/*****************************************************************************/
+/*
+/* Posts
+/*
+/*****************************************************************************/
+
+/* standard */
+.post pre {
+  border: 1px solid #ddd;
+  background-color: #eef;
+  padding: 0 .4em;
+}
+
+.post ul, .post ol {
+  margin-left: 1.35em;
+}
+
+.post code {
+  border: 1px solid #ddd;
+  background-color: #eef;
+  padding: 0 .2em;
+}
+
+.post pre code {
+  border: none;
+}
+
+/* terminal */
+.post pre.terminal {
+  border: 1px solid #000;
+  background-color: #333;
+  color: #FFF;
+}
+
+.post pre.terminal code {
+  background-color: #333;
+}
+
+
+/*****************************************************************************/
+/*
+/* Rexscript commands
+/*
+/*****************************************************************************/
+
+div.cmd_entry   {
+  border-bottom: 1px black solid;
+  padding: 0.8em;
+  margin: 0.2em;
+}
+div.cmd_entry_name   {
+  margin-top: 0.5em;
+  font-size: 1.2em;
+  letter-spacing: 0.2em;
+  text-align: center;
+  color: #0F5900;
+}
+div.cmd_entry_short   {
+  font-size: 0.9em;
+  text-align: center;
+  font-style:italic;
+  color: #4F7847;
+}
+div.cmd_entry_pattern   {
+  font-size: 0.7em;
+  text-align: left;
+  text-align: center;
+  font-family: monospace;
+  color: #7E9479;
+  margin-bottom: 0.5em;
+}
+div.cmd_entry_syntax   {
+  font-family: monospace;
+  border: 1px darkgrey solid;
+  background-color:#CFDECC;
+  white-space: pre;
+  font-size: 0.8em;
+  padding: 0.4em;
+  margin-left: 1em;
+}
+div.cmd_entry_arg   {
+  
+}
+div.cmd_entry_descr   {
+  font-size: 0.9em;
+  color: #404040;  
+}
+
+
+/*****************************************************************************/
+/*
+/* Contributors
+/*
+/*****************************************************************************/
+
+.contrib    {
+  margin: 1em;
+  border-collapse: collapse;
+}
+.contrib_entry  {
+  vertical-align:text-top;
+  border-bottom: 1px black solid;
+  border-top: 1px solid black;
+}
+.contrib_user  {
+  font-family: monospace;
+  font-size: 1.2em;
+  line-height: 2em;
+}
+.contrib_roles  {
+}
+td.contrib_e    {
+  padding-left: 0.5em;
+  padding-right: 0.5em;
+  font-size: 0.85em;
+  line-height: 0.95em;
+  border-bottom: 1px black solid;
+  border-top: 1px solid black;
+  padding-top: 0.5em;
+  padding-bottom: 0.5em;
+}
+
