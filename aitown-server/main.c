@@ -97,7 +97,7 @@ void intHandler(int dummy) {
 }
 
 //! parse command line
-static aiserver_error parseCommandLine (
+static aiserver_error parse_command_line (
     aiserver_data_t* server_data_, int argc, char *argv[] )
 {
 	// initialise the table of arguments
@@ -237,7 +237,7 @@ static int handler(void* user_, const char* section_, const char* name_,
 }
 
 //! locate config file and load it
-static aiserver_error loadConfig ( aiserver_data_t* server_data_ )
+static aiserver_error load_config ( aiserver_data_t* server_data_ )
 {
 #define APP_INI_FILE APP_NAME ".ini"
 
@@ -291,6 +291,8 @@ static void inform_index_server (aiserver_data_t *server_data_, AiTownIndex*inpu
 	char *addr_buf = NULL;
 	void *client = NULL;
 	int rc;
+	void *content_buff;
+	zmq_msg_t msg_send;
 	
 	// if not required, exit
 	if ( (server_data_->index_server_address == NULL) || 
@@ -299,20 +301,18 @@ static void inform_index_server (aiserver_data_t *server_data_, AiTownIndex*inpu
 	}
 	
 	for (;;) {
+		// Create a new message, allocating space for message content
+		zmq_msg_init (&msg_send);
+		AISERVER_ASSERT (rc == 0);
 	
 		// serialize in a buffer
-		void *buff;
-		size_t sz = AiTownIndex__pack (input_msg, &buff);
+		size_t sz = AiTownIndex__pack (input_msg, &content_buff);
 		if ( sz == 0 ) {
 			break;
 		}
-		
-		/** @todo does our data vanishes in case of failure? Is buff freed? */
-		
-		// Create a new message, allocating space for message content
-		zmq_msg_t msg;
-		rc = zmq_msg_init_data( &msg, buff, sz, zmq_buffer_free, NULL);
+		rc = zmq_msg_init_data (&msg_send, content_buff, sz, NULL, NULL);
 		AISERVER_ASSERT (rc == 0);
+		
 		
 		// allocate a buffer for full address; tcp://ADDRESS:PORT -> 6+len(a)+36+1
 		int addr_buf_sz = 6+strlen(server_data_->index_server_address)+36+1;
@@ -335,14 +335,14 @@ static void inform_index_server (aiserver_data_t *server_data_, AiTownIndex*inpu
 		while (retries_left && keep_running) {
 		
 			// We send a request, then we work to get a reply
-			rc = zmq_msg_send (&msg, client, 0); 
+			rc = zmq_msg_send (&msg_send, client, 0); 
 			if (rc != (int)sz) {
 				err_message( "Failed to send message to client");
 				break;
 			}
 			
-			int expect_reply = 1;
-			while (expect_reply) {
+			for (;;) {
+			
 				// Poll socket for a reply, with timeout
 				zmq_pollitem_t items [] = { { client, 0, ZMQ_POLLIN, 0 } };
 				rc = zmq_poll (items, 1, AISERVER_SERVER_TIMEOUT * ZMQ_POLL_MSEC);
@@ -356,10 +356,10 @@ static void inform_index_server (aiserver_data_t *server_data_, AiTownIndex*inpu
 				
 				if (items [0].revents & ZMQ_POLLIN) {
 					// get the reply
-					zmq_msg_t part;
-					rc = zmq_msg_init (&part);
+					zmq_msg_t msg_recv;
+					rc = zmq_msg_init (&msg_recv);
 					AISERVER_ASSERT (rc == 0);
-					rc = zmq_msg_recv (&part, client, 0);
+					rc = zmq_msg_recv (&msg_recv, client, 0);
 					if ( rc != 0 ) {
 						rc = zmq_errno();
 						if ( rc == 4 ) {
@@ -373,16 +373,16 @@ static void inform_index_server (aiserver_data_t *server_data_, AiTownIndex*inpu
 					}
 					
 					// We got a reply from the server
-					void *data = zmq_msg_data (&part);
-					size_t data_sz = zmq_msg_size (&part);
+					void *data = zmq_msg_data (&msg_recv);
+					size_t data_sz = zmq_msg_size (&msg_recv);
 					if ( data_sz > 0 ) {
 						AISERVER_ASSERT (data != NULL);
-						/** @todo interpret response */
 						
 						// decode the message
 						AiTownIndexReply * incoming = AiTownIndexReply__unpack (data_sz, data);
 						if ( incoming == NULL ) {
 							err_message( "Error decoding incoming message from index server");
+							zmq_msg_close (&msg_recv);
 							break;
 						}
 						
@@ -390,6 +390,7 @@ static void inform_index_server (aiserver_data_t *server_data_, AiTownIndex*inpu
 						if ( incoming->version != 1 ) {
 							err_message ("Unsupported version");
 							AiTownIndexReply__free_unpacked (incoming);
+							zmq_msg_close (&msg_recv);
 							break;
 						}
 
@@ -406,33 +407,36 @@ static void inform_index_server (aiserver_data_t *server_data_, AiTownIndex*inpu
 						}
 						
 						retries_left = AISERVER_SERVER_TIMEOUT;
-						expect_reply = 0;
+						zmq_msg_close (&msg_recv);
+						break;
 					}
+				
+				// timeout expired and we had no reply
 				} else {
+					
+					// should we give it another chance
 					if (--retries_left == 0) {
 						err_message( "index server seems to be offline, abandoning" );
 						break;
-					} else {
-						/** @todo if our data vanishes then we should make a copy */
-						
-						// Old socket is confused; close it and open a new one
-						err_message( "no response from index server, retrying…" );
-						zmq_close(client);
-						
-						// Send request again, on new socket
-						log_message ("reconnecting to index server…");
-						client = zmq_socket (server_data_->context, ZMQ_REQ);
-						if ( client == NULL )
-							break;
-						rc = zmq_connect (client, addr_buf);
-						if ( rc != 0 )
-							break;
-						// We send a request, then we work to get a reply
-						rc = zmq_msg_send (&msg, client, 0); 
-						if (rc != (int)sz) {
-							err_message( "Failed to send message to client");
-							break;
-						}
+					}
+					
+					// Old socket is confused; close it and open a new one
+					err_message( "no response from index server, retrying…" );
+					zmq_close(client);
+					
+					// Send request again, on new socket
+					log_message ("reconnecting to index server…");
+					client = zmq_socket (server_data_->context, ZMQ_REQ);
+					if ( client == NULL )
+						break;
+					rc = zmq_connect (client, addr_buf);
+					if ( rc != 0 )
+						break;
+					// We send a request, then we work to get a reply
+					rc = zmq_msg_send (&msg_send, client, 0); 
+					if (rc != (int)sz) {
+						err_message( "Failed to send message to client");
+						break;
 					}
 				}
 			} // while (expect_reply)
@@ -441,12 +445,13 @@ static void inform_index_server (aiserver_data_t *server_data_, AiTownIndex*inpu
 	} // for (;;)
 	
 	// free things
+	zmq_msg_close (&msg_send);
 	if ( addr_buf != NULL )
 		free (addr_buf);
+	if ( content_buff != NULL )
+		free (content_buff);
 	if ( client != NULL )
 		zmq_close(client);
-
-	
 }
 
 //! inform the index server about our existance (if one is defined)
@@ -487,6 +492,7 @@ static void inform_index_server_end (aiserver_data_t *server_data_)
 	rem_data.name = (char*)server_data_->name;
 	inform_index_server(server_data_, &input_msg);
 }
+
 /* ------------------------------------------------------------------------- */
 //! application entry point
 int			main			( int argc, char *argv[] )
@@ -504,10 +510,10 @@ int			main			( int argc, char *argv[] )
 			break;
 
 		// get values from configuration file and command line
-		exitcode = loadConfig (&server_data);
+		exitcode = load_config (&server_data);
 		if ( exitcode != AISERVER_OK )
 			break;
-		exitcode = parseCommandLine (&server_data, argc, argv);
+		exitcode = parse_command_line (&server_data, argc, argv);
 		if ( exitcode != AISERVER_OK )
 			break;
 			

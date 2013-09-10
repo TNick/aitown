@@ -72,9 +72,9 @@ void intHandler(int dummy) {
 }
 
 //! parse command line
-static index_error parseCommandLine (
+static index_error parse_command_line (
     index_data_t* index_data_, int argc, char *argv[] )
-{
+{ dbg_message (__func__);
 	// initialise the table of arguments
 	struct arg_lit  *help    = arg_lit0 (NULL,"help",
 	    "print this help and exit");
@@ -87,7 +87,8 @@ static index_error parseCommandLine (
     struct arg_end  *end     = arg_end (20);
     void* argtable[] = {help,version,port,max_serv,end};
     const char* progname = APP_NAME;
-    
+
+	
 	int nerrors;
 	index_error exitcode = INDEX_OK;
 	for (;;) {
@@ -97,14 +98,14 @@ static index_error parseCommandLine (
 			exitcode = INDEX_MEMORY_ERROR;
 			break;
 		}
-		
+
 		// set any command line default values prior to parsing
 		port->ival[0] = 29898;
 		max_serv->ival[0] = 65000;
 		
 		// Parse the command line as defined by argtable[]
 		nerrors = arg_parse (argc,argv,argtable);
-		
+
 		// special case: '--help' takes precedence over error reporting
 		if (help->count > 0) {
 			printf ("Usage: %s", progname);
@@ -113,14 +114,14 @@ static index_error parseCommandLine (
 			arg_print_glossary (stdout,argtable,"  %-25s %s\n");
 			break;
 		}
-		
+
 		// special case: '--version' takes precedence error reporting
 		if (version->count > 0) {
 		/** @todo replace with proper version once the dynamic header is inplace */
 			printf ("'%s' version %s\n", progname, "1.0.0");
 			break;
 		}
-		
+
 		// If the parser returned any errors then display them and exit
 		if (nerrors > 0) {
 			arg_print_errors (stderr,end,progname);
@@ -128,7 +129,7 @@ static index_error parseCommandLine (
 			exitcode = INDEX_GENERIC_ERROR;
 			break;
 		}
-		
+
 		// sanity checking
 		if ( ( port->ival[0] <= 0 ) | ( port->ival[0] > 65535 ) ) {
 			
@@ -142,14 +143,14 @@ static index_error parseCommandLine (
 			exitcode = INDEX_GENERIC_ERROR;
 			break;
 		}
-		
+
 		// copy values to proper place
 		index_data_->port = port->ival[0];
 		index_data_->max_serv = max_serv->ival[0];
 		
 		break;
 	}
-	
+
 	// deallocate each non-null entry in argtable[] and return
     arg_freetable (argtable,sizeof(argtable)/sizeof(argtable[0]));
     return exitcode;
@@ -160,7 +161,8 @@ static int handler(void* user_, const char* section_, const char* name_,
 				   const char* value_)
 {
 	index_data_t* index_data = (index_data_t*)user_;
-	
+	dbg_message ("Config file %s=%s", section_, name_);
+	 
 	if ( strcmp (section_, "general") ) {
 		if ( strcmp (name_, "port") ) {
 			index_data->port = atoi (value_);
@@ -176,8 +178,8 @@ static int handler(void* user_, const char* section_, const char* name_,
 }
 
 //! locate config file and load it
-static index_error loadConfig ( index_data_t* index_data_ )
-{
+static index_error load_config ( index_data_t* index_data_ )
+{ dbg_message (__func__);
 #define APP_INI_FILE APP_NAME ".ini"
 
 	FILE *fp;
@@ -246,8 +248,9 @@ static index_error send_reply (AiTownIndexReply * input_msg, void *server) {
 }
 
 //! send an OK reply to the sender
-static index_error send_ok (void *server) {
-	
+static index_error send_ok (void *server)
+{ dbg_message (__func__);
+
 	// prepare message structure
 	AiTownIndexReply msg = AI_TOWN_INDEX_REPLY__INIT;
 	msg.type = AI_TOWN_INDEX_MESSAGE_TYPE__AITMT_INDEX_OK;
@@ -258,7 +261,8 @@ static index_error send_ok (void *server) {
 }
 
 //! send an error reply to the sender and log to stdout
-static index_error send_error (void *server, const char * message) {
+static index_error send_error (void *server, const char * message)
+{ dbg_message (__func__);
 	
 	// prepare message structure
 	AiTownIndexReply msg = AI_TOWN_INDEX_REPLY__INIT;
@@ -297,7 +301,9 @@ static int foreach_send_list (index_data_t *index_data_,
 }
 
 //! send an error reply to the sender and log to stdout
-static index_error send_list (index_data_t *index_data_, void *server) {
+static index_error send_list (index_data_t *index_data_, void *server)
+{ dbg_message (__func__);
+
 	index_error err_code;
 	int i;
 	
@@ -334,7 +340,8 @@ static index_error send_list (index_data_t *index_data_, void *server) {
 //! process a request message
 static index_error processRequest ( index_data_t *index_data_, 
     void *server, void *data, size_t data_sz)
-{
+{ dbg_message (__func__);
+
 	index_error errcode = INDEX_OK;
 	
 	// decode the message
@@ -433,6 +440,8 @@ int            main            ( int argc, char *argv[] )
 	char buffer[64];
 	signal(SIGINT, intHandler);
 	for (;;) {
+		// let the user know we're running
+		log_message (APP_NAME " started.");
 	
 		// initialize index structure for this program
 		exitcode = index_data_init (&index_data);
@@ -440,28 +449,37 @@ int            main            ( int argc, char *argv[] )
 			break;
 	
 		// get values from configuration file and command line
-		exitcode = loadConfig (&index_data);
+		exitcode = load_config (&index_data);
 		if ( exitcode != INDEX_OK )
 			break;
-		exitcode = parseCommandLine (&index_data, argc, argv);
+		exitcode = parse_command_line (&index_data, argc, argv);
 		if ( exitcode != INDEX_OK )
 			break;
+
 		
+	                                                                            dbg_message ("mark 6");
 		// prepare zmq
 		void *context = zmq_ctx_new ();
 		if ( context == NULL )
 			break;
+	                                                                            dbg_message ("mark 7");
 		void *server = zmq_socket (context, ZMQ_REP);
-		if ( context == NULL )
+		if ( server == NULL )
 			break;
+	                                                                            dbg_message ("mark 8");
 		sprintf (buffer, "tcp://*:%d", index_data.port);
-		if ( zmq_bind (server, buffer) != 0 ) {
+	                                                                            dbg_message ("mark 81");
+		//if ( zmq_bind (server, buffer) != 0 ) {
+		if ( zmq_bind (server, "tcp://*:1235") != 0 ) {
+	                                                                            dbg_message ("mark 82");
 			fprintf (stderr, "Failed to bind to port %d\n", index_data.port);
 			break;
 		}
 		
+	                                                                            dbg_message ("mark 9");
 		// let the user know we're running
 		log_message (APP_NAME " listening to port %d.", index_data.port);
+	                                                                            dbg_message ("mark 10");
 		
 		// wait for requests and process them
 		while ( exitcode == INDEX_OK ) {

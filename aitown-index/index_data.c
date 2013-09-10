@@ -22,6 +22,8 @@
 
 #include "index_data.h"
 #include "string.h"
+#include <aitown/aitown_global.h>
+#include <aitown/utils.h>
 
 /*  INCLUDES    ============================================================ */
 //
@@ -69,7 +71,8 @@ SGLIB_DEFINE_DL_LIST_FUNCTIONS(server_data_t,SERVER_COMPARATOR,previous,next)
 /*  FUNCTIONS    ----------------------------------------------------------- */
 
 index_error index_data_init (index_data_t *index_data_)
-{
+{ dbg_message (__func__);
+	
 	// clear all fields to zero
 	memset (index_data_, 0, sizeof(index_data_t));
 	
@@ -78,7 +81,8 @@ index_error index_data_init (index_data_t *index_data_)
 }
 
 void index_data_end (index_data_t *index_data_)
-{
+{ dbg_message (__func__);
+
 	// delete all server data instances
 	server_data_t *itr_crt;
 	server_data_t *itr_next;
@@ -96,7 +100,8 @@ void index_data_end (index_data_t *index_data_)
 
 void index_data_add_server (
     index_data_t *index_data_, server_data_t *server_data_)
-{
+{ dbg_message (__func__);
+
 	// add the item in the list
 	INDEX_ASSERT( sglib_server_data_t_is_member(
 	    index_data_->first, server_data_) != 0 );
@@ -107,7 +112,8 @@ void index_data_add_server (
 
 void index_data_rem_server (
     index_data_t *index_data_, server_data_t *server_data_)
-{
+{ dbg_message (__func__);
+
 	// remove the item from the list
 	INDEX_ASSERT( sglib_server_data_t_is_member(
 	    index_data_->first, server_data_) == 0 );

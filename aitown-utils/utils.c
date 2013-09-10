@@ -78,8 +78,8 @@ log_message (const char *format, ...)
 {
     time_t curtime = time (NULL);
     struct tm *loctime = localtime (&curtime);
-    char formatted[20];
-    strftime (formatted, 20, "%y-%m-%d %H:%M:%S ", loctime);
+    char formatted[64];
+    strftime (formatted, 64, "%y-%m-%d %H:%M:%S ", loctime);
     printf ("%s", formatted);
 
     va_list argptr;
@@ -104,6 +104,24 @@ err_message (const char *format, ...)
     va_end (argptr);
     fprintf (stderr, "\n");
 }
+
+#ifdef	AITOWN_DEBUG
+void
+dbg_message (const char *format, ...)
+{
+    time_t curtime = time (NULL);
+    struct tm *loctime = localtime (&curtime);
+    char formatted[64];
+    strftime (formatted, 64, "%y-%m-%d %H:%M:%S DEBUG: ", loctime);
+    printf ("%s", formatted);
+
+    va_list argptr;
+    va_start (argptr, format);
+    vprintf (format, argptr);
+    va_end (argptr);
+    printf ("\n");
+}
+#endif // AITOWN_DEBUG
 
 /*  FUNCTIONS    =========================================================== */
 //

@@ -58,8 +58,6 @@ extern "C" {
 #   define randof(num)  (int) ((float) (num) * random () / (RAND_MAX + 1.0))
 #endif
 
-
-
 /*  DEFINITIONS    ========================================================= */
 //
 //
@@ -95,6 +93,19 @@ log_message (const char *format, ...);
 /// from zhelpers.h
 extern void
 err_message (const char *format, ...);
+
+#ifdef	AITOWN_DEBUG
+//!  Print formatted string to stdout, prefixed by date/time and
+//!  terminated with a newline.
+/// from zhelpers.h
+extern void
+dbg_message (const char *format, ...);
+#else
+inline void
+dbg_message (const char *format, ...) {
+	do { (void)(format); } while (0);
+}
+#endif
 
 /*  FUNCTIONS    =========================================================== */
 //
