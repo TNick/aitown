@@ -1,0 +1,53 @@
+// definitions for messages used with aitown
+// protoc-c --c_out=. aitown_messages.proto
+// generates: aitown_messages.pb-c.h and aitown_messages.pb-c.c
+
+option optimize_for = SPEED;
+
+// the types of messages aitown-index knows about
+enum ai_town_index_message_type {
+    AITMT_INDEX_OK=0;
+    AITMT_INDEX_ERROR=1;
+    AITMT_INDEX_ADD=2;
+    AITMT_INDEX_REM=3;
+    AITMT_INDEX_LIST=4;
+}
+
+// ----------------------------------------------------------
+
+// message content: add server
+// client -> server
+message ai_town_index_add {
+    required string name=1;
+    optional string address=2;
+    optional int32 port=3;
+}
+
+// message content: remove server
+// client -> server
+message ai_town_index_rem {
+    required string name=1;
+}
+
+// general form of a message arriving at index server
+// client -> server
+message ai_town_index {
+    required ai_town_index_message_type type=1;
+    required int32 version=2;
+    
+    optional ai_town_index_add add=3;
+    optional ai_town_index_rem rem=4;
+}
+
+// ----------------------------------------------------------
+
+
+// general form of a message arriving at index client
+// server -> client
+message ai_town_index_reply {
+    required ai_town_index_message_type type=1;
+    required int32 version=2;
+    
+    optional string error_message=3;
+    repeated ai_town_index_add list=4;
+}

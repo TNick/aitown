@@ -1,0 +1,50 @@
+# ----------------------------------------------------------------------------
+# prepare
+
+cmake_minimum_required(VERSION 2.8.8)
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
+# ============================================================================
+
+
+
+# ----------------------------------------------------------------------------
+# configure the project
+
+set ( LOC_PRJ_NAME "aitown-client" )
+project( ${LOC_PRJ_NAME} )
+# ============================================================================
+
+
+
+# ----------------------------------------------------------------------------
+# external libraries
+
+# ============================================================================
+
+
+# ----------------------------------------------------------------------------
+# our library
+set ( LIB_SOURCES
+    main.cc
+)
+set ( LIB_HEADERS
+    
+)
+
+add_executable( ${LOC_PRJ_NAME}
+    ${LIB_SOURCES}
+)
+target_link_libraries( ${LOC_PRJ_NAME}
+	"aitown-core"
+)
+
+if (INCLUDE_OUTPUT_PATH)
+    FOREACH (hfile ${LIB_HEADERS})
+        execute_process(
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different "${hfile}" "${INCLUDE_OUTPUT_PATH}/${hfile}"
+            WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+        )
+    ENDFOREACH(hfile)
+endif (INCLUDE_OUTPUT_PATH)
+# ============================================================================
+
