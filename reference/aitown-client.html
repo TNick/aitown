@@ -1,0 +1,68 @@
+---
+layout: default
+title: aitown-client
+---
+
+
+<p>
+	aitown-client is program that ...
+	To invoke it, use following general form:
+	<div class="codearea">
+		aitown-client [options]
+	</div>
+</p>
+
+<h3>Command line options</h3>
+
+<p>
+	
+</p>
+
+<p>
+	List of options:
+	<dl>
+		<dd><a id="arg_help">--help</a></dd>
+		<dt>
+			prints usage information and exists the program; any other 
+			option is ignored;
+		</dt>
+		<dd><a id="arg_version">--version</a></dd>
+		<dt>
+			prints version information and exists the program; any other 
+			option is ignored, except help;
+		</dt>
+		
+	</dl>
+</p>
+
+<h3>Config file</h3>
+
+<p>
+	At load time, before reading command line options, the program 
+	looks for a configuration file named <em>aitown-client.conf</em>
+	in current directory then in an operating system dependednt
+	configuration directory (something like 
+	<em>~/.config/aitown-client.conf</em> in unix,
+	<em>C:\Users\USERNAME\AppData\aitown-client\aitown-client.conf</em>
+	in Windows).
+</p>
+
+<p>
+	The config file consists of [sections] and value=key entries (see
+	the example at the end of the section).
+	<dl>
+		<dd><a id="cfg_general">[general]</a></dd>
+		<dt>
+		</dt>
+		
+	</dl>
+	Example config file:
+	<div class="codearea">
+	[general]<br>
+	</div>
+</p>
+
+<p>
+	For each setting, the command line takes precedence, then
+	the value in config file and then the default value. 
+</p>
