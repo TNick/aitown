@@ -130,8 +130,8 @@ static aiserver_error parse_command_line (
 		}
 		
 		// set any command line default values prior to parsing
-		index_port->ival[0] = 29898;
-		port->ival[0] = 29897;
+		index_port->ival[0] = -1;
+		port->ival[0] = -1;
 		
 		// Parse the command line as defined by argtable[]
 		nerrors = arg_parse (argc,argv,argtable);
@@ -196,8 +196,16 @@ static aiserver_error parse_command_line (
 			server_data_->serv_member = strdup (arg_member->sval[0]);
 		
 		// copy values to proper place
-		server_data_->index_server_port = index_port->ival[0];
-		server_data_->port = port->ival[0];
+		if ( index_port->ival[0] != -1 ) {
+			server_data_->index_server_port = index_port->ival[0];
+		} else if ( server_data_->index_server_port == 0 ) {
+			server_data_->index_server_port = 29898;
+		}
+		if ( port->ival[0] != -1 ) {
+			server_data_->port = port->ival[0];
+		} else if ( server_data_->port == 0 ) {
+			server_data_->port = 29898;
+		}
 		ARG_STR_DEFAULT(index_server_address, index_addr,"localhost");
 		ARG_STR_DEFAULT(address, addr,"localhost");
 		ARG_STR(name, name);
@@ -216,14 +224,8 @@ static int handler(void* user_, const char* section_, const char* name_,
 	aiserver_data_t* server_data = (aiserver_data_t*)user_;
 	
 	if ( strcmp (section_, "general") ) {
-		if ( strcmp (name_, "index_port") ) {
-			server_data->index_server_port = atoi (value_);
-		} else if ( strcmp (name_, "port") ) {
+		if ( strcmp (name_, "port") ) {
 			server_data->port = atoi (value_);
-		} else if ( strcmp (name_, "maximum_number_of_servers") ) {
-			if ( server_data->index_server_address != NULL )
-				free ((void*)server_data->index_server_address);
-			server_data->index_server_address = strdup (value_);
 		} else if ( strcmp (name_, "address") ) {
 			if ( server_data->address != NULL )
 				free ((void*)server_data->address);
@@ -232,6 +234,16 @@ static int handler(void* user_, const char* section_, const char* name_,
 			if ( server_data->name != NULL )
 				free ((void*)server_data->name);
 			server_data->name = strdup (value_);
+		} else {
+			return 0;
+		}
+	} else if ( strcmp (section_, "index") ) {
+		if ( strcmp (name_, "port") ) {
+			server_data->index_server_port = atoi (value_);
+		} else if ( strcmp (name_, "address") ) {
+			if ( server_data->index_server_address != NULL )
+				free ((void*)server_data->index_server_address);
+			server_data->index_server_address = strdup (value_);
 		} else {
 			return 0;
 		}

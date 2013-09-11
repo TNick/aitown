@@ -87,13 +87,13 @@ void get_user_config_file(char *out, unsigned int maxlen, const char *appname)
 	}
 	/* We don't try to create the AppData folder as it always exists already */
 	unsigned int appname_len = strlen(appname);
-	if (strlen(out) + 1 + appname_len + strlen(".ini") + 1 > maxlen) {
+	if (strlen(out) + 1 + appname_len + strlen(".conf") + 1 > maxlen) {
 		out[0] = 0;
 		return;
 	}
 	strcat(out, "\\");
 	strcat(out, appname);
-	strcat(out, ".ini");
+	strcat(out, ".conf");
 #endif
 }
 

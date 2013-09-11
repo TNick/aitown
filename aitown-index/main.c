@@ -100,8 +100,8 @@ static index_error parse_command_line (
 		}
 
 		// set any command line default values prior to parsing
-		port->ival[0] = 29898;
-		max_serv->ival[0] = 65000;
+		port->ival[0] = -1;
+		max_serv->ival[0] = -1;
 		
 		// Parse the command line as defined by argtable[]
 		nerrors = arg_parse (argc,argv,argtable);
@@ -145,8 +145,16 @@ static index_error parse_command_line (
 		}
 
 		// copy values to proper place
-		index_data_->port = port->ival[0];
-		index_data_->max_serv = max_serv->ival[0];
+		if ( port->ival[0] != -1 ) {
+			index_data_->port = port->ival[0];
+		} else if ( index_data_->port == 0 ) {
+			index_data_->port = 29898;
+		}
+		if ( max_serv->ival[0] != -1 ) {
+			index_data_->max_serv = max_serv->ival[0];
+		} else if ( index_data_->max_serv == 0 ) {
+			index_data_->max_serv = 65000;
+		}
 		
 		break;
 	}
@@ -180,7 +188,7 @@ static int handler(void* user_, const char* section_, const char* name_,
 //! locate config file and load it
 static index_error load_config ( index_data_t* index_data_ )
 { dbg_message (__func__);
-#define APP_INI_FILE APP_NAME ".ini"
+#define APP_INI_FILE APP_NAME ".conf"
 
 	FILE *fp;
 	char cfg_file[MAX_PATH*2];
