@@ -1,0 +1,105 @@
+---
+layout: default
+title: aitown-index
+---
+
+
+<p>
+	aitown-index is a command-line utility that is capable of storing 
+	a list of servers. Clients only need to know the address
+	of the index server, querry it for the list of servers that it 
+	knows about and let the user choose one. Each entry in the list
+	consists of a name, an address and a port.
+	To invoke it, use following general form:
+	<div class="codearea">
+		aitown-index [options]
+	</div>
+</p>
+
+<h3>Command line options</h3>
+
+<p>
+	Servers advertise their presence to the index server and are
+	required to inform the index server when they are closed.
+	However, a server being listed in the index does not guarantee to 
+	the client that the server is up and running (ie. there is no
+	"hartbeat" system to allow the index server to determine wether the 
+	server crashed).
+</p>
+
+<p>
+	List of options:
+	<dl>
+		<dd><a id="arg_help">--help</a></dd>
+		<dt>
+			prints usage information and exists the program; any other 
+			option is ignored;
+		</dt>
+		<dd><a id="arg_version">--version</a></dd>
+		<dt>
+			prints version information and exists the program; any other 
+			option is ignored, except help;
+		</dt>
+		<dd><a id="arg_port">-pvalue --port=value</a></dd>
+		<dt>
+			The port used to communicate with servers and clients;
+			<b>value</b> is a positive integer and defaults to 29898;
+		</dt>
+		<dd><a id="arg_max">-mvalue --max=value</a></dd>
+		<dt>
+			Maximum number of servers that it accepts; servers 
+			attempting to add themselves to the index after this 
+			limit are rejected;
+			<b>value</b> is a positive integer and defalts to 65000;
+		</dt>
+	</dl>
+</p>
+
+<h3>Config file</h3>
+
+<p>
+	At load time, before reading command line options, the program 
+	looks for a configuration file named <em>aitown-index.conf</em>
+	in current directory then in an operating system dependednt
+	configuration directory (something like 
+	<em>~/.config/aitown-index.conf</em> in unix,
+	<em>C:\Users\USERNAME\AppData\aitown-index\aitown-index.conf</em>
+	in Windows).
+</p>
+
+<p>
+	The config file consists of [sections] and value=key entries (see
+	the example at the end of the section).
+	<dl>
+		<dd><a id="cfg_general">[general]</a></dd>
+		<dt>
+			<dd><a id="cfg_general_port">port=value</a></dd>
+			<dt>
+				The port used to communicate with servers and clients;
+				<b>value</b> is a positive integer and defaults to 29898;
+			</dt>
+			<dd><a id="cfg_general_max">maximum_number_of_servers=value</a></dd>
+			<dt>
+				Maximum number of servers that it accepts; servers 
+				attempting to add themselves to the index after this 
+				limit are rejected;
+				<b>value</b> is a positive integer and defalts to 65000;
+			</dt>
+		</dt>
+	</dl>
+	Example config file:
+	<div class="codearea">
+	[general]<br>
+	; the port to use for index server<br>
+	port = 29777<br>
+	; reject requests at this watermark<br>
+	maximum_number_of_servers = 100<br>
+	</div>
+</p>
+
+<p>
+	For each setting, the command line takes precedence, then
+	the value in config file and then the default value. Thus, if
+	different ports are indicated by the config file and by the command
+	line, the one on the command line is used.
+</p>
