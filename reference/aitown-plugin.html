@@ -1,0 +1,96 @@
+---
+layout: default
+title: aitown-plugin
+---
+
+<p>
+	aitown-plugin is a library to facilitate working with
+    plug-ins in aitown. Each plug-in designed for this
+    framework consists of two files: a binary file
+    representing a shared (dynamic) library and a 
+    text file describing the plug-in. Both must have 
+    same base name, with the shared library having a 
+    system dependent extension (".dll", ".so", ...) and
+    the description file ending in ".inf".
+    This is the first version (1.0.0) of this implementation
+</p>
+
+<h3>C interface</h3>
+
+<p>
+    The shared library must export two functions:
+    <ul>
+    <li>
+    <code>plugin_data *plugin__initialize (plugin_manager *manager, const char *cfg_file);</code><br>
+    This function is called when the plug-in is loaded.
+    The library must respond either by creating 
+    a plugin_data structure or by
+    returning NULL. The ownership of is plugin_data taken by the
+    manager and is returned with plugin__terminate(). During this 
+    call the plug-in registers the interfaces it exposes.
+    </li>
+    <li>
+    <code>void plugin__terminate (plugin_manager *manager, plugin_data *plugin);</code><br>
+    This function is called before the plug-in is unloaded.
+    The library takes back the ownership of plugin_data. During this 
+    call the plug-in unregisters the interfaces it exposes.
+    </li>
+    </ul>
+</p>
+
+<h3>Description file</h3>
+
+<p>
+	The description file consists of [sections] and value=key entries (see
+	the example at the end of the section).
+	<dl>
+		<dd><a id="cfg_general">[general]</a></dd>
+		<dt>
+            <dd><a id="cfg_general_name">name=text</a> [required]</dd>
+            <dt>
+                the name to be presented to the user.
+            </dt>
+            <dd><a id="cfg_general_descr">description=text</a> [optional]</dd>
+            <dt>
+                a one line description.
+            </dt>
+            <dd><a id="cfg_general_version">version=x.y.z</a> [required]</dd>
+            <dt>
+                the version of the binary; this exact format must be used,
+                with x, y and z being positive integers.
+            </dt>
+            <dd><a id="cfg_general_mng_version">manager=x.y.z</a> [required]</dd>
+            <dt>
+                the minimum version of the manager and the version to which the
+                plug-in conforms; programs exposing an older
+                manager will ignore this plug-in. Currently, there exists only
+                one valid version: "1.0.0".
+            </dt>
+		</dt>
+		<dd><a id="cfg_aitown">[aitown]</a></dd>
+		<dt>
+            <dd><a id="cfg_aitown_server">server=yes|no</a> [optional, default yes]</dd>
+            <dt>
+                the plug-in targets the server
+            </dt>
+            <dd><a id="cfg_aitown_server">client=yes|no</a> [optional, default yes]</dd>
+            <dt>
+                the plug-in targets the client
+            </dt>
+		</dt>
+	</dl>
+    
+	Example description file:
+	<div class="codearea">
+	[general]<br>
+    name = Gorgeous plug-in<br>
+    description = Example plug-in<br>
+    version = 1.0.0<br>
+    manager = 1.0.0<br>
+    <br>
+	[aitown]<br>
+    server = yes<br>
+    client = yes<br>
+	</div>
+</p>
+
