@@ -1,9 +1,9 @@
 /* ========================================================================= */
 /* ------------------------------------------------------------------------- */
 /*!
-  \file            globals.h
-  \date            September 2013
-  \author        TNick
+  \file			plugin_data.c
+  \date			September 2013
+  \author		TNick
   
 *//*
 
@@ -14,18 +14,17 @@
 */
 /* ------------------------------------------------------------------------- */
 /* ========================================================================= */
-#ifndef AITOWN_globals_h_INCLUDE
-#define AITOWN_globals_h_INCLUDE
 //
 //
 //
 //
 /*  INCLUDES    ------------------------------------------------------------ */
 
-#include	<aitown/null.h>
-#include	<aitown/error_codes.h>
-#include	<aitown/dbg_assert.h>
-#include	<aitown/utils_unused.h>
+#include "plugin_data.h"
+#include <aitown/sglib.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdio.h>
 
 /*  INCLUDES    ============================================================ */
 //
@@ -33,23 +32,6 @@
 //
 //
 /*  DEFINITIONS    --------------------------------------------------------- */
-
-#ifdef __cplusplus
-extern "C" {
-#endif 
-
-//! generic exit codes
-typedef func_error index_error;
-
-//! our assert
-#ifdef AITOWN_INDEX_DEBUG
-#  define INDEX_ASSERT(a) assert(a)
-#else
-#  define INDEX_ASSERT(a)
-#endif
-
-#define INDEX_UNUSED(expr) VAR_UNUSED(expr)
-
 
 /*  DEFINITIONS    ========================================================= */
 //
@@ -65,6 +47,7 @@ typedef func_error index_error;
 //
 /*  FUNCTIONS    ----------------------------------------------------------- */
 
+
 /*  FUNCTIONS    =========================================================== */
 //
 //
@@ -72,7 +55,3 @@ typedef func_error index_error;
 //
 /* ------------------------------------------------------------------------- */
 /* ========================================================================= */
-#ifdef __cplusplus
-}
-#endif 
-#endif /* AITOWN_globals_h_INCLUDE */

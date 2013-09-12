@@ -57,10 +57,10 @@ else ( CMAKE_BUILD_TOOL MATCHES "(msdev|devenv|nmake)" )
     add_definitions(-Wall)
 endif()
 if   (CMAKE_BUILD_TYPE STREQUAL "Debug")
-    add_definitions( -DQT_DEBUG=1 -DAITOWN_DEBUG=1 )
+    add_definitions( -DQT_DEBUG=1 -DAITOWN_DEBUG=1 -D_DEBUG=1 )
     set ( DebugLogEnabled true )
 else (CMAKE_BUILD_TYPE STREQUAL "Debug")
-    add_definitions( -DQT_NO_DEBUG=1 -DAITOWN_NO_DEBUG=1 )
+    add_definitions( -DQT_NO_DEBUG=1 -DAITOWN_NO_DEBUG=1 -D_NDEBUG=1 )
     set ( DebugLogEnabled false )
 endif (CMAKE_BUILD_TYPE STREQUAL "Debug")
 set ( CMAKE_DEBUG_POSTFIX  "_debug")
@@ -98,6 +98,7 @@ set ( modules
     "cfgpath"
 	"aitown-utils"
 	"aitown-core"
+	"aitown-plugin"
 	"aitown-client"
 	"aitown-server"
 	"aitown-index"

@@ -3,13 +3,6 @@
 
 cmake_minimum_required(VERSION 2.8.8)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
-
-add_definitions( -DAITOWN_SHARED=1 )
-if   (CMAKE_BUILD_TYPE STREQUAL "Debug")
-    add_definitions( -DAITOWN_UTILS_DEBUG=1 )
-else (CMAKE_BUILD_TYPE STREQUAL "Debug")
-    add_definitions( -DAITOWN_UTILS_NOT_DEBUG=1 )
-endif (CMAKE_BUILD_TYPE STREQUAL "Debug")
 # ============================================================================
 
 
@@ -17,7 +10,7 @@ endif (CMAKE_BUILD_TYPE STREQUAL "Debug")
 # ----------------------------------------------------------------------------
 # configure the project
 
-set ( LOC_PRJ_NAME "aitown-utils" )
+set ( LOC_PRJ_NAME "aitown-plugin" )
 project( ${LOC_PRJ_NAME} )
 # ============================================================================
 
@@ -32,23 +25,22 @@ project( ${LOC_PRJ_NAME} )
 # ----------------------------------------------------------------------------
 # our library
 set ( LIB_SOURCES
-    utils.c
-    accumulator.c
-    linked_list_str.c
+    plugin_data.c
+    plugin_manager.c
+    plugin_sign.c
 )
 set ( LIB_HEADERS
-    accumulator.h
-    dbg_assert.h
-    error_codes.h
-    pointer_aritmetic.h
-    utils.h
-    utils_null.h
-    utils_unused.h
-    linked_list_str.h
+    aitown-plugin.h
+    plugin_data.h
+    plugin_manager.h
+    plugin_sign.h
 )
 
-add_library( ${LOC_PRJ_NAME} SHARED
+add_library( ${LOC_PRJ_NAME}
     ${LIB_SOURCES}
+)
+target_link_libraries( ${LOC_PRJ_NAME}
+    
 )
 
 if (INCLUDE_OUTPUT_PATH)

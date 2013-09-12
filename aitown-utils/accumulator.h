@@ -1,10 +1,10 @@
 /* ========================================================================= */
 /* ------------------------------------------------------------------------- */
 /*!
-  \file            globals.h
-  \date            September 2013
-  \author        TNick
-  
+  \file			accumulator.h
+  \date			September 2013
+  \author		TNick
+    
 *//*
 
 
@@ -14,18 +14,20 @@
 */
 /* ------------------------------------------------------------------------- */
 /* ========================================================================= */
-#ifndef AITOWN_globals_h_INCLUDE
-#define AITOWN_globals_h_INCLUDE
+#ifndef AITOWN_accumulator_h_INCLUDE
+#define AITOWN_accumulator_h_INCLUDE
 //
 //
 //
 //
 /*  INCLUDES    ------------------------------------------------------------ */
 
-#include	<aitown/null.h>
-#include	<aitown/error_codes.h>
-#include	<aitown/dbg_assert.h>
-#include	<aitown/utils_unused.h>
+#include <aitown/aitown_global.h>
+#include <stddef.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /*  INCLUDES    ============================================================ */
 //
@@ -34,22 +36,19 @@
 //
 /*  DEFINITIONS    --------------------------------------------------------- */
 
-#ifdef __cplusplus
-extern "C" {
-#endif 
+//! header structure for an accumulator
+/// instead of using pointers, one should use offsets with this structure
+typedef struct _accumulator_t {
+	void *		data;
+	size_t		allocated;
+	size_t		used;
+	size_t		step;
+} accumulator_t;
 
-//! generic exit codes
-typedef func_error index_error;
-
-//! our assert
-#ifdef AITOWN_INDEX_DEBUG
-#  define INDEX_ASSERT(a) assert(a)
-#else
-#  define INDEX_ASSERT(a)
+#ifndef OFFSET_TYPE_DEFINED
+typedef size_t offset_t;
+#define OFFSET_TYPE_DEFINED 1
 #endif
-
-#define INDEX_UNUSED(expr) VAR_UNUSED(expr)
-
 
 /*  DEFINITIONS    ========================================================= */
 //
@@ -65,6 +64,24 @@ typedef func_error index_error;
 //
 /*  FUNCTIONS    ----------------------------------------------------------- */
 
+//! initialize the manager
+AITOWN_EXPORT void
+accumulator_init (accumulator_t* accum, size_t init_size);
+
+//! terminate the manager
+AITOWN_EXPORT void
+accumulator_end (accumulator_t* accum);
+
+//! allocate a chunk in the accumulator
+AITOWN_EXPORT void *
+accumulator_alloc (accumulator_t* accum, size_t sz );
+
+//! add a string in the accumulator
+/// if the size is 0 the lenght is computed
+AITOWN_EXPORT char *
+accumulator_add_string (accumulator_t* accum, const char * src, size_t sz );
+
+
 /*  FUNCTIONS    =========================================================== */
 //
 //
@@ -74,5 +91,5 @@ typedef func_error index_error;
 /* ========================================================================= */
 #ifdef __cplusplus
 }
-#endif 
-#endif /* AITOWN_globals_h_INCLUDE */
+#endif
+#endif // AITOWN_accumulator_h_INCLUDE

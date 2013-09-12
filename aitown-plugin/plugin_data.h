@@ -1,9 +1,9 @@
 /* ========================================================================= */
 /* ------------------------------------------------------------------------- */
 /*!
-  \file            globals.h
-  \date            September 2013
-  \author        TNick
+  \file			plugin_data.h
+  \date			September 2013
+  \author		TNick
   
 *//*
 
@@ -14,18 +14,19 @@
 */
 /* ------------------------------------------------------------------------- */
 /* ========================================================================= */
-#ifndef AITOWN_globals_h_INCLUDE
-#define AITOWN_globals_h_INCLUDE
+#ifndef AITOWN_plugin_data_h_INCLUDE
+#define AITOWN_plugin_data_h_INCLUDE
 //
 //
 //
 //
 /*  INCLUDES    ------------------------------------------------------------ */
 
-#include	<aitown/null.h>
-#include	<aitown/error_codes.h>
-#include	<aitown/dbg_assert.h>
-#include	<aitown/utils_unused.h>
+#include <aitown/accumulator.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif 
 
 /*  INCLUDES    ============================================================ */
 //
@@ -34,22 +35,12 @@
 //
 /*  DEFINITIONS    --------------------------------------------------------- */
 
-#ifdef __cplusplus
-extern "C" {
-#endif 
+//! describes a server that we know about
+typedef struct _plugin_data_t {
+     offset_t name;	/**< name of this one */
 
-//! generic exit codes
-typedef func_error index_error;
-
-//! our assert
-#ifdef AITOWN_INDEX_DEBUG
-#  define INDEX_ASSERT(a) assert(a)
-#else
-#  define INDEX_ASSERT(a)
-#endif
-
-#define INDEX_UNUSED(expr) VAR_UNUSED(expr)
-
+     struct _plugin_data_t *previous, *next;
+} plugin_data_t;
 
 /*  DEFINITIONS    ========================================================= */
 //
@@ -75,4 +66,4 @@ typedef func_error index_error;
 #ifdef __cplusplus
 }
 #endif 
-#endif /* AITOWN_globals_h_INCLUDE */
+#endif /* AITOWN_plugin_data_h_INCLUDE */
