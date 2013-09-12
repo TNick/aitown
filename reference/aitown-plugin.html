@@ -125,3 +125,23 @@ title: aitown-plugin
 	</div>
 </p>
 
+<h3>Plug-in search path</h3>
+
+<p>
+    When a plug-in is requested for loading and no path is given
+    (not even a relative path), then that plug-in is searched in
+    following directories:
+    <ol>
+    <li>$PROGPATH/plugins</li>
+    <li>$HOME/.aitown/plugins</li>
+    <li>$UNIXROOT/usr/lib/aitown/plugins</li>
+    <li>/usr/lib/aitown/plugins</li>
+    <li>$UNIXROOT/lib/aitown/plugins</li>
+    <li>/lib/aitown/plugins</li>
+    </ol>
+    The directories are searched in this exact order.
+    $HOME is the user's home directory; $PROGPATH is the 
+    path from where the prgram was started; $UNIXROOT is an
+    environment variable indicating a base path for a UNIX
+    like directory structure.
+</p>
