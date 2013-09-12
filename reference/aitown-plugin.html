@@ -9,10 +9,18 @@ title: aitown-plugin
     framework consists of two files: a binary file
     representing a shared (dynamic) library and a 
     text file describing the plug-in. Both must have 
-    same base name, with the shared library having a 
+    same base name (used as a short name for plug-in; other
+    plug-ins will use this name to identify the plugin),
+    with the shared library having a 
     system dependent extension (".dll", ".so", ...) and
     the description file ending in ".inf".
     This is the first version (1.0.0) of this implementation
+</p>
+
+<p>
+    As the file name is used to identify the plug-in, it should
+    only consist of lowercase letters, digits and 
+    characters "_" and "-".
 </p>
 
 <h3>C interface</h3>
@@ -21,7 +29,12 @@ title: aitown-plugin
     The shared library must export two functions:
     <ul>
     <li>
-    <code>plugin_data *plugin__initialize (plugin_manager *manager, const char *cfg_file);</code><br>
+	<div class="codearea">
+        plugin_data *plugin__initialize (<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;plugin_manager *manager,<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;const char *cfg_file<br>
+        );
+    </div>
     This function is called when the plug-in is loaded.
     The library must respond either by creating 
     a plugin_data structure or by
@@ -30,7 +43,12 @@ title: aitown-plugin
     call the plug-in registers the interfaces it exposes.
     </li>
     <li>
-    <code>void plugin__terminate (plugin_manager *manager, plugin_data *plugin);</code><br>
+	<div class="codearea">
+        void plugin__terminate (<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;plugin_manager *manager,<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;plugin_data *plugin<br>
+        );
+    </div>
     This function is called before the plug-in is unloaded.
     The library takes back the ownership of plugin_data. During this 
     call the plug-in unregisters the interfaces it exposes.
@@ -42,9 +60,14 @@ title: aitown-plugin
 
 <p>
 	The description file consists of [sections] and value=key entries (see
-	the example at the end of the section).
+	the example at the end of the section). In the list below 
+    <b>required</b>, as opposed to <b>optional</b>,
+    identifies an option that, if not found, will
+    prevent the plug-in from being loaded, and <b>multiple</b>
+    indicates an option that, when used multiple times, adds to previos 
+    content instead of overwriting it.
 	<dl>
-		<dd><a id="cfg_general">[general]</a></dd>
+		<dd><hr><a id="cfg_general">[general] section</a></dd>
 		<dt>
             <dd><a id="cfg_general_name">name=text</a> [required]</dd>
             <dt>
@@ -61,21 +84,28 @@ title: aitown-plugin
             </dt>
             <dd><a id="cfg_general_mng_version">manager=x.y.z</a> [required]</dd>
             <dt>
-                the minimum version of the manager and the version to which the
+                the minimum version of the manager 
+                and the version to which the
                 plug-in conforms; programs exposing an older
-                manager will ignore this plug-in. Currently, there exists only
+                manager will ignore this plug-in. Currently, 
+                there exists only
                 one valid version: "1.0.0".
             </dt>
+            <dd><a id="cfg_general_depends">dependencies=a:x.y.z,b,c</a> [optional, multiple]</dd>
+            <dt>
+                The plug-ins that should be loaded before 
+                this plug-in is loaded. 
+            </dt>
 		</dt>
-		<dd><a id="cfg_aitown">[aitown]</a></dd>
+		<dd><hr><a id="cfg_aitown">[aitown] section</a></dd>
 		<dt>
             <dd><a id="cfg_aitown_server">server=yes|no</a> [optional, default yes]</dd>
             <dt>
-                the plug-in targets the server
+                the plug-in targets the server.
             </dt>
             <dd><a id="cfg_aitown_server">client=yes|no</a> [optional, default yes]</dd>
             <dt>
-                the plug-in targets the client
+                the plug-in targets the client.
             </dt>
 		</dt>
 	</dl>
@@ -84,9 +114,10 @@ title: aitown-plugin
 	<div class="codearea">
 	[general]<br>
     name = Gorgeous plug-in<br>
-    description = Example plug-in<br>
+    description = Example plug-in that does nothing, really<br>
     version = 1.0.0<br>
     manager = 1.0.0<br>
+    dependencies = badabum:1.0.0, big-badabum:2.0
     <br>
 	[aitown]<br>
     server = yes<br>
