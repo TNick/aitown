@@ -1,7 +1,7 @@
 /* ========================================================================= */
 /* ------------------------------------------------------------------------- */
 /*!
-  \file			error_codes.h
+  \file			dir_iterator.h
   \date			September 2013
   \author		TNick
     
@@ -14,13 +14,16 @@
 */
 /* ------------------------------------------------------------------------- */
 /* ========================================================================= */
-#ifndef utils_error_codes_h_INCLUDE
-#define utils_error_codes_h_INCLUDE
+#ifndef AITOWN_dir_iterator_h_INCLUDE
+#define AITOWN_dir_iterator_h_INCLUDE
 //
 //
 //
 //
 /*  INCLUDES    ------------------------------------------------------------ */
+
+#include <aitown/aitown_global.h>
+#include <stddef.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -32,13 +35,6 @@ extern "C" {
 //
 //
 /*  DEFINITIONS    --------------------------------------------------------- */
-
-//! generic exit codes
-typedef enum {
-	FUNC_OK = 0,
-	FUNC_GENERIC_ERROR,
-	FUNC_MEMORY_ERROR
-} func_error;
 
 /*  DEFINITIONS    ========================================================= */
 //
@@ -54,6 +50,35 @@ typedef enum {
 //
 /*  FUNCTIONS    ----------------------------------------------------------- */
 
+//! type filter flags
+typedef enum {
+	DIR_ITERATOR_FILES_AND_DIRECTORIES = 0,
+	DIR_ITERATOR_EXCLUDE_DIRECTORIES = 0x0001,   /**< no dirs reach the callback */
+	DIR_ITERATOR_EXCLUDE_FILES = 0x0002,   /**< no files reach the callback */
+	DIR_ITERATOR_ALL_DIRECTORIES = 0x0001, /**< don't use the pattern for directories, dump all to the callback */
+	DIR_ITERATOR_ALL_FILES = 0x0002,       /**< don't use the pattern for files, dump all to the callback */
+	
+	DIR_ITERATOR_RECURSIVE = 0x0004
+} dir_iterator_flags_t;
+
+//! the callback type used with dir_iterator
+/// @return 0 to continue or an error code to be returned by dir_iterator
+typedef int (*dir_iterator_foreach_t) (
+	const char * path_, 
+	const char * name_,
+	void * user_data_);
+
+//! iterate in files and folders
+/// @return 0 for success or the error code returned by callback
+AITOWN_EXPORT int
+dir_iterator (
+	const char * path_, 
+	const char * name_filter_,
+	dir_iterator_flags_t flags_,
+	dir_iterator_foreach_t kb_, 
+	void * user_data_);
+
+
 /*  FUNCTIONS    =========================================================== */
 //
 //
@@ -64,4 +89,4 @@ typedef enum {
 #ifdef __cplusplus
 }
 #endif
-#endif // utils_error_codes_h_INCLUDE
+#endif // AITOWN_dir_iterator_h_INCLUDE

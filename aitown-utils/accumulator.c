@@ -80,7 +80,7 @@ void * accumulator_alloc (accumulator_t* accum, size_t sz )
 	
 	// round to next word
 	if ( ( sizeof(void*) == 4 ) || ( sizeof(void*) == 8 ) ) {
-		sz = sz + (sizeof(void*) - sz % sizeof(void*) );
+		sz = sz + (sizeof(void*) - sz % sizeof(void*));
 	}
 	
 	// default to this size if nothing else was provided

@@ -113,7 +113,7 @@ void linked_list_str_new (linked_list_str_t **out, char *src, size_t sz)
 		sz = strlen (src);
 	}
 	size_t sz_tot = sizeof(linked_list_str_t) + sz + 1;
-	sz_tot = sz_tot + (sz_tot - (sz_tot % sizeof(void*)) );
+	sz_tot = sz_tot + (sizeof(void*) - (sz_tot % sizeof(void*)) );
 	
 	// allocate a chunk large enough
 	ret_val = (linked_list_str_t*)malloc (sz_tot);

@@ -35,6 +35,7 @@ set ( LIB_SOURCES
     utils.c
     accumulator.c
     linked_list_str.c
+    dir_iterator.c
 )
 set ( LIB_HEADERS
     accumulator.h
@@ -45,6 +46,7 @@ set ( LIB_HEADERS
     utils_null.h
     utils_unused.h
     linked_list_str.h
+    dir_iterator.h
 )
 
 add_library( ${LOC_PRJ_NAME} SHARED
