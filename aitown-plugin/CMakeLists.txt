@@ -40,7 +40,7 @@ add_library( ${LOC_PRJ_NAME}
     ${LIB_SOURCES}
 )
 target_link_libraries( ${LOC_PRJ_NAME}
-    
+    "inih"
 )
 
 if (INCLUDE_OUTPUT_PATH)

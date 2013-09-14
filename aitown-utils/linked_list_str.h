@@ -62,15 +62,15 @@ inline char * linked_list_string (linked_list_str_t *entry)
 
 //! create a new entry with provided content and append it as last entry
 AITOWN_EXPORT linked_list_str_t*
-linked_list_str_append (linked_list_str_t **first, char *src, size_t sz);
+linked_list_str_append (linked_list_str_t **first, const char *src, size_t sz);
 
 //! create a new entry with provided content and make it first entry
 AITOWN_EXPORT linked_list_str_t*
-linked_list_str_prepend (linked_list_str_t **first, char *src, size_t sz);
+linked_list_str_prepend (linked_list_str_t **first, const char *src, size_t sz);
 
 //! create a new entry with provided content
 AITOWN_EXPORT void
-linked_list_str_new (linked_list_str_t **out, char *src, size_t sz);
+linked_list_str_new (linked_list_str_t **out, const char *src, size_t sz);
 
 //! remove the entry from the chain and free the memory for this entry
 AITOWN_EXPORT void

@@ -67,11 +67,11 @@ typedef struct _plugin_manager_t {
 /*  FUNCTIONS    ----------------------------------------------------------- */
 
 //! initialize the manager
-AITOWN_EXPORT func_error
+AITOWN_EXPORT func_error_t
 plugin_manager_init (plugin_manager_t** plugin_manager_);
 
 //! terminate the manager
-AITOWN_EXPORT func_error
+AITOWN_EXPORT func_error_t
 plugin_manager_end (plugin_manager_t** plugin_manager_);
 
 

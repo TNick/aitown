@@ -22,7 +22,7 @@
 //
 /*  INCLUDES    ------------------------------------------------------------ */
 
-#include	<aitown/null.h>
+#include	<aitown/utils_null.h>
 #include	<aitown/error_codes.h>
 #include	<aitown/dbg_assert.h>
 #include	<aitown/utils_unused.h>
@@ -39,7 +39,7 @@ extern "C" {
 #endif 
 
 //! generic exit codes
-typedef func_error index_error;
+typedef func_error_t index_error;
 
 //! our assert
 #ifdef AITOWN_INDEX_DEBUG

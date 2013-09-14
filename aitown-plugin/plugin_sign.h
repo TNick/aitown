@@ -22,6 +22,10 @@
 //
 /*  INCLUDES    ------------------------------------------------------------ */
 
+#include <aitown/error_codes.h>
+#include <stddef.h>
+#include <aitown/utils_version.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif 
@@ -33,10 +37,27 @@ extern "C" {
 //
 /*  DEFINITIONS    --------------------------------------------------------- */
 
-//! describes a server that we know about
+//! plug-in signature flags
+typedef enum {
+	PLUGIN_SIGN_FAIL_TO_LOAD = 0x0001,
+	PLUGIN_SIGN_FOR_SERVER = 0x0002,
+	PLUGIN_SIGN_FOR_CLIENT= 0x0004
+	
+} plugin_sign_flags_t;
+
+//! describes a plugin signature
 typedef struct _plugin_sign_t {
-     
-     struct _plugin_sign_t *previous, *next;
+	const char * path_lib;
+	const char * plugin_name;
+	
+	const char * pretty_name;
+	const char * description;
+	version_t my_ver;
+	version_t mng_ver;
+	
+	plugin_sign_flags_t flags;
+	// forward/backward
+	struct _plugin_sign_t *previous, *next;
 } plugin_sign_t;
 
 /*  DEFINITIONS    ========================================================= */
@@ -52,6 +73,11 @@ typedef struct _plugin_sign_t {
 //
 //
 /*  FUNCTIONS    ----------------------------------------------------------- */
+
+//! initialize the structure
+func_error_t
+plugin_sign_init (plugin_sign_t *plugin_sign_);
+
 
 /*  FUNCTIONS    =========================================================== */
 //

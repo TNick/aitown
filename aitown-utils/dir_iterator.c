@@ -26,6 +26,8 @@
 #include <string.h>
 #include <aitown/error_codes.h>
 #include <aitown/dbg_assert.h>
+#include <aitown/pointer_aritmetic.h>
+#include <aitown/char_buff.h>
 
 #ifdef AITOWN_WIN32
 #	define WIN32_LEAN_AND_MEAN
@@ -65,9 +67,7 @@ typedef struct {
 	dir_iterator_foreach_t kb;
 	void *user_data;
 	
-	char *path_buffer;
-	size_t allocated_buffer;
-	size_t used_buffer;
+	char_buff_t chb;
 	
 	char path_separator;
 } find_struct_t;
@@ -85,30 +85,30 @@ typedef struct {
 //
 //
 /*  FUNCTIONS    ----------------------------------------------------------- */
-
+/*
 static int append_to_buffer ( find_struct_t* fs_, const char * p) {
 	size_t len = strlen (p);
 	char * tmp_buf;
-	size_t new_used = fs_->used_buffer + len;
+	size_t new_used = fs_->chb.used + len;
 	
 	// enlarge the buffer if required
 	if ( new_used+8 >= fs_->allocated_buffer ) {
-		size_t new_alloc = new_used + 128 + (sizeof(void*) - (new_used % sizeof(void*)));
-		tmp_buf = (char*)realloc(fs_->path_buffer, new_alloc);
+		size_t new_alloc = new_used + 128 + ROUND_TO_PTR(new_used);
+		tmp_buf = (char*)realloc(fs_->chb.data, new_alloc);
 		if ( tmp_buf == NULL )
 			return FUNC_MEMORY_ERROR;
-		fs_->path_buffer = tmp_buf;
+		fs_->chb.data = tmp_buf;
 		fs_->allocated_buffer = new_alloc;
 	}
 	
 	// append the string
-	char * dest_buf = fs_->path_buffer + fs_->used_buffer;
+	char * dest_buf = fs_->chb.data + fs_->chb.used;
 	memcpy (dest_buf, p, len);
 	dest_buf[len] = 0;
-	fs_->used_buffer = new_used;
+	fs_->chb.used = new_used;
 	
 	return FUNC_OK;
-}
+}*/
 
 #ifdef AITOWN_WIN32
 
@@ -160,29 +160,31 @@ int dir_iterator_win (find_struct_t* fs_)
 	WIN32_FIND_DATA find_data;
 
 	// we want to return the buffer in same state as we've got it
-	char *end_of_dir = fs_->path_buffer + fs_->used_buffer;
-	size_t used_data = fs_->used_buffer;
-	*end_of_dir = fs_->path_separator; end_of_dir++; fs_->used_buffer++;
-	*end_of_dir = 0;
+	size_t used_data = fs_->chb.used;
+	{ // don't use end_of_dir below, the buffer may be rellocated
+		char *end_of_dir = fs_->chb.data + used_data;
+		*end_of_dir = fs_->path_separator; end_of_dir++; fs_->chb.used++;
+		*end_of_dir = 0;
+	}
 	
 	// first, dig the childs
 	if ( (fs_->flags & DIR_ITERATOR_RECURSIVE) ) {
 		
 		// copy the pattern at the end by trick it so that it gets overwritten
 		if ( (fs_->flags & DIR_ITERATOR_ALL_DIRECTORIES) == 0 ) {
-			size_t used_data_pattern = fs_->used_buffer;
-			err_code = append_to_buffer (fs_, fs_->name_filter);
+			size_t used_data_pattern = fs_->chb.used;
+			err_code = char_buff_add(&fs_->chb, fs_->name_filter);
 			if ( err_code != FUNC_OK ) {
 				return err_code;
 			}
-			fs_->used_buffer = used_data_pattern;
+			fs_->chb.used = used_data_pattern;
 		} else {
-			fs_->path_buffer[fs_->used_buffer] = '*';
-			fs_->path_buffer[fs_->used_buffer+1] = 0;
+			fs_->chb.data[fs_->chb.used] = '*';
+			fs_->chb.data[fs_->chb.used+1] = 0;
 		}
 		
 		// start the search
-		h_find = FindFirstFileEx(fs_->path_buffer, FindExInfoStandard, &find_data,
+		h_find = FindFirstFileEx(fs_->chb.data, FindExInfoStandard, &find_data,
              FindExSearchLimitToDirectories, NULL, 0);
         if ( h_find == INVALID_HANDLE_VALUE ) {
 			return 0;
@@ -191,14 +193,18 @@ int dir_iterator_win (find_struct_t* fs_)
         // for each directory
         do { if ( is_entry_directory (&find_data) ) {
 			// append the name of the directory
-			err_code = append_to_buffer (fs_, find_data.cFileName);
+			err_code = char_buff_add(&fs_->chb, find_data.cFileName);
 			if ( err_code != FUNC_OK ) {
 				break;
 			}
 			
 			// inform the callback
 			if ( (fs_->flags & DIR_ITERATOR_EXCLUDE_DIRECTORIES) == 0 ) {
-				err_code = fs_->kb (fs_->path_buffer, end_of_dir, fs_->user_data);
+				err_code = fs_->kb (
+				    fs_->chb.data, 
+				    fs_->chb.data+used_data+1, 
+				    fs_->user_data,
+				    0);
 				if ( err_code != FUNC_OK ) {
 					break;
 				}
@@ -223,19 +229,19 @@ int dir_iterator_win (find_struct_t* fs_)
 		
 		// copy the pattern at the end by trick it so that it gets overwritten
 		if ( (fs_->flags & DIR_ITERATOR_ALL_FILES) == 0 ) {
-			size_t used_data_pattern = fs_->used_buffer;
-			err_code = append_to_buffer (fs_, fs_->name_filter);
+			size_t used_data_pattern = fs_->chb.used;
+			err_code = char_buff_add(&fs_->chb, fs_->name_filter);
 			if ( err_code != FUNC_OK ) {
 				return err_code;
 			}
-			fs_->used_buffer = used_data_pattern;
+			fs_->chb.used = used_data_pattern;
 		} else {
-			fs_->path_buffer[fs_->used_buffer] = '*';
-			fs_->path_buffer[fs_->used_buffer+1] = 0;
+			fs_->chb.data[fs_->chb.used] = '*';
+			fs_->chb.data[fs_->chb.used+1] = 0;
 		}
 		
 		// start the search
-		h_find = FindFirstFileEx(fs_->path_buffer, FindExInfoStandard, &find_data,
+		h_find = FindFirstFileEx(fs_->chb.data, FindExInfoStandard, &find_data,
              FindExSearchNameMatch, NULL, 0);
         if ( h_find == INVALID_HANDLE_VALUE ) {
 			return 0;
@@ -244,13 +250,17 @@ int dir_iterator_win (find_struct_t* fs_)
         // for each file
         do { if ( is_entry_file (&find_data) ) {
 			// append the name of the file
-			err_code = append_to_buffer (fs_, find_data.cFileName);
+			err_code = char_buff_add(&fs_->chb, find_data.cFileName);
 			if ( err_code != FUNC_OK ) {
 				break;
 			}
 			
 			// inform the callback
-			err_code = fs_->kb (fs_->path_buffer, end_of_dir, fs_->user_data);
+			err_code = fs_->kb (
+			    fs_->chb.data, 
+				fs_->chb.data+used_data+1, 
+				fs_->user_data,
+				1);
 			if ( err_code != FUNC_OK ) {
 				break;
 			}
@@ -265,8 +275,8 @@ int dir_iterator_win (find_struct_t* fs_)
 	}
 	
 	// restore the buffer to its former glorry
-	fs_->used_buffer = used_data;
-	fs_->path_buffer[used_data] = 0;
+	fs_->chb.used = used_data;
+	fs_->chb.data[used_data] = 0;
 	
 	return FUNC_OK;
 }
@@ -275,59 +285,77 @@ int dir_iterator_win (find_struct_t* fs_)
 static inline int is_dot_dot (struct dirent *dent) {
 	for (;;) {
 		if ( dent->d_name[0] == '.' ) {
-			if ( dent->d_name[0] == 0 ) {
+			if ( dent->d_name[1] == 0 ) {
 				break;
 			} else if ( dent->d_name[1] == '.' ) {
 				if ( dent->d_name[2] == 0 )
 					break;
 			}
 		}
-		return 1;
+		return 0;
 	}
-	return 0;
+	return 1;
 }
 
 int dir_iterator_unix (find_struct_t* fs_)
 {
 	DIR *dir;
-	struct dirent *e;
+	struct dirent *dent;
+	struct stat st;
+	size_t preserve_used;
+	const char * file_name;
+	int err_code = FUNC_OK;
 	
 	// we want to return the buffer in same state as we've got it
-	char *end_of_dir = fs_->path_buffer + fs_->used_buffer;
-	size_t used_data = fs_->used_buffer;
-	*end_of_dir = fs_->path_separator; end_of_dir++; fs_->used_buffer++;
-	*end_of_dir = 0;
+	size_t used_data = fs_->chb.used;
+	{ // don't use end_of_dir below, the buffer may be rellocated
+		char *end_of_dir = fs_->chb.data + fs_->chb.used;
+		*end_of_dir = fs_->path_separator; end_of_dir++; fs_->chb.used++;
+		*end_of_dir = 0;
+	}
 	
 	// open the directory
-	dir = opendir (fs_->path_buffer);
+	dir = opendir (fs_->chb.data);
 	if (dir == NULL) {
 		return FUNC_GENERIC_ERROR;
 	}
+	preserve_used = fs_->chb.used;
 	
 	// loop in all entries except . and .., symlinks
 	while ( (dent = readdir (dir)) ) {
+		fs_->chb.used = preserve_used;
 		if ( is_dot_dot (dent) )
 			continue;
+		
+		// copy this name after the path; trick it so that it does not increase
+		err_code = char_buff_add(&fs_->chb, dent->d_name);
+		if ( err_code != FUNC_OK ) {
+			break;
+		}
+		file_name = fs_->chb.data + preserve_used;
+		
+		// get file info; if symbolic link, don't follow
+		if (lstat (fs_->chb.data, &st) == -1)
+			continue; // silently ignoring the error
 		if (S_ISLNK(st.st_mode))
 			continue;
 		
-		append_to_buffer();
-		
 		if (S_ISDIR(st.st_mode)) {
-			// pattern match
+			// pattern match if they don't get all included
 			if ( (fs_->flags & DIR_ITERATOR_ALL_DIRECTORIES) == 0 ) {
-				if (regexec(reg, fn, 0, 0, 0)) {
-					break;
-				}
+				if (regexec (&fs_->rex, file_name, 0, 0, 0))
+					continue;
 			}
 			
 			// inform the callback
 			if ( (fs_->flags & DIR_ITERATOR_EXCLUDE_DIRECTORIES) == 0 ) {
-				err_code = fs_->kb (fs_->path_buffer, end_of_dir, fs_->user_data);
+				err_code = fs_->kb (fs_->chb.data, file_name, fs_->user_data, 0);
 				if ( err_code != FUNC_OK ) {
 					break;
 				}
 			}
+			
+			// recursive? dive in...
 			if ( (fs_->flags & DIR_ITERATOR_RECURSIVE) ) {
 				err_code = dir_iterator_unix(fs_);
 				if ( err_code != FUNC_OK ) {
@@ -338,13 +366,13 @@ int dir_iterator_unix (find_struct_t* fs_)
 		
 			// pattern match
 			if ( (fs_->flags & DIR_ITERATOR_ALL_FILES) == 0 ) {
-				if (regexec(reg, fn, 0, 0, 0)) {
-					break;
+				if (regexec (&fs_->rex, file_name, 0, 0, 0)) {
+					continue;
 				}
 			}
 			
 			// inform the callback
-			err_code = fs_->kb (fs_->path_buffer, end_of_dir, fs_->user_data);
+			err_code = fs_->kb (fs_->chb.data, file_name, fs_->user_data, 1);
 			if ( err_code != FUNC_OK ) {
 				break;
 			}
@@ -354,8 +382,8 @@ int dir_iterator_unix (find_struct_t* fs_)
 	if (dir)
 		closedir(dir);
 	// restore the buffer to its former glorry
-	fs_->used_buffer = used_data;
-	fs_->path_buffer[used_data] = 0;
+	fs_->chb.used = used_data;
+	fs_->chb.data[used_data] = 0;
 	
 	return FUNC_OK;
 }
@@ -373,12 +401,10 @@ int dir_iterator (const char *path_, const char *name_filter_,
 	fs.user_data = user_data_;
 	
 	// create a buffer containing a copy of the path
-	fs.path_buffer = (char*)malloc (1024);
-	if ( fs.path_buffer == NULL )
+	char_buff_init (&fs.chb, 1024);
+	if ( fs.chb.data == NULL )
 		return FUNC_MEMORY_ERROR;
-	fs.allocated_buffer = 1024;
-	fs.used_buffer = fs.init_path_sz;
-	memcpy (fs.path_buffer, path_, fs.init_path_sz+1);
+	char_buff_add_string (&fs.chb, path_,fs.init_path_sz);
 	
 #ifdef AITOWN_WIN32
 	fs.path_separator = '\\';
@@ -416,22 +442,32 @@ int dir_iterator (const char *path_, const char *name_filter_,
 				actual_pattern[j] = '*'; j++;
 			} else if (c == '?') {
 				actual_pattern[j] = '.'; j++;
+			} else if (c == ')') {
+				actual_pattern[j] = '\\'; j++;
+				actual_pattern[j] = ')'; j++;
+			} else if (c == '(') {
+				actual_pattern[j] = '\\'; j++;
+				actual_pattern[j] = '('; j++;
+			} else if (c == '.') {
+				actual_pattern[j] = '\\'; j++;
+				actual_pattern[j] = '.'; j++;
 			} else {
 				actual_pattern[j] = c; j++;
 			}
 		}
-		actual_pattern[i] = 0;
+		actual_pattern[j] = 0;
 	}
 	
 	// run the search
 	for (;;) {
-		err_code = regcomp (&rex, actual_pattern, REG_ICASE | REG_NOSUB);
+		err_code = regcomp (&fs.rex, actual_pattern, REG_ICASE | REG_NOSUB);
 		if (err_code) {
 			err_code = FUNC_GENERIC_ERROR;
 			break;
 		}
 		err_code = dir_iterator_unix (&fs);
 		regfree (&fs.rex);
+		break;
 	}
 	
 	// free the buffer

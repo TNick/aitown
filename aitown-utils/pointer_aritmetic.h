@@ -21,6 +21,9 @@
 #define PTR_ADD(p,i) ( ((char*)p) + i )
 
 //! offset of a pointer relative to another pointer
-#define PTR_OFF(pbase,prelative) ( ((char*)prelative) + ((char*)pbase) )
+#define PTR_OFF(pbase,prelative) ( ((char*)prelative) - ((char*)pbase) )
+
+//! round to even pointer size
+#define ROUND_TO_PTR(sz) ( sizeof(void*) - ( sz % sizeof(void*) ) )
 
 #endif // utils_pointer_aritmetic_h_INCLUDE

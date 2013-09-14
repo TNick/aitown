@@ -72,7 +72,7 @@ SGLIB_DEFINE_DL_LIST_FUNCTIONS(linked_list_str_t,LLSTR_COMPARATOR,previous,next)
 //
 /*  FUNCTIONS    ----------------------------------------------------------- */
 
-linked_list_str_t* linked_list_str_append (linked_list_str_t **out, char *src, size_t sz)
+linked_list_str_t* linked_list_str_append (linked_list_str_t **out, const char *src, size_t sz)
 {
 	linked_list_str_t * ret_val;
 	linked_list_str_new (&ret_val, src, sz);
@@ -92,7 +92,7 @@ linked_list_str_t* linked_list_str_append (linked_list_str_t **out, char *src, s
 	return ret_val;
 }
 
-linked_list_str_t* linked_list_str_prepend (linked_list_str_t **out, char *src, size_t sz)
+linked_list_str_t* linked_list_str_prepend (linked_list_str_t **out, const char *src, size_t sz)
 {
 	linked_list_str_t * ret_val;
 	linked_list_str_new (&ret_val, src, sz);
@@ -102,7 +102,7 @@ linked_list_str_t* linked_list_str_prepend (linked_list_str_t **out, char *src, 
 	return ret_val;
 }
 
-void linked_list_str_new (linked_list_str_t **out, char *src, size_t sz)
+void linked_list_str_new (linked_list_str_t **out, const char *src, size_t sz)
 {
 	linked_list_str_t * ret_val = NULL;
 	char * str_ret;
@@ -113,7 +113,7 @@ void linked_list_str_new (linked_list_str_t **out, char *src, size_t sz)
 		sz = strlen (src);
 	}
 	size_t sz_tot = sizeof(linked_list_str_t) + sz + 1;
-	sz_tot = sz_tot + (sizeof(void*) - (sz_tot % sizeof(void*)) );
+	sz_tot = sz_tot + ROUND_TO_PTR(sz_tot);
 	
 	// allocate a chunk large enough
 	ret_val = (linked_list_str_t*)malloc (sz_tot);

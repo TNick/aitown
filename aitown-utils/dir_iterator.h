@@ -55,10 +55,10 @@ typedef enum {
 	DIR_ITERATOR_FILES_AND_DIRECTORIES = 0,
 	DIR_ITERATOR_EXCLUDE_DIRECTORIES = 0x0001,   /**< no dirs reach the callback */
 	DIR_ITERATOR_EXCLUDE_FILES = 0x0002,   /**< no files reach the callback */
-	DIR_ITERATOR_ALL_DIRECTORIES = 0x0001, /**< don't use the pattern for directories, dump all to the callback */
-	DIR_ITERATOR_ALL_FILES = 0x0002,       /**< don't use the pattern for files, dump all to the callback */
+	DIR_ITERATOR_ALL_DIRECTORIES = 0x0004, /**< don't use the pattern for directories, dump all to the callback */
+	DIR_ITERATOR_ALL_FILES = 0x0008,       /**< don't use the pattern for files, dump all to the callback */
 	
-	DIR_ITERATOR_RECURSIVE = 0x0004
+	DIR_ITERATOR_RECURSIVE = 0x0010
 } dir_iterator_flags_t;
 
 //! the callback type used with dir_iterator
@@ -66,7 +66,8 @@ typedef enum {
 typedef int (*dir_iterator_foreach_t) (
 	const char * path_, 
 	const char * name_,
-	void * user_data_);
+	void * user_data_, 
+	int is_file_);
 
 //! iterate in files and folders
 /// @return 0 for success or the error code returned by callback

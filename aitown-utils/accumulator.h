@@ -24,6 +24,7 @@
 
 #include <aitown/aitown_global.h>
 #include <stddef.h>
+#include "error_codes.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -37,7 +38,10 @@ extern "C" {
 /*  DEFINITIONS    --------------------------------------------------------- */
 
 //! header structure for an accumulator
-/// instead of using pointers, one should use offsets with this structure
+/// instead of using pointers, one should use offsets with this structure;
+/// each allocation is an individual allocation and gets a pointer aligned
+/// location; for a string buffer that glues things right after
+/// previous content use char_buff_t
 typedef struct _accumulator_t {
 	void *		data;
 	size_t		allocated;
@@ -81,6 +85,9 @@ accumulator_alloc (accumulator_t* accum, size_t sz );
 AITOWN_EXPORT char *
 accumulator_add_string (accumulator_t* accum, const char * src, size_t sz );
 
+//! free some bytes from the end; be careful with this
+AITOWN_EXPORT func_error_t
+accumulator_free (accumulator_t* accum, size_t sz);
 
 /*  FUNCTIONS    =========================================================== */
 //

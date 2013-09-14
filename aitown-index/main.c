@@ -37,6 +37,7 @@
 #include <aitown/cfgpath.h>
 #include <aitown/utils.h>
 #include <aitown/protobuf_wrapper.h>
+#include <aitown/error_codes.h>
 
 /*  INCLUDES    ============================================================ */
 //
@@ -90,12 +91,12 @@ static index_error parse_command_line (
 
 	
 	int nerrors;
-	index_error exitcode = INDEX_OK;
+	index_error exitcode = FUNC_OK;
 	for (;;) {
 		// verify the argtable[] entries were allocated sucessfully
 		if (arg_nullcheck (argtable) != 0) {
 			fprintf (stderr, "%s: insufficient memory\n", progname);
-			exitcode = INDEX_MEMORY_ERROR;
+			exitcode = FUNC_MEMORY_ERROR;
 			break;
 		}
 
@@ -126,7 +127,7 @@ static index_error parse_command_line (
 		if (nerrors > 0) {
 			arg_print_errors (stderr,end,progname);
 			fprintf (stderr, "Try '%s --help' for more information.\n",progname);
-			exitcode = INDEX_GENERIC_ERROR;
+			exitcode = FUNC_GENERIC_ERROR;
 			break;
 		}
 
@@ -134,13 +135,13 @@ static index_error parse_command_line (
 		if ( ( port->ival[0] <= 0 ) | ( port->ival[0] > 65535 ) ) {
 			
 			fprintf (stderr, "Port number must be a positive integer.\n");
-			exitcode = INDEX_GENERIC_ERROR;
+			exitcode = FUNC_GENERIC_ERROR;
 			break;
 		}
 		if ( max_serv->ival[0] <= 0 ) {
 			
 			fprintf (stderr, "Maximum number of connections must be a positive integer.\n");
-			exitcode = INDEX_GENERIC_ERROR;
+			exitcode = FUNC_GENERIC_ERROR;
 			break;
 		}
 
@@ -219,13 +220,13 @@ static index_error load_config ( index_data_t* index_data_ )
 		dbg_message ("loading config file %s", cfg_file);
 		if ( ini_parse (cfg_file, handler, index_data_) < 0 ) {
 			fprintf (stderr, "Can't load configuration file %s\n", cfg_file);
-			return INDEX_GENERIC_ERROR;
+			return FUNC_GENERIC_ERROR;
 		}
 	} else {
 		dbg_message ("no config file to load" );
 	}
 	
-	return INDEX_OK;
+	return FUNC_OK;
 }
 
 //! free a buffer after it has been send by ZMQ
@@ -242,7 +243,7 @@ static index_error send_reply (AiTownIndexReply * input_msg, void *server)
 	void *buff;
 	size_t sz = AiTownIndexReply__pack (input_msg, &buff);
 	if ( sz == 0 ) {
-		return INDEX_MEMORY_ERROR;
+		return FUNC_MEMORY_ERROR;
 	}
 	
 	// Create a new message, allocating space for message content
@@ -256,7 +257,7 @@ static index_error send_reply (AiTownIndexReply * input_msg, void *server)
 		err_message( "Failed to send message to client");
 	}
 	
-	return INDEX_OK;
+	return FUNC_OK;
 }
 
 //! send an OK reply to the sender
@@ -328,12 +329,12 @@ static index_error send_list (index_data_t *index_data_, void *server)
 	// msg.n_list = 0; - will use it as index in array
 	msg.list = (AiTownIndexAdd **)malloc(index_data_->server_count*sizeof(void*));
 	if (msg.list == NULL)
-		return INDEX_MEMORY_ERROR;
+		return FUNC_MEMORY_ERROR;
 	
 	// iterate in all servers
 	index_data_foreach_server (index_data_, foreach_send_list, &msg);
 	if ( msg.n_list != index_data_->server_count ) {
-		err_code = INDEX_MEMORY_ERROR;
+		err_code = FUNC_MEMORY_ERROR;
 	} else {
 		// and send it
 		err_code = send_reply (&msg, server);
@@ -354,20 +355,20 @@ static index_error process_request ( index_data_t *index_data_,
     void *server, void *data, size_t data_sz)
 { dbg_message (__func__);
 
-	index_error errcode = INDEX_OK;
+	index_error errcode = FUNC_OK;
 	
 	// decode the message
 	AiTownIndex * incoming = AiTownIndex__unpack (data_sz, data);
 	if ( incoming == NULL ) {
 		send_error (server, "Error decoding incoming message");
-		return INDEX_OK;
+		return FUNC_OK;
 	}
 	
 	// check the version - the only one that we know of is 1
 	if ( incoming->version != 1 ) {
 		send_error (server, "Unsupported version");
 		AiTownIndex__free_unpacked (incoming);
-		return INDEX_OK;
+		return FUNC_OK;
 	}
 	
 	// type based processing
@@ -389,7 +390,7 @@ static index_error process_request ( index_data_t *index_data_,
 		server_data_t * sd_other;
 		errcode = server_data_new (&sd, incoming->add->name, 
 		    incoming->add->address, incoming->add->port);
-		if ( errcode != INDEX_OK ) {
+		if ( errcode != FUNC_OK ) {
 			send_error (server, "Internal error");
 			break;
 		}
@@ -457,15 +458,15 @@ int            main            ( int argc, char *argv[] )
 	
 		// initialize index structure for this program
 		exitcode = index_data_init (&index_data);
-		if ( exitcode != INDEX_OK )
+		if ( exitcode != FUNC_OK )
 			break;
 	
 		// get values from configuration file and command line
 		exitcode = load_config (&index_data);
-		if ( exitcode != INDEX_OK )
+		if ( exitcode != FUNC_OK )
 			break;
 		exitcode = parse_command_line (&index_data, argc, argv);
-		if ( exitcode != INDEX_OK )
+		if ( exitcode != FUNC_OK )
 			break;
 
 		
@@ -492,7 +493,7 @@ int            main            ( int argc, char *argv[] )
 	                                                                            dbg_message ("mark 10");
 		
 		// wait for requests and process them
-		while ( exitcode == INDEX_OK ) {
+		while ( exitcode == FUNC_OK ) {
 			int64_t more;
 			size_t more_size = sizeof more;
 			do {
@@ -517,7 +518,7 @@ int            main            ( int argc, char *argv[] )
 					} else {
 						err_message ( "code %d while receiving message: %s", 
 						    zmq_errno(), zmq_strerror(rc));
-						exitcode = INDEX_GENERIC_ERROR;
+						exitcode = FUNC_GENERIC_ERROR;
 					}
 					break;
 				}
@@ -528,7 +529,7 @@ int            main            ( int argc, char *argv[] )
 				if ( data_sz > 0 ) {
 					INDEX_ASSERT (data != NULL);
 					exitcode = process_request (&index_data, server,data, data_sz);
-					if ( exitcode != INDEX_OK ) {
+					if ( exitcode != FUNC_OK ) {
 						log_message ("Exit on internal error");
 						break;
 					}

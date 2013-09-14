@@ -22,6 +22,9 @@
 
 #include "plugin_sign.h"
 #include <aitown/sglib.h>
+#include <aitown/dbg_assert.h>
+#include <aitown/error_codes.h>
+
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -47,6 +50,11 @@
 //
 /*  FUNCTIONS    ----------------------------------------------------------- */
 
+func_error_t plugin_sign_init (plugin_sign_t *plugin_sign_)
+{
+	memset (plugin_sign_, 0, sizeof(plugin_sign_t));
+	return FUNC_OK;
+}
 
 /*  FUNCTIONS    =========================================================== */
 //

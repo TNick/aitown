@@ -80,7 +80,7 @@ void * accumulator_alloc (accumulator_t* accum, size_t sz )
 	
 	// round to next word
 	if ( ( sizeof(void*) == 4 ) || ( sizeof(void*) == 8 ) ) {
-		sz = sz + (sizeof(void*) - sz % sizeof(void*));
+		sz = sz + ROUND_TO_PTR(sz);
 	}
 	
 	// default to this size if nothing else was provided
@@ -145,6 +145,14 @@ char * accumulator_add_string (
 	ret_ptr[sz] = 0;
 	
 	return ret_ptr;
+}
+
+func_error_t accumulator_free (accumulator_t* accum, size_t sz)
+{
+	if ( sz > accum->used )
+		return FUNC_GENERIC_ERROR;
+	accum->used -= sz;
+	return FUNC_OK;
 }
 
 

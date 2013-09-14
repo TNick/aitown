@@ -24,6 +24,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include <aitown/error_codes.h>
 
 /*  INCLUDES    ============================================================ */
 //
@@ -46,7 +47,7 @@
 //
 /*  FUNCTIONS    ----------------------------------------------------------- */
 
-index_error server_data_new (server_data_t** server_data_,const char * name_, 
+func_error_t server_data_new (server_data_t** server_data_,const char * name_, 
     const char * address_, int port_)
 {
 	INDEX_ASSERT (address_ != NULL);
@@ -55,7 +56,7 @@ index_error server_data_new (server_data_t** server_data_,const char * name_,
 	// allocate and clear the buffer
 	server_data_t * ret_inst = malloc (sizeof(server_data_t));
 	if (ret_inst==NULL)
-		return INDEX_MEMORY_ERROR;
+		return FUNC_MEMORY_ERROR;
 	memset(ret_inst,0,sizeof(server_data_t));
 	
 	// create a copy of the name, address and port
@@ -64,30 +65,30 @@ index_error server_data_new (server_data_t** server_data_,const char * name_,
 		ret_inst->name = (const char*)malloc(buf_size);
 		if (ret_inst->name==NULL) {
 			free(ret_inst);
-			return INDEX_MEMORY_ERROR;
+			return FUNC_MEMORY_ERROR;
 		}
 		sprintf ((char*)ret_inst->name, "%s:%d", address_, port_ );
 	} else {
 		ret_inst->name = strdup (name_);
 		if (ret_inst->name==NULL) {
 			free(ret_inst);
-			return INDEX_MEMORY_ERROR;
+			return FUNC_MEMORY_ERROR;
 		}
 	}
 	ret_inst->address = strdup (address_);
 	if (ret_inst->address==NULL) {
 		free ((void*)ret_inst->name);
 		free (ret_inst);
-		return INDEX_MEMORY_ERROR;
+		return FUNC_MEMORY_ERROR;
 	}
 	ret_inst->port = port_;
 	
 	// we're good
 	*server_data_ = ret_inst;
-	return INDEX_OK;
+	return FUNC_OK;
 }
 
-index_error server_data_delete (server_data_t** server_data_)
+func_error_t server_data_delete (server_data_t** server_data_)
 {
 	server_data_t * the_inst = *server_data_;
 	INDEX_ASSERT(the_inst != NULL);
@@ -97,7 +98,7 @@ index_error server_data_delete (server_data_t** server_data_)
 	free ((void*)the_inst->address);
 	free (the_inst);
 	*server_data_ = NULL;
-	return INDEX_OK;
+	return FUNC_OK;
 }
 
 /*  FUNCTIONS    =========================================================== */

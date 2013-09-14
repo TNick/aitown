@@ -70,6 +70,9 @@ set ( CMAKE_INCLUDE_CURRENT_DIR ON)
 # Instruct CMake to run moc automatically when needed.
 set ( CMAKE_AUTOMOC ON)
 
+# accumulate testing source files
+set (modules_testing_src)
+
 # ============================================================================
 
 
@@ -87,26 +90,52 @@ include_directories(${ARGTABLE_INCLUDE_DIRS})
 
 find_package(ProtobufC REQUIRED)
 include_directories(${PROTOBUFC_INCLUDE_DIR})
+
+add_subdirectory( "googletest" )
+include_directories(googletest/include)
 # ============================================================================
 
 
 # ----------------------------------------------------------------------------
 # modules
-set ( modules 
+set ( lib_modules
+    "aitown-utils"
+    "aitown-core"
+    "aitown-plugin"
+)
+
+set ( modules
     "sglib"
     "inih"
     "cfgpath"
-	"aitown-utils"
-	"aitown-core"
-	"aitown-plugin"
-	"aitown-client"
-	"aitown-server"
-	"aitown-index"
+    ${lib_modules}
+    "aitown-index"
+    "aitown-client"
+    "aitown-server"
 )
 
 # generated libraries are accumulated in modules_libs
 FOREACH ( mod ${modules} )
     add_subdirectory( "${mod}" )
 ENDFOREACH(mod)
+# ============================================================================
+
+# ----------------------------------------------------------------------------
+# internal tests
+add_subdirectory( "tests" )
+list( REMOVE_DUPLICATES modules_testing_src )
+if (modules_testing_src)
+    add_executable(internal-test
+        ${modules_testing_src}
+    )
+    target_link_libraries ( internal-test 
+        ${lib_modules}
+        gtest_main gtest
+    )
+    set ( props "AITOWN_INTERNAL_TESTS=1")
+    set_target_properties ( internal-test
+        PROPERTIES COMPILE_DEFINITIONS "${props}"
+    )
+endif (modules_testing_src)
 # ============================================================================
 

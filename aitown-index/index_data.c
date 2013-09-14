@@ -77,7 +77,7 @@ index_error index_data_init (index_data_t *index_data_)
 	memset (index_data_, 0, sizeof(index_data_t));
 	
 	// good to go
-	return INDEX_OK;
+	return FUNC_OK;
 }
 
 void index_data_end (index_data_t *index_data_)
