@@ -37,10 +37,25 @@ extern "C" {
 
 //! describes a server that we know about
 typedef struct _plugin_data_t {
-     offset_t name;	/**< name of this one */
-
+     offset_t sign;
+     const char *name;
+     void *handle;
+     void *user_data;
+     
      struct _plugin_data_t *previous, *next;
 } plugin_data_t;
+
+/*
+func_error_t *plugin__initialize (
+    plugin_manager_t *manager_,
+    plugin_data_t *plugin_
+);
+
+void plugin__terminate (
+    plugin_manager_t *manager_,
+    plugin_data_t *plugin_
+); 
+*/
 
 /*  DEFINITIONS    ========================================================= */
 //
@@ -48,6 +63,16 @@ typedef struct _plugin_data_t {
 //
 //
 /*  DATA    ---------------------------------------------------------------- */
+
+//! initialize the structure
+/// @return FUNC_OK if allocated, error code otherwise
+func_error_t
+plugin_data_new (plugin_data_t **plugin_sign_, const char * name_, offset_t sign_);
+
+//! free the structure
+/// @return FUNC_OK or error code
+func_error_t
+plugin_data_delete (plugin_data_t **plugin_sign_);
 
 /*  DATA    ================================================================ */
 //

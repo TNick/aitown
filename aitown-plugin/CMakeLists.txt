@@ -37,11 +37,24 @@ set ( LIB_HEADERS
     plugin_sign.h
 )
 
+set ( AITOWN_PLUGINS_LIBS )
+
+if (WIN32)
+  # set stuff for windows
+  
+else (WIN32)
+    # under unix like hosts we need dl library
+    set ( AITOWN_PLUGINS_LIBS ${AITOWN_PLUGINS_LIBS}
+        "dl"
+    )
+endif (WIN32)
+
 add_library( ${LOC_PRJ_NAME}
     ${LIB_SOURCES}
 )
 target_link_libraries( ${LOC_PRJ_NAME}
     "inih"
+    ${AITOWN_PLUGINS_LIBS}
 )
 
 if (INCLUDE_OUTPUT_PATH)

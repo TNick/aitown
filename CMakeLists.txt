@@ -42,13 +42,13 @@ include_directories(
   "${PROJECT_BINARY_DIR}/build/include"
 )
 
-IF (WIN32)
+if (WIN32)
   # set stuff for windows
   add_definitions( -DAITOWN_WIN32=1 )
-ELSE()
+else (WIN32)
   # set stuff for other systems
   
-ENDIF()
+endif (WIN32)
 
 # configure compiler
 if ( CMAKE_BUILD_TOOL MATCHES "(msdev|devenv|nmake)" )

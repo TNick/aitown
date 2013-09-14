@@ -67,12 +67,28 @@ version_from_int ( int major, int minor, int patch ) {
 	((version_t)patch);
 }
 
+//! create a version value from three integers
+static inline version_t
+version_from_int_array ( int *array ) {
+	return ((version_t)array[0])*VERSION_MAJOR_FACTOR + 
+	((version_t)array[1])*VERSION_MINOR_FACTOR + 
+	((version_t)array[2]);
+}
+
 //! create three integers from a version
 static inline void
 version_to_int ( version_t ver, int *major, int *minor, int *patch ) {
 	*major = ver / VERSION_MAJOR_FACTOR;
 	*minor = (ver - *major * VERSION_MAJOR_FACTOR) / VERSION_MINOR_FACTOR;
 	*patch = ver - *major * VERSION_MAJOR_FACTOR - *minor * VERSION_MINOR_FACTOR;
+}
+
+//! create three integers from a version
+static inline void
+version_to_int_array ( version_t ver, int *out ) {
+	out[0] = ver / VERSION_MAJOR_FACTOR;
+	out[1] = (ver - out[0] * VERSION_MAJOR_FACTOR) / VERSION_MINOR_FACTOR;
+	out[2] = ver - out[0] * VERSION_MAJOR_FACTOR - out[1] * VERSION_MINOR_FACTOR;
 }
 
 /*  FUNCTIONS    =========================================================== */

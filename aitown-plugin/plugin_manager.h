@@ -70,58 +70,129 @@ typedef struct _plugin_manager_t {
 /*  FUNCTIONS    ----------------------------------------------------------- */
 
 //! initialize the manager
+/// @param plugin_manager_ the manager
+/// @return FUNC_OK for success or an error code
 AITOWN_EXPORT func_error_t
 plugin_manager_init (plugin_manager_t** plugin_manager_);
 
 //! terminate the manager
+/// @param plugin_manager_ the manager
+/// @return FUNC_OK or error code
 AITOWN_EXPORT func_error_t
 plugin_manager_end (plugin_manager_t** plugin_manager_);
 
 
 //! add a path to the list of user paths
-/// the new path is scanned, so user should not call plugin_manager_rescan()
+/// The new path is NOT scanned, so user should call plugin_manager_rescan()
+/// at some point. The method does not check if the path is already in its list.
+/// @param plugin_manager_ the manager
+/// @param path_ the directory to add
 AITOWN_EXPORT void
 plugin_manager_add_user_path (
-    plugin_manager_t *plugin_manager_, const char * path_);
+    plugin_manager_t *plugin_manager_, 
+    const char * path_);
 
 //! rescan the directories looking for plug-ins
+/// @param plugin_manager_ the manager
 AITOWN_EXPORT func_error_t plugin_manager_rescan(plugin_manager_t *plugin_manager_);
 
 
 //! load a plug-in
-AITOWN_EXPORT plugin_data_t *
-plugin_manager_load (plugin_manager_t *plugin_manager_, const char * path_);
+/// @param plugin_manager_ the manager
+/// @param plugin_ returned plug-in
+/// @param signature_ the signature describing the plug-in
+/// @return FUNC_OK if loaded or found, error code otherwise
+AITOWN_EXPORT func_error_t
+plugin_manager_load (plugin_manager_t *plugin_manager_, 
+    plugin_data_t **plugin_, offset_t signature_);
 
 //! unload a plug-in
+/// @param plugin_manager_ the manager
+/// @param plugin_ the plugin
 AITOWN_EXPORT void
 plugin_manager_unload (plugin_manager_t *plugin_manager_, 
     plugin_data_t * plugin_);
 
 
 //! the callback informed about each cached plugin signature (description)
-/// @return 0 to continue, anything else to break
-typedef int (*plugin_manager_foreach_signature_t) (
-    plugin_manager_t *, plugin_sign_t*, void*);
+/// @param plugin_manager_ the manager
+/// @param sign_ the signature
+/// @param user_data_ payload passed to plugin_manager_foreach_signature()
+/// @return FUNC_OK to continue, anything else to break
+typedef func_error_t (*plugin_manager_foreach_signature_t) (
+    plugin_manager_t *plugin_manager_, 
+    plugin_sign_t *sign_,
+    void *user_data_);
 
 //! inform the callback about each cached plugin signature (description)
-AITOWN_EXPORT void
-plugin_manager_foreach_signature (
+/// @param plugin_manager_ the manager
+/// @param kb the function to call
+/// @param user_data payload passed to plugin_manager_foreach_plugin()
+/// @return FUNC_OK if all calls returned it, the returned error otherwise
+AITOWN_EXPORT func_error_t plugin_manager_foreach_signature (
     plugin_manager_t *plugin_manager_, 
     plugin_manager_foreach_signature_t kb, 
     void *user_data);
 
 
+//! find a signature given its name
+/// @warning sign_out pointer is only valid until next accumulator allocation
+/// @param plugin_manager_ the manager
+/// @param name the name to search
+/// @param sign_out if not NULL, receives pointer to signature
+/// @return ACCUMULATOR_BAD_OFFSET if not found, offset  otherwise
+AITOWN_EXPORT offset_t plugin_manager_find_signature (
+    plugin_manager_t *plugin_manager_,
+    const char *name,
+    plugin_sign_t **sign_out);
+
+
 //! the callback informed about each cached plugin signature (description)
-/// @return 0 to continue, anything else to break
-typedef int (*plugin_manager_foreach_plugin_t) (
-    plugin_manager_t *, plugin_data_t*, void*);
+/// @param plugin_manager_ the manager
+/// @param plugin_ the plug-in
+/// @param user_data_ payload passed to plugin_manager_foreach_plugin()
+/// @return FUNC_OK to continue, anything else to break
+typedef func_error_t (*plugin_manager_foreach_plugin_t) (
+    plugin_manager_t *plugin_manager_, 
+    plugin_data_t *plugin_, 
+    void *user_data_);
 
 //! inform the callback about each loaded plugin
-AITOWN_EXPORT void
+/// @param plugin_manager_ the manager
+/// @param kb the function to call
+/// @param user_data payload passed to plugin_manager_foreach_plugin()
+/// @return FUNC_OK if all calls returned it, the returned error otherwise
+AITOWN_EXPORT func_error_t
 plugin_manager_foreach_plugin (
 	plugin_manager_t *plugin_manager_, 
     plugin_manager_foreach_plugin_t kb, 
     void *user_data);
+
+
+//! the callback informed about each dependency od a plug-in signature
+/// @param plugin_manager_ the manager
+/// @param dep_ the dependency structure
+/// @param dep_name_ the dependency name
+/// @param user_data_ payload passed to plugin_manager_foreach_plugin()
+/// @return FUNC_OK to continue, anything else to break
+/// @warning Do NOT use accumulator allocations
+typedef func_error_t (*plugin_manager_foreach_dep_t) (
+    plugin_manager_t *plugin_manager_, 
+    plugin_dep_t *dep_, 
+    const char *dep_name_, 
+    void *user_data_);
+
+//! inform the callback about each loaded plugin
+/// @param plugin_manager_ the manager where the signature belongs
+/// @param sign_ the signature whose definitions are being enumerated
+/// @param kb_ the function to call
+/// @param user_data_ payload passed to plugin_manager_foreach_plugin()
+/// @return FUNC_OK if all calls returned it, the returned error otherwise
+AITOWN_EXPORT func_error_t
+plugin_manager_foreach_dependency (plugin_manager_t *plugin_manager_, 
+    plugin_sign_t *sign_, 
+    plugin_manager_foreach_dep_t kb_, 
+    void *user_data_);
 
 /*  FUNCTIONS    =========================================================== */
 //

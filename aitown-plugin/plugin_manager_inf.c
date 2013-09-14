@@ -32,6 +32,7 @@
 #include <aitown/ini.h>
 #include <aitown/utils.h>
 #include <aitown/stack_buff.h>
+#include <aitown/utils_unused.h>
 
 /*  INCLUDES    ============================================================ */
 //
@@ -124,6 +125,12 @@ typedef struct {
 	long ver_parts[3];
 	char ver_conv[VER_CONV_BUFFER_SIZE];
 	offset_t ver_conv_loc;
+	
+	// matching plug-ins with signatured
+	
+	plugin_sign_t *crt_sign;
+	plugin_data_t *crt_plugin;
+	const char *crt_name;
 	
 } plugin_manager_inf_t;
 
@@ -465,6 +472,25 @@ static int plugin_manager_inf(void* user_, const char* section_, const char* nam
 	return ret_val;
 }
 
+#define PLUGIN_MATCH_NOT_FOUND FUNC_OK
+#define PLUGIN_MATCH_FOUND FUNC_GENERIC_ERROR
+
+//! compare the names to see if signature and plugin are the same
+/// @return PLUGIN_MATCH_NOT_FOUND to keep searching, PLUGIN_MATCH_FOUND otherwise
+static func_error_t plugin_manager_set_assoc_plugin ( 
+    plugin_manager_t *plugin_manager_, plugin_data_t *plugin, void *user_data)
+{
+	VAR_UNUSED (plugin_manager_);
+	plugin_manager_inf_t *data = (plugin_manager_inf_t*)user_data;
+	if ( strcasecmp (plugin->name, data->crt_name) == 0 ) {
+		plugin->sign = data->sign_data;
+		data->crt_sign->loaded_plugin = plugin;
+		data->crt_plugin = plugin;
+		return PLUGIN_MATCH_FOUND;
+	}
+	return PLUGIN_MATCH_NOT_FOUND;
+}
+
 //! scan one .inf file indicated by path_
 /// This method conforms to the dir_iterator_foreach_t type.
 /// @param path_ full file path
@@ -523,6 +549,24 @@ static func_error_t plugin_manager_scan_an_inf ( const char * path_, const char 
 					&plugin_manager->acm_sign, new_sign_off);
 		new_sign->next = plugin_manager->first_sign;
 		plugin_manager->first_sign = new_sign_off;
+		
+		// change the name to point to the binary
+		inf_data.crt_name = accumulator_to_char(
+		    &plugin_manager->acm_sign, plugin_name);
+		char * p_ext = (char*)inf_data.crt_name + path_sz - 3; // inf is 3 characters long
+#		ifdef AITOWN_WIN32
+		p_ext[0] = 'd'; p_ext[1] = 'l'; p_ext[2] = 'l';
+#		else
+		p_ext[0] = 's'; p_ext[1] = 'o'; p_ext[2] = 0;
+#		endif
+		
+		// see if this plug-in is loaded; save the association
+		inf_data.crt_sign = new_sign;
+		inf_data.crt_plugin = NULL;
+		plugin_manager_foreach_plugin( 
+		    plugin_manager, 
+		    plugin_manager_set_assoc_plugin,
+		    &inf_data);
 	}
 
 	return FUNC_OK;
@@ -595,6 +639,15 @@ static func_error_t plugin_manager_scan_standard_path (
 	return err_code;
 }
 
+static func_error_t plugin_manager_rem_assoc_plugin ( 
+    plugin_manager_t *plugin_manager_, plugin_data_t *plugin, void *user_data)
+{
+	VAR_UNUSED (plugin_manager_);
+	VAR_UNUSED (user_data);
+	plugin->sign = ACCUMULATOR_BAD_OFFSET;
+	return FUNC_OK;
+}
+
 func_error_t plugin_manager_rescan (plugin_manager_t *plugin_manager_)
 {
 	func_error_t err_code;
@@ -611,6 +664,12 @@ func_error_t plugin_manager_rescan (plugin_manager_t *plugin_manager_)
 	accumulator_init (&plugin_manager_->acm_sign, prev_alloc );
 	plugin_manager_->acm_sign.step = prev_step;
 	plugin_manager_->first_sign = ACCUMULATOR_BAD_OFFSET;
+	
+	// remove association for loaded plug-ins
+	plugin_manager_foreach_plugin( 
+	    plugin_manager_, 
+		plugin_manager_rem_assoc_plugin,
+		NULL);
 	
 	// scan standard paths
 	err_code = plugin_manager_scan_standard_path (

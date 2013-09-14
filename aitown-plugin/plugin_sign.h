@@ -27,6 +27,7 @@
 #include <aitown/utils_version.h>
 #include <aitown/utils_offset.h>
 #include <aitown/pointer_aritmetic.h>
+#include "plugin_data.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -43,12 +44,16 @@ extern "C" {
 typedef enum {
 	PLUGIN_SIGN_FAIL_TO_LOAD = 0x0001,
 	PLUGIN_SIGN_FOR_SERVER = 0x0002,
-	PLUGIN_SIGN_FOR_CLIENT= 0x0004
+	PLUGIN_SIGN_FOR_CLIENT= 0x0004,
+	
+	PLUGIN_IN_LOADING = 0x000100
 	
 } plugin_sign_flags_t;
 
 //! describes a plugin signature
 typedef struct _plugin_sign_t {
+	offset_t next;
+	
 	offset_t path_lib;
 	offset_t plugin_name;
 	
@@ -60,14 +65,14 @@ typedef struct _plugin_sign_t {
 	
 	int flags;
 	
-	offset_t next;
+	plugin_data_t *loaded_plugin;
 } plugin_sign_t;
 
 //! describes a dependency; is followed by the name of the dependency
 typedef struct _plugin_dep_t {
-	version_t my_ver;
-	offset_t next;
-	size_t str_sz;
+	version_t my_ver;	/**< the version*/
+	offset_t next;		/**< next in chain*/
+	size_t str_sz;		/**< lenght of the name that follows*/
 } plugin_dep_t;
 
 /*  DEFINITIONS    ========================================================= */

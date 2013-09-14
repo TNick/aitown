@@ -164,7 +164,7 @@ func_error_t linked_list_str_foreach ( linked_list_str_t *first_,
 	itr_crt = sglib_linked_list_str_t_it_init (&itr, first_);
 	while (itr_crt!=NULL) {
 		func_error_t i = kb_ (linked_list_string(itr_crt), user_data_);
-		if ( i != 0 )
+		if ( i != FUNC_OK )
 			return i;
 		itr_crt = sglib_linked_list_str_t_it_next(&itr);
 	}
