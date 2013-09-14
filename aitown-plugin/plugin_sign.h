@@ -26,6 +26,7 @@
 #include <stddef.h>
 #include <aitown/utils_version.h>
 #include <aitown/utils_offset.h>
+#include <aitown/pointer_aritmetic.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -55,11 +56,19 @@ typedef struct _plugin_sign_t {
 	offset_t description;
 	version_t my_ver;
 	version_t mng_ver;
+	offset_t first_dep;
 	
 	int flags;
 	
 	offset_t next;
 } plugin_sign_t;
+
+//! describes a dependency; is followed by the name of the dependency
+typedef struct _plugin_dep_t {
+	version_t my_ver;
+	offset_t next;
+	size_t str_sz;
+} plugin_dep_t;
 
 /*  DEFINITIONS    ========================================================= */
 //
@@ -79,6 +88,11 @@ typedef struct _plugin_sign_t {
 func_error_t
 plugin_sign_init (plugin_sign_t *plugin_sign_);
 
+//! get the name of a dependency
+static inline char *
+plugin_dep_name (plugin_dep_t *dep) {
+	return (char*)PTR_ADD(dep, sizeof(plugin_dep_t));
+}
 
 /*  FUNCTIONS    =========================================================== */
 //

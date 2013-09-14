@@ -53,6 +53,7 @@ set ( LIB_HEADERS
     dir_utils.h
     utils_version.h
     utils_offset.h
+    stack_buff.h
 )
 
 add_library( ${LOC_PRJ_NAME} SHARED

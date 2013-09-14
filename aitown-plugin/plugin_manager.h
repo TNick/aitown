@@ -46,11 +46,13 @@ extern "C" {
 /// the signatures of the plug-ins that were found on the last 
 /// plugin_manager_rescan().
 typedef struct _plugin_manager_t {
-	accumulator_t acm_sign;
 	linked_list_str_t *user_paths_first;
-	
 	plugin_data_t *first_plugin;	/**< first plug-in in the linked list */
+	
+	// signatures
+	accumulator_t acm_sign;
 	offset_t first_sign;		/**< first plug-in signature in the linked list */
+	
 } plugin_manager_t;
 
 /*  DEFINITIONS    ========================================================= */
@@ -83,8 +85,7 @@ plugin_manager_add_user_path (
     plugin_manager_t *plugin_manager_, const char * path_);
 
 //! rescan the directories looking for plug-ins
-AITOWN_EXPORT void
-plugin_manager_rescan (plugin_manager_t *plugin_manager_);
+AITOWN_EXPORT func_error_t plugin_manager_rescan(plugin_manager_t *plugin_manager_);
 
 
 //! load a plug-in

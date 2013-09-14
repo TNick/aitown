@@ -28,6 +28,7 @@ set ( LIB_SOURCES
     plugin_data.c
     plugin_manager.c
     plugin_sign.c
+    plugin_manager_inf.c
 )
 set ( LIB_HEADERS
     aitown-plugin.h

@@ -25,6 +25,7 @@
 #include <string.h>
 #include <stdlib.h>
 
+#include <aitown/dbg_assert.h>
 
 /*  INCLUDES    ============================================================ */
 //
@@ -117,8 +118,11 @@ void linked_list_str_new (linked_list_str_t **out, const char *src, size_t sz)
 	
 	// allocate a chunk large enough
 	ret_val = (linked_list_str_t*)malloc (sz_tot);
-	if ( ret_val == NULL )
+	if ( ret_val == NULL ) {
+		DBG_ASSERT (0);
 		return;
+	}
+	
 	str_ret = linked_list_string (ret_val);
 	*out = ret_val;
 	
@@ -151,7 +155,7 @@ void linked_list_str_delete_all (linked_list_str_t **first)
 	*first = NULL;
 }
 
-int linked_list_str_foreach ( linked_list_str_t *first_,
+func_error_t linked_list_str_foreach ( linked_list_str_t *first_,
 	linked_list_str_foreach_t kb_, void *user_data_)
 {
 	linked_list_str_t *itr_crt;
@@ -159,14 +163,13 @@ int linked_list_str_foreach ( linked_list_str_t *first_,
 	
 	itr_crt = sglib_linked_list_str_t_it_init (&itr, first_);
 	while (itr_crt!=NULL) {
-		int i = kb_ (linked_list_string(itr_crt), user_data_);
+		func_error_t i = kb_ (linked_list_string(itr_crt), user_data_);
 		if ( i != 0 )
 			return i;
 		itr_crt = sglib_linked_list_str_t_it_next(&itr);
 	}
-	return 0;
+	return FUNC_OK;
 }
-
 
 /*  FUNCTIONS    =========================================================== */
 //

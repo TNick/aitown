@@ -153,7 +153,7 @@ static inline int is_entry_file (WIN32_FIND_DATA * fd) {
 	return 0;
 }
 
-int dir_iterator_win (find_struct_t* fs_)
+func_error_t dir_iterator_win (find_struct_t* fs_)
 {
 	int err_code = FUNC_OK;
 	HANDLE h_find;
@@ -297,7 +297,7 @@ static inline int is_dot_dot (struct dirent *dent) {
 	return 1;
 }
 
-int dir_iterator_unix (find_struct_t* fs_)
+func_error_t dir_iterator_unix (find_struct_t* fs_)
 {
 	DIR *dir;
 	struct dirent *dent;
@@ -389,7 +389,7 @@ int dir_iterator_unix (find_struct_t* fs_)
 }
 #endif // AITOWN_WIN32
 
-int dir_iterator (const char *path_, const char *name_filter_, 
+func_error_t dir_iterator (const char *path_, const char *name_filter_, 
     dir_iterator_flags_t flags_, dir_iterator_foreach_t kb_, void *user_data_)
 {
 	find_struct_t	fs;

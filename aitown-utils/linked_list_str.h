@@ -25,6 +25,7 @@
 #include <aitown/aitown_global.h>
 #include <stddef.h>
 #include "pointer_aritmetic.h"
+#include <aitown/error_codes.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -57,7 +58,7 @@ typedef struct _linked_list_str_t {
 /*  FUNCTIONS    ----------------------------------------------------------- */
 
 //! get the actual string for an entry
-inline char * linked_list_string (linked_list_str_t *entry)
+static inline char * linked_list_string (linked_list_str_t *entry)
 { return PTR_ADD(entry,sizeof(linked_list_str_t)); }
 
 //! create a new entry with provided content and append it as last entry
@@ -82,12 +83,12 @@ linked_list_str_delete_all (linked_list_str_t **first);
 
 
 //! the callback informed about each string
-/// @return 0 to continue, anything else to break
-typedef int (*linked_list_str_foreach_t) (
+/// @return FUNC_OK to continue, anything else to break
+typedef func_error_t (*linked_list_str_foreach_t) (
     const char*, void*);
 
 //! inform the callback about each string
-AITOWN_EXPORT int
+AITOWN_EXPORT func_error_t
 linked_list_str_foreach (
 	linked_list_str_t *first_, 
     linked_list_str_foreach_t kb_, 

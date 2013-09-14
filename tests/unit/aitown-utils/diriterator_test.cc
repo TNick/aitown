@@ -43,7 +43,8 @@ typedef struct {
 	size_t	dirs;
 } kb_iter_1_t;
 
-int kb_iter_1 ( const char * path_, const char * name_, void * user_data_, int is_file_)
+static func_error_t kb_iter_1 ( const char * path_, 
+	const char * name_, void * user_data_, int is_file_)
 {
 	EXPECT_TRUE(path_ != NULL);
 	EXPECT_TRUE(name_ != NULL);
@@ -56,7 +57,7 @@ int kb_iter_1 ( const char * path_, const char * name_, void * user_data_, int i
 	} else {
 		data->dirs++;
 	}
-	return 0;
+	return FUNC_OK;
 }
 
 /* ------------------------------------------------------------------------- */

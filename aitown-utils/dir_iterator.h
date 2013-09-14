@@ -23,6 +23,7 @@
 /*  INCLUDES    ------------------------------------------------------------ */
 
 #include <aitown/aitown_global.h>
+#include <aitown/error_codes.h>
 #include <stddef.h>
 
 #ifdef __cplusplus
@@ -63,7 +64,7 @@ typedef enum {
 
 //! the callback type used with dir_iterator
 /// @return 0 to continue or an error code to be returned by dir_iterator
-typedef int (*dir_iterator_foreach_t) (
+typedef func_error_t (*dir_iterator_foreach_t) (
 	const char * path_, 
 	const char * name_,
 	void * user_data_, 
@@ -71,7 +72,7 @@ typedef int (*dir_iterator_foreach_t) (
 
 //! iterate in files and folders
 /// @return 0 for success or the error code returned by callback
-AITOWN_EXPORT int
+AITOWN_EXPORT func_error_t
 dir_iterator (
 	const char * path_, 
 	const char * name_filter_,
