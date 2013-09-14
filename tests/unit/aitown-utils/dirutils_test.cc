@@ -104,6 +104,49 @@ TEST(dir_utils,du_mkdir_rmdir) {
 }
 /* ========================================================================= */
 
+/* ------------------------------------------------------------------------- */
+TEST(dir_utils,du_mkpath_rmdir) {
+
+	func_error_t err_code;
+	access_rights_t ar;
+	size_t sz;
+	const char * crtd = du_pwd (&sz);
+
+	char * one_buff = (char*)malloc(sz+64);
+	EXPECT_TRUE(one_buff != NULL);
+	sprintf(one_buff, 
+	    "%s" DU_PATH_SEP 
+	    "a" DU_PATH_SEP 
+	    "b" DU_PATH_SEP 
+	    "c" DU_PATH_SEP 
+	    "d", crtd );
+	err_code = du_mkpath (one_buff);
+	EXPECT_EQ(err_code, FUNC_OK);
+	err_code = du_mkpath (one_buff);
+	EXPECT_EQ(err_code, FUNC_OK);
+	ar = du_existsdir (one_buff);
+	EXPECT_NE(ar & DU_READABLE, 0);
+	EXPECT_NE(ar & DU_WRITABLE, 0);
+	ar = du_existsfile (one_buff);
+	EXPECT_EQ(ar & DU_READABLE, 0);
+	EXPECT_EQ(ar & DU_WRITABLE, 0);
+
+	sprintf(one_buff, 
+	    "%s" DU_PATH_SEP 
+	    "a", crtd);
+	err_code = du_rm(one_buff);
+	EXPECT_EQ(err_code, FUNC_OK);
+
+	ar = du_existsdir (one_buff);
+	EXPECT_EQ(ar & DU_READABLE, 0);
+	EXPECT_EQ(ar & DU_WRITABLE, 0);
+
+	free (one_buff);
+}
+/* ========================================================================= */
+
+
+
 /*  FUNCTIONS    =========================================================== */
 //
 //

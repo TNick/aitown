@@ -26,17 +26,23 @@
 #include "pointer_aritmetic.h"
 #include "error_codes.h"
 #include "stack_buff.h"
-
-#include <string.h>
-#include <stdlib.h>
+#include "utils_offset.h"
+#include "utils_unused.h"
 
 #ifdef AITOWN_WIN32
 #	include <>
 #else
+#   define _XOPEN_SOURCE 500
+#   define __USE_XOPEN_EXTENDED
 #	include <unistd.h>
-#	include <errno.h>
 #	include <sys/stat.h>
+#   include <ftw.h>
 #endif
+
+#include <string.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <errno.h>
 
 /*  INCLUDES    ============================================================ */
 //
@@ -213,24 +219,86 @@ func_error_t du_mkdir_p (const char * path_)
 func_error_t du_mkpath (const char * path_)
 {
 	func_error_t err_code;
+	STACKBUFF_INIT(char, buff, 256, strlen (path_) + 1);
 	
+	offset_t i;
+	offset_t start_off = 0;
+	size_t len;
+	size_t components_count = 0;
+	for ( i = 0; i < buff_actual_sz; i++ ) {
+		char c = path_[i];
+		if ( ( c == '/' ) || ( c == '\\' ) ) {
+			len = i - start_off;
+			buff_ptr[i] = 0;
+			if ( len > 0 ) {
+				if ( !du_existsdir(buff_ptr) ) {
+					err_code = du_mkdir_p(buff_ptr);
+					if ( err_code != FUNC_OK ) return err_code;
+				}
+			}
+			components_count++;
+			start_off = i + 1;
+			buff_ptr[i] = DU_PATH_SEP_C;
+		} else {
+			buff_ptr[i] = c;
+		}
+	}
+	
+	len = i - start_off;
+	buff_ptr[i] = 0;
+	if ( len > 0 ) {
+		if ( !du_existsdir(buff_ptr) ) {
+			err_code = du_mkdir_p(buff_ptr);
+			if ( err_code != FUNC_OK ) return err_code;
+		}
+	}
+	components_count++;
+	
+	STACKBUFF_END(buff);
 	return err_code;
 }
+
+#ifndef AITOWN_WIN32
+static int unlink_cb(const char *fpath, const struct stat *sb, 
+    int typeflag, struct FTW *ftwbuf)
+{
+	VAR_UNUSED (sb);
+	VAR_UNUSED (typeflag);
+	int rv = 0;
+	if ( ftwbuf->level > 0 ) {
+		rv = remove(fpath);
+	}
+	return rv;
+}
+#endif
 
 func_error_t du_rm (const char * path_)
 {
 	func_error_t err_code;
-	
+#ifdef AITOWN_WIN32
+		/** @todo */
+#else
+	int ret = nftw (path_, unlink_cb, 64, FTW_DEPTH | FTW_PHYS);
+	if ( ret == 0 ) {
+		err_code = (rmdir(path_) == 0 ? FUNC_OK : FUNC_GENERIC_ERROR);
+	} else {
+		err_code = FUNC_GENERIC_ERROR; 
+	}
+#endif
 	return err_code;
 }
 
 func_error_t du_cleardir (const char * path_)
 {
 	func_error_t err_code;
-	
+#ifdef AITOWN_WIN32
+		/** @todo */
+#else
+	int ret = nftw (path_, unlink_cb, 64, FTW_DEPTH | FTW_PHYS);
+	err_code = (ret == 0 ? FUNC_OK : FUNC_GENERIC_ERROR);
+#endif
 	return err_code;
 }
-
 
 access_rights_t du_existsdir (const char * path_)
 {

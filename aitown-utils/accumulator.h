@@ -25,6 +25,7 @@
 #include <aitown/aitown_global.h>
 #include <stddef.h>
 #include "error_codes.h"
+#include "utils_offset.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -49,10 +50,8 @@ typedef struct _accumulator_t {
 	size_t		step;
 } accumulator_t;
 
-#ifndef OFFSET_TYPE_DEFINED
-typedef size_t offset_t;
-#define OFFSET_TYPE_DEFINED 1
-#endif
+//! the value of an invalid offset is 0 (first position is reserver)
+#define ACCUMULATOR_BAD_OFFSET 0
 
 /*  DEFINITIONS    ========================================================= */
 //
@@ -77,17 +76,30 @@ AITOWN_EXPORT void
 accumulator_end (accumulator_t* accum);
 
 //! allocate a chunk in the accumulator
-AITOWN_EXPORT void *
+AITOWN_EXPORT offset_t
 accumulator_alloc (accumulator_t* accum, size_t sz );
 
 //! add a string in the accumulator
 /// if the size is 0 the lenght is computed
-AITOWN_EXPORT char *
+AITOWN_EXPORT offset_t
 accumulator_add_string (accumulator_t* accum, const char * src, size_t sz );
 
 //! free some bytes from the end; be careful with this
 AITOWN_EXPORT func_error_t
 accumulator_free (accumulator_t* accum, size_t sz);
+
+//! convert an offset into a temporary pointer that is valid until next alloc
+static inline void *
+accumulator_to_ptr (accumulator_t* accum, offset_t off) {
+	return (void*)PTR_ADD (accum->data, off);
+}
+
+//! convert an offset into a temporary pointer that is valid until next alloc
+static inline char *
+accumulator_to_char (accumulator_t* accum, offset_t off) {
+	return (char*)PTR_ADD (accum->data, off);
+}
+
 
 /*  FUNCTIONS    =========================================================== */
 //

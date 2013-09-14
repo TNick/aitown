@@ -25,6 +25,7 @@
 #include <aitown/error_codes.h>
 #include <stddef.h>
 #include <aitown/utils_version.h>
+#include <aitown/utils_offset.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -47,17 +48,17 @@ typedef enum {
 
 //! describes a plugin signature
 typedef struct _plugin_sign_t {
-	const char * path_lib;
-	const char * plugin_name;
+	offset_t path_lib;
+	offset_t plugin_name;
 	
-	const char * pretty_name;
-	const char * description;
+	offset_t pretty_name;
+	offset_t description;
 	version_t my_ver;
 	version_t mng_ver;
 	
-	plugin_sign_flags_t flags;
-	// forward/backward
-	struct _plugin_sign_t *previous, *next;
+	int flags;
+	
+	offset_t next;
 } plugin_sign_t;
 
 /*  DEFINITIONS    ========================================================= */

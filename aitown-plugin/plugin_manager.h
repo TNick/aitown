@@ -28,6 +28,7 @@
 #include <aitown/accumulator.h>
 #include <aitown/error_codes.h>
 #include <aitown/linked_list_str.h>
+#include <aitown/utils_offset.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -49,7 +50,7 @@ typedef struct _plugin_manager_t {
 	linked_list_str_t *user_paths_first;
 	
 	plugin_data_t *first_plugin;	/**< first plug-in in the linked list */
-	plugin_sign_t *first_sign;		/**< first plug-in signature in the linked list */
+	offset_t first_sign;		/**< first plug-in signature in the linked list */
 } plugin_manager_t;
 
 /*  DEFINITIONS    ========================================================= */

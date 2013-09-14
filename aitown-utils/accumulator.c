@@ -52,14 +52,15 @@
 void accumulator_init (accumulator_t* accum, size_t init_size)
 {
 	// allocate an initial ammount of memory
+	size_t to_alloc = sizeof(void*) + init_size+ROUND_TO_PTR(init_size);
 	accum->allocated = 0;
-	if ( init_size > 0 ) {
-		accum->data = malloc (init_size);
+	if ( to_alloc > 0 ) {
+		accum->data = malloc (to_alloc);
 		if ( accum->data != NULL )
-			accum->allocated = init_size;
+			accum->allocated = to_alloc;
 	}
-	accum->used = 0;
-	accum->step = init_size;
+	accum->used = sizeof(void*);
+	accum->step = to_alloc;
 }
 
 void accumulator_end (accumulator_t* accum)
@@ -70,12 +71,12 @@ void accumulator_end (accumulator_t* accum)
 	accum->data = NULL;
 	accum->used = 0;
 	accum->allocated = 0;
-	accum->step = 0;	
+	accum->step = 0;
 }
 
-void * accumulator_alloc (accumulator_t* accum, size_t sz )
+offset_t accumulator_alloc (accumulator_t* accum, size_t sz )
 {
-	void *retptr = NULL;
+	void *ret_ptr = accum->data;
 	int new_size;
 	
 	// round to next word
@@ -93,14 +94,15 @@ void * accumulator_alloc (accumulator_t* accum, size_t sz )
 		DBG_ASSERT(accum->used == 0);
 		
 		// attempt to allocate initial pointer
-		accum->data = malloc(sz + accum->step);
+		size_t to_alloc = sizeof(void*) + sz + accum->step;
+		accum->data = malloc(to_alloc);
 		if ( accum->data == NULL )
-			return NULL;
-		retptr = accum->data;
+			return ACCUMULATOR_BAD_OFFSET;
+		ret_ptr = PTR_ADD(accum->data,sizeof(void*));
 		
 		// save new state
-		accum->used = sz;
-		accum->allocated = sz + accum->step;
+		accum->used = sizeof(void*) + sz;
+		accum->allocated = to_alloc;
 		
 	} else {
 		DBG_ASSERT(accum->allocated > 0);
@@ -113,7 +115,7 @@ void * accumulator_alloc (accumulator_t* accum, size_t sz )
 			size_t new_alloc = accum->allocated + new_size + accum->step;
 			void * tmp_ptr = realloc (accum->data, new_alloc);
 			if ( tmp_ptr == NULL )
-				return NULL;
+				return ACCUMULATOR_BAD_OFFSET;
 			
 			// update the state
 			accum->data = tmp_ptr;
@@ -121,16 +123,17 @@ void * accumulator_alloc (accumulator_t* accum, size_t sz )
 		}
 		
 		// actual allocation
-		retptr = PTR_ADD(accum->data,accum->used);
+		ret_ptr = PTR_ADD(accum->data,accum->used);
 		accum->used = new_size;
 	}
-	return retptr;
+	return PTR_OFF(accum->data, ret_ptr);
 }
 
-char * accumulator_add_string (
+offset_t accumulator_add_string (
 		accumulator_t* accum, const char * src, size_t sz )
 {
 	char * ret_ptr = NULL;
+	offset_t ret_off = ACCUMULATOR_BAD_OFFSET;
 	
 	// get the lenght
 	if ( sz == 0 ) {
@@ -138,13 +141,14 @@ char * accumulator_add_string (
 	}
 	
 	// get a buffer and copy "text" inside
-	ret_ptr = (char*)accumulator_alloc (accum, sz+1);
-	if ( ret_ptr == NULL )
-		return NULL;
+	ret_off = accumulator_alloc (accum, sz+1);
+	if ( ret_off == ACCUMULATOR_BAD_OFFSET )
+		return ret_off;
+	ret_ptr = accumulator_to_char (accum, ret_off);
 	memcpy(ret_ptr, src, sz);
 	ret_ptr[sz] = 0;
 	
-	return ret_ptr;
+	return ret_off;
 }
 
 func_error_t accumulator_free (accumulator_t* accum, size_t sz)
