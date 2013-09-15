@@ -1,7 +1,7 @@
 /* ========================================================================= */
 /* ------------------------------------------------------------------------- */
 /*!
-  \file			plugin_data.h
+  \file			plugin_definition.h
   \date			September 2013
   \author		TNick
   
@@ -14,15 +14,15 @@
 */
 /* ------------------------------------------------------------------------- */
 /* ========================================================================= */
-#ifndef AITOWN_plugin_data_h_INCLUDE
-#define AITOWN_plugin_data_h_INCLUDE
+#ifndef AITOWN_plugin_definition_h_INCLUDE
+#define AITOWN_plugin_definition_h_INCLUDE
 //
 //
 //
 //
 /*  INCLUDES    ------------------------------------------------------------ */
 
-#include <aitown/accumulator.h>
+#include <aitown/plugin_manager.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -35,16 +35,6 @@ extern "C" {
 //
 /*  DEFINITIONS    --------------------------------------------------------- */
 
-//! describes a server that we know about
-typedef struct _plugin_data_t {
-     offset_t sign;
-     const char *name;
-     void *handle;
-     void *user_data;
-     
-     struct _plugin_data_t *previous, *next;
-} plugin_data_t;
-
 /*  DEFINITIONS    ========================================================= */
 //
 //
@@ -52,22 +42,36 @@ typedef struct _plugin_data_t {
 //
 /*  DATA    ---------------------------------------------------------------- */
 
-//! initialize the structure
-/// @return FUNC_OK if allocated, error code otherwise
-func_error_t
-plugin_data_new (plugin_data_t **plugin_sign_, const char * name_, offset_t sign_);
-
-//! free the structure
-/// @return FUNC_OK or error code
-func_error_t
-plugin_data_delete (plugin_data_t **plugin_sign_);
-
 /*  DATA    ================================================================ */
 //
 //
 //
 //
 /*  FUNCTIONS    ----------------------------------------------------------- */
+
+#if defined AITOWN_WIN32
+#       define PLUGIN_EXPORT __declspec(dllexport)
+#else
+#   if defined __SUNPRO_C  || defined __SUNPRO_CC
+#       define PLUGIN_EXPORT __global
+#   elif (defined __GNUC__ && __GNUC__ >= 4) || defined __INTEL_COMPILER
+#       define PLUGIN_EXPORT __attribute__ ((visibility("default")))
+#   else
+#       define PLUGIN_EXPORT
+#   endif
+#endif
+
+PLUGIN_EXPORT func_error_t *
+plugin__initialize (
+    plugin_manager_t *manager_,
+    plugin_data_t *plugin_
+);
+
+PLUGIN_EXPORT void 
+plugin__terminate (
+    plugin_manager_t *manager_,
+    plugin_data_t *plugin_
+);
 
 /*  FUNCTIONS    =========================================================== */
 //
@@ -79,4 +83,4 @@ plugin_data_delete (plugin_data_t **plugin_sign_);
 #ifdef __cplusplus
 }
 #endif 
-#endif /* AITOWN_plugin_data_h_INCLUDE */
+#endif /* AITOWN_plugin_definition_h_INCLUDE */

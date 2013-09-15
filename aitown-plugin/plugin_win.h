@@ -1,7 +1,7 @@
 /* ========================================================================= */
 /* ------------------------------------------------------------------------- */
 /*!
-  \file			plugin_data.h
+  \file			plugin_win.h
   \date			September 2013
   \author		TNick
   
@@ -14,15 +14,13 @@
 */
 /* ------------------------------------------------------------------------- */
 /* ========================================================================= */
-#ifndef AITOWN_plugin_data_h_INCLUDE
-#define AITOWN_plugin_data_h_INCLUDE
+#ifndef AITOWN_plugin_win_h_INCLUDE
+#define AITOWN_plugin_win_h_INCLUDE
 //
 //
 //
 //
 /*  INCLUDES    ------------------------------------------------------------ */
-
-#include <aitown/accumulator.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -35,16 +33,6 @@ extern "C" {
 //
 /*  DEFINITIONS    --------------------------------------------------------- */
 
-//! describes a server that we know about
-typedef struct _plugin_data_t {
-     offset_t sign;
-     const char *name;
-     void *handle;
-     void *user_data;
-     
-     struct _plugin_data_t *previous, *next;
-} plugin_data_t;
-
 /*  DEFINITIONS    ========================================================= */
 //
 //
@@ -52,22 +40,74 @@ typedef struct _plugin_data_t {
 //
 /*  DATA    ---------------------------------------------------------------- */
 
-//! initialize the structure
-/// @return FUNC_OK if allocated, error code otherwise
-func_error_t
-plugin_data_new (plugin_data_t **plugin_sign_, const char * name_, offset_t sign_);
-
-//! free the structure
-/// @return FUNC_OK or error code
-func_error_t
-plugin_data_delete (plugin_data_t **plugin_sign_);
-
 /*  DATA    ================================================================ */
 //
 //
 //
 //
 /*  FUNCTIONS    ----------------------------------------------------------- */
+
+#ifdef PLUGIN_MANAGER_C
+//! load a shared library
+static inline func_error_t
+plugin_manager_load_binary (plugin_data_t *ret_ptr_, const char * path_)
+{
+	/** @todo windows */
+	return FUNC_OK;
+}
+#endif
+
+#ifdef PLUGIN_DATA_C
+//! unload the binary
+static void
+plugin_manager_unload_binary (plugin_data_t **plugin_)
+{
+	/** @todo windows */
+}
+#endif
+
+//! call initialisation function
+static inline func_error_t
+plugin_manager_call_init (plugin_manager_t *plugin_manager_, plugin_data_t *ret_ptr_)
+{
+	func_error_t err_code = FUNC_OK;
+	/** @todo windows */
+	return err_code;
+}
+
+//! extension for plug-in binary (max 3 characters)
+static inline void
+plugin_manager_shared_binary_extension (char * out_buff)
+{
+	out_buff[0] = 'd'; out_buff[1] = 'l'; out_buff[2] = 'l';
+}
+
+//! get the path of the executable
+static inline char *
+plugin_manager_program_path ()
+{
+	int i;
+	int buff_sz = 256;
+	int result;
+	char * buff;
+	for ( i = 0; i < 10; i++ ) {
+		char * buff = (char*)malloc(buff_sz);
+		result = GetModuleFileName (NULL, buff, buff_sz);
+		if ( result == 0 ) {
+			dbg_message ("Failed to retrieve process directory; error code: %d", GetLastError());
+			free (buff);
+			return NULL;
+		}
+		if ( result != buff_sz ) {
+			break;
+		}
+		free (buff);
+		buff_sz += 256;
+		buff = NULL;
+	}
+	// no need to shrink it, the buffer is short lived anyway
+	return buff;
+}
 
 /*  FUNCTIONS    =========================================================== */
 //
@@ -79,4 +119,4 @@ plugin_data_delete (plugin_data_t **plugin_sign_);
 #ifdef __cplusplus
 }
 #endif 
-#endif /* AITOWN_plugin_data_h_INCLUDE */
+#endif /* AITOWN_plugin_win_h_INCLUDE */

@@ -1,7 +1,7 @@
 /* ========================================================================= */
 /* ------------------------------------------------------------------------- */
 /*!
-  \file			plugin_data.h
+  \file			sample-plugin.c
   \date			September 2013
   \author		TNick
   
@@ -14,19 +14,16 @@
 */
 /* ------------------------------------------------------------------------- */
 /* ========================================================================= */
-#ifndef AITOWN_plugin_data_h_INCLUDE
-#define AITOWN_plugin_data_h_INCLUDE
 //
 //
 //
 //
 /*  INCLUDES    ------------------------------------------------------------ */
 
-#include <aitown/accumulator.h>
-
-#ifdef __cplusplus
-extern "C" {
-#endif 
+#include "sample-plugin.h"
+#include <aitown/utils.h>
+#include <aitown/utils_unused.h>
+#include <aitown/dbg_assert.h>
 
 /*  INCLUDES    ============================================================ */
 //
@@ -35,16 +32,6 @@ extern "C" {
 //
 /*  DEFINITIONS    --------------------------------------------------------- */
 
-//! describes a server that we know about
-typedef struct _plugin_data_t {
-     offset_t sign;
-     const char *name;
-     void *handle;
-     void *user_data;
-     
-     struct _plugin_data_t *previous, *next;
-} plugin_data_t;
-
 /*  DEFINITIONS    ========================================================= */
 //
 //
@@ -52,15 +39,7 @@ typedef struct _plugin_data_t {
 //
 /*  DATA    ---------------------------------------------------------------- */
 
-//! initialize the structure
-/// @return FUNC_OK if allocated, error code otherwise
-func_error_t
-plugin_data_new (plugin_data_t **plugin_sign_, const char * name_, offset_t sign_);
-
-//! free the structure
-/// @return FUNC_OK or error code
-func_error_t
-plugin_data_delete (plugin_data_t **plugin_sign_);
+static const char * sample_data = "Sample data";
 
 /*  DATA    ================================================================ */
 //
@@ -69,6 +48,24 @@ plugin_data_delete (plugin_data_t **plugin_sign_);
 //
 /*  FUNCTIONS    ----------------------------------------------------------- */
 
+func_error_t * plugin__initialize ( 
+plugin_manager_t *manager_, plugin_data_t *plugin_ )
+{
+	VAR_UNUSED (manager_);
+	plugin_->user_data = (void*)sample_data;
+	dbg_message ("Hello from inside sample-plugin; init called");
+	return FUNC_OK;
+}
+
+void plugin__terminate ( 
+plugin_manager_t *manager_, plugin_data_t *plugin_ )
+{
+	VAR_UNUSED (manager_);
+	VAR_UNUSED (plugin_);
+	DBG_ASSERT (plugin_->user_data == (void*)sample_data);
+	dbg_message ("sample-plugin is being unloaded");	
+}
+
 /*  FUNCTIONS    =========================================================== */
 //
 //
@@ -76,7 +73,3 @@ plugin_data_delete (plugin_data_t **plugin_sign_);
 //
 /* ------------------------------------------------------------------------- */
 /* ========================================================================= */
-#ifdef __cplusplus
-}
-#endif 
-#endif /* AITOWN_plugin_data_h_INCLUDE */

@@ -34,6 +34,12 @@
 #include <aitown/stack_buff.h>
 #include <aitown/utils_unused.h>
 
+#ifdef AITOWN_WIN32
+#	include "plugin_win.h"
+#else
+#	include "plugin_posix.h"
+#endif
+
 /*  INCLUDES    ============================================================ */
 //
 //
@@ -131,6 +137,7 @@ typedef struct {
 	plugin_sign_t *crt_sign;
 	plugin_data_t *crt_plugin;
 	const char *crt_name;
+	const char *crt_path;
 	
 } plugin_manager_inf_t;
 
@@ -539,13 +546,13 @@ static func_error_t plugin_manager_scan_an_inf ( const char * path_, const char 
 
 	// read the file and interpret its content
 	plugin_manager_inf_t inf_data = {plugin_manager, new_sign_off, path_};
-	plugin_sign_t * new_sign = (plugin_sign_t*)accumulator_to_ptr(
-				&plugin_manager->acm_sign, new_sign_off);
 	if ( ini_parse (path_, plugin_manager_inf, &inf_data) < 0 ) {
+		plugin_sign_t * new_sign = (plugin_sign_t*)accumulator_to_ptr(
+					&plugin_manager->acm_sign, new_sign_off);
 		new_sign->flags = PLUGIN_SIGN_FAIL_TO_LOAD;
 	} else {
 		// insert the new structure into the chain
-		new_sign = (plugin_sign_t*)accumulator_to_ptr(
+		plugin_sign_t * new_sign = (plugin_sign_t*)accumulator_to_ptr(
 					&plugin_manager->acm_sign, new_sign_off);
 		new_sign->next = plugin_manager->first_sign;
 		plugin_manager->first_sign = new_sign_off;
@@ -553,12 +560,10 @@ static func_error_t plugin_manager_scan_an_inf ( const char * path_, const char 
 		// change the name to point to the binary
 		inf_data.crt_name = accumulator_to_char(
 		    &plugin_manager->acm_sign, plugin_name);
-		char * p_ext = (char*)inf_data.crt_name + path_sz - 3; // inf is 3 characters long
-#		ifdef AITOWN_WIN32
-		p_ext[0] = 'd'; p_ext[1] = 'l'; p_ext[2] = 'l';
-#		else
-		p_ext[0] = 's'; p_ext[1] = 'o'; p_ext[2] = 0;
-#		endif
+		inf_data.crt_path = accumulator_to_char(
+		    &plugin_manager->acm_sign, path_lib);
+		char * p_ext = (char*)inf_data.crt_path + path_sz - 3; // inf is 3 characters long
+		plugin_manager_shared_binary_extension (p_ext);
 		
 		// see if this plug-in is loaded; save the association
 		inf_data.crt_sign = new_sign;
@@ -567,6 +572,8 @@ static func_error_t plugin_manager_scan_an_inf ( const char * path_, const char 
 		    plugin_manager, 
 		    plugin_manager_set_assoc_plugin,
 		    &inf_data);
+		
+		plugin_manager->sign_count++;
 	}
 
 	return FUNC_OK;
@@ -601,32 +608,58 @@ static func_error_t plugin_manager_scan_standard_path (
     const char * path_, size_t path_sz_ )
 {
 	func_error_t err_code;
-	const char * src;
+	char * src;
+	int b_free_buffer = 0;
+
+	if ( path_sz_ == 0 ) {
+		path_sz_ = strlen (path_);
+	}
+	
 	switch (type) {
 	case PMSTD_PROGPATH: {
-		/** @todo how to do this? */
-		src = NULL;
+		// get program path (includes the name of the executable)
+		src = plugin_manager_program_path();
+		if (src == NULL) {
+			return FUNC_MEMORY_ERROR;
+		}
+		// locate last part (exe name) and trim it
+		int i; 
+		int last_separator = 0;
+		for ( i = 0; ;i++ ) {
+			char c = src[i];
+			if ( c == 0 ) {
+				break;
+			} else if ( ( c == '/' ) || ( c == '\\' ) ) {
+				last_separator = i;
+			}
+		}
+		if ( last_separator == 0 ) {
+			free (src);
+			src = NULL;
+			
+		} else {
+			src[last_separator] = 0;
+			b_free_buffer = 1;
+		}
 		break; }
-	case PMSTD_HOME: {
-		src = getenv ("HOME");
-		break; }
-	case PMSTD_UNIXROOT: {
-		src = getenv ("UNIXROOT");
-		break; }
-	}	
+	case PMSTD_HOME: { src = getenv ("HOME"); break; }
+	case PMSTD_UNIXROOT: { src = getenv ("UNIXROOT"); break; }
+	}
 	if ( src == NULL )
 		return FUNC_OK;
 	
 	// allocate buffer
-	size_t src_sz = strlen(src);
-	STACKBUFF_INIT(char, buff, 256, src_sz+path_sz_+1);
-	if ( buff_ptr == NULL )
+	size_t src_sz = strlen (src);
+	STACKBUFF_INIT (char, buff, 256, src_sz+path_sz_+1);
+	if ( buff_ptr == NULL ) {
+		if (b_free_buffer) {
+			free (src);
+		}
 		return FUNC_MEMORY_ERROR;
+	}
 	
 	// glue parts together
-	if ( path_sz_ == 0 ) {
-		path_sz_ = strlen (path_);
-	}
+
 	memcpy (buff_ptr, src, src_sz);
 	memcpy (buff_ptr+src_sz, path_, path_sz_);
 	buff_ptr[buff_actual_sz-1] = 0;
@@ -634,6 +667,10 @@ static func_error_t plugin_manager_scan_standard_path (
 	// actual scan
 	err_code = plugin_manager_scan_a_path (buff_ptr, plugin_manager_ );
 	
+	if (b_free_buffer) {
+		free (src);
+	}
+		
 	// free resources
 	STACKBUFF_END(buff);
 	return err_code;
@@ -664,6 +701,7 @@ func_error_t plugin_manager_rescan (plugin_manager_t *plugin_manager_)
 	accumulator_init (&plugin_manager_->acm_sign, prev_alloc );
 	plugin_manager_->acm_sign.step = prev_step;
 	plugin_manager_->first_sign = ACCUMULATOR_BAD_OFFSET;
+	plugin_manager_->sign_count = 0;
 	
 	// remove association for loaded plug-ins
 	plugin_manager_foreach_plugin( 

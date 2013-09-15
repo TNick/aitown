@@ -14,10 +14,11 @@
 */
 /* ------------------------------------------------------------------------- */
 /* ========================================================================= */
-
-
-
-
+#define PLUGIN_MANAGER_C
+//
+//
+//
+//
 /*  INCLUDES    ------------------------------------------------------------ */
 
 #include "plugin_manager.h"
@@ -34,16 +35,16 @@
 #include <aitown/utils_unused.h>
 
 #ifdef AITOWN_WIN32
-	/** @todo windows */
+#	include "plugin_win.h"
 #else
-#	include <dlfcn.h>
+#	include "plugin_posix.h"
 #endif
 
 /*  INCLUDES    ============================================================ */
-
-
-
-
+//
+//
+//
+//
 /*  DEFINITIONS    --------------------------------------------------------- */
 
 // will define functions for working with double-linked list:
@@ -71,20 +72,20 @@ SGLIB_DEFINE_DL_LIST_PROTOTYPES(plugin_data_t,PLUGIN_COMPARATOR,previous,next)
 SGLIB_DEFINE_DL_LIST_FUNCTIONS(plugin_data_t,PLUGIN_COMPARATOR,previous,next)
 
 /*  DEFINITIONS    ========================================================= */
-
-
-
-
+//
+//
+//
+//
 /*  DATA    ---------------------------------------------------------------- */
 
 static plugin_manager_t		manager;
 static int initialised = 0;
 
 /*  DATA    ================================================================ */
-
-
-
-
+//
+//
+//
+//
 /*  FUNCTIONS    ----------------------------------------------------------- */
 
 func_error_t plugin_manager_init (plugin_manager_t** plugin_manager_)
@@ -92,10 +93,9 @@ func_error_t plugin_manager_init (plugin_manager_t** plugin_manager_)
 	
 	if ( initialised == 0 ) {
 		// do initialisation
+		memset (&manager, 0, sizeof(plugin_manager_t));
 		accumulator_init (&manager.acm_sign, 256);
-		manager.first_plugin = NULL;
-		manager.first_sign = 0;
-		manager.user_paths_first = NULL;
+		initialised = 1;
 	}
 	
 	// return the singleton
@@ -105,12 +105,25 @@ func_error_t plugin_manager_init (plugin_manager_t** plugin_manager_)
 
 func_error_t plugin_manager_end (plugin_manager_t** plugin_manager_)
 {
+	DBG_ASSERT (*plugin_manager_ == &manager);
 	if ( initialised != 0 ) {
+		
+		// terminate all plug-ins
+		plugin_data_t *plugin = manager.first_plugin;
+		plugin_data_t *plugin_next;
+		while (plugin != NULL) {
+			plugin_next = plugin->next;
+			plugin_manager_unload (&manager, plugin);
+			plugin = plugin_next;
+		}
+	
 		// do un-initialisation
 		accumulator_end (&manager.acm_sign);
 		manager.first_plugin = NULL;
 		manager.first_sign = 0;
 		linked_list_str_delete_all (&manager.user_paths_first);
+		
+		initialised = 0;
 	}
 	
 	// get rid of the old data
@@ -186,6 +199,13 @@ func_error_t plugin_manager_load (plugin_manager_t *plugin_manager_,
 	// should not be in the process of loading
 	DBG_ASSERT ( (crt_sign->flags & PLUGIN_IN_LOADING) == 0 );
 	
+	// an attempt was already made and failed
+	if ( crt_sign->flags == PLUGIN_SIGN_FAIL_TO_LOAD ) {
+		err_message("Loading of plugin %s failed previously", 
+		    plugin_name);
+		return FUNC_GENERIC_ERROR;
+	}
+	
 	// see what other plug-ins should be loaded
 	err_code = plugin_manager_foreach_dependency (
 	    plugin_manager_, crt_sign, 
@@ -203,40 +223,27 @@ func_error_t plugin_manager_load (plugin_manager_t *plugin_manager_,
 	}
 	
 	// actual loading
-#	ifdef AITOWN_WIN32
-	/** @todo windows */
-#	else
-	ret_ptr->handle = dlopen (plugin_path, RTLD_LAZY | RTLD_GLOBAL);
-	if ( ret_ptr->handle == NULL ) {
-		err_message ("Failed to load %s plugin: %s", dlerror());
+	err_code = plugin_manager_load_binary (ret_ptr, plugin_path);
+	if (err_code != FUNC_OK) {
 		plugin_data_delete (&ret_ptr);
-		return FUNC_GENERIC_ERROR;
+		return err_code;
 	}
-#	endif
-	
+
 	// insert the plugin into the chain
 	crt_sign->flags = crt_sign->flags | PLUGIN_IN_LOADING;
 	sglib_plugin_data_t_add_before (&plugin_manager_->first_plugin, ret_ptr);
 	crt_sign->loaded_plugin = ret_ptr;
 	crt_sign->flags = crt_sign->flags & (~PLUGIN_IN_LOADING);
 	
-	// call initialisation function	
-#	ifdef AITOWN_WIN32
-	/** @todo windows */
-	err_code = FUNC_OK;
-#	else
-	func_error_t (*fptr)(plugin_manager_t*, plugin_data_t*);
-	*(void **)(&fptr) = dlsym(ret_ptr->handle, "plugin__initialize");
-	err_code = (*fptr)(plugin_manager_, ret_ptr);
-#	endif
-	
-	// unload if it refused to start
+	// call initialisation function; unload if it refused to start
+	err_code = plugin_manager_call_init (plugin_manager_, ret_ptr);
 	if ( err_code != FUNC_OK ) {
 		plugin_manager_unload (plugin_manager_, ret_ptr);
 		err_code = FUNC_GENERIC_ERROR;
 	}
 	
 	// and a happy exit to everyone
+	plugin_manager_->plugin_count++;
 	*plugin_ = ret_ptr;
 	return err_code;
 }
@@ -246,14 +253,7 @@ void plugin_manager_unload (plugin_manager_t *plugin_manager_,
 {
 	
 	// call termination function	
-#	ifdef AITOWN_WIN32
-	/** @todo windows */
-	err_code = FUNC_OK;
-#	else
-	void (*fptr)(plugin_manager_t*, plugin_data_t*);
-	*(void **)(&fptr) = dlsym(plugin_->handle, "plugin__initialize");
-	(*fptr)(plugin_manager_, plugin_);
-#	endif
+	plugin_manager_call_end (plugin_manager_, plugin_);
 	
 	// remove it from the chain and release the resources
 	if ( plugin_->sign != ACCUMULATOR_BAD_OFFSET ) {
@@ -264,6 +264,8 @@ void plugin_manager_unload (plugin_manager_t *plugin_manager_,
 	sglib_plugin_data_t_delete (&plugin_manager_->first_plugin, plugin_);
 	plugin_data_delete (&plugin_);
 	
+	plugin_manager_->plugin_count--;
+	DBG_ASSERT (plugin_manager_->plugin_count >= 0);
 }
 
 func_error_t plugin_manager_foreach_signature (plugin_manager_t *plugin_manager_,
@@ -357,9 +359,9 @@ func_error_t plugin_manager_foreach_dependency (
 }
 
 /*  FUNCTIONS    =========================================================== */
-
-
-
-
+//
+//
+//
+//
 /* ------------------------------------------------------------------------- */
 /* ========================================================================= */

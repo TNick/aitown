@@ -14,6 +14,7 @@
 */
 /* ------------------------------------------------------------------------- */
 /* ========================================================================= */
+#define PLUGIN_DATA_C	1
 //
 //
 //
@@ -21,15 +22,17 @@
 /*  INCLUDES    ------------------------------------------------------------ */
 
 #include "plugin_data.h"
+#include "plugin_manager.h"
 #include <aitown/sglib.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
-
+#include <aitown/utils.h>
+#include <aitown/dbg_assert.h>
 #ifdef AITOWN_WIN32
-	/** @todo windows */
+#	include "plugin_win.h"
 #else
-#	include <dlfcn.h>
+#	include "plugin_posix.h"
 #endif
 
 /*  INCLUDES    ============================================================ */
@@ -81,14 +84,8 @@ func_error_t plugin_data_new (
 func_error_t plugin_data_delete (
     plugin_data_t **plugin_)
 {
-	
-#	ifdef AITOWN_WIN32
-	/** @todo windows */
-#	else
-	if ( (*plugin_)->handle != NULL ) {
-		dlclose ((*plugin_)->handle);
-	}
-#	endif
+	// unload the binary
+	plugin_manager_unload_binary (plugin_);
 
 	// release memory
 	free (*plugin_);

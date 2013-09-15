@@ -35,7 +35,13 @@ set ( LIB_HEADERS
     plugin_data.h
     plugin_manager.h
     plugin_sign.h
+    plugin_definition.h
 )
+if (WIN32)
+    set ( LIB_HEADERS ${LIB_HEADERS} plugin_win.h )
+else (WIN32)
+    set ( LIB_HEADERS ${LIB_HEADERS} plugin_posix.h )
+endif (WIN32)
 
 set ( AITOWN_PLUGINS_LIBS )
 
@@ -67,3 +73,4 @@ if (INCLUDE_OUTPUT_PATH)
 endif (INCLUDE_OUTPUT_PATH)
 # ============================================================================
 
+add_subdirectory(sample-plugin)

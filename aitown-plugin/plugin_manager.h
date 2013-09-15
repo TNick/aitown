@@ -47,11 +47,14 @@ extern "C" {
 /// plugin_manager_rescan().
 typedef struct _plugin_manager_t {
 	linked_list_str_t *user_paths_first;
+	
 	plugin_data_t *first_plugin;	/**< first plug-in in the linked list */
+	size_t plugin_count;			/**< number of loaded plug-ins */
 	
 	// signatures
 	accumulator_t acm_sign;
 	offset_t first_sign;		/**< first plug-in signature in the linked list */
+	size_t sign_count;			/**< number of signatures */
 	
 } plugin_manager_t;
 
@@ -129,7 +132,8 @@ typedef func_error_t (*plugin_manager_foreach_signature_t) (
 /// @param kb the function to call
 /// @param user_data payload passed to plugin_manager_foreach_plugin()
 /// @return FUNC_OK if all calls returned it, the returned error otherwise
-AITOWN_EXPORT func_error_t plugin_manager_foreach_signature (
+AITOWN_EXPORT func_error_t 
+plugin_manager_foreach_signature (
     plugin_manager_t *plugin_manager_, 
     plugin_manager_foreach_signature_t kb, 
     void *user_data);
@@ -141,7 +145,8 @@ AITOWN_EXPORT func_error_t plugin_manager_foreach_signature (
 /// @param name the name to search
 /// @param sign_out if not NULL, receives pointer to signature
 /// @return ACCUMULATOR_BAD_OFFSET if not found, offset  otherwise
-AITOWN_EXPORT offset_t plugin_manager_find_signature (
+AITOWN_EXPORT offset_t 
+plugin_manager_find_signature (
     plugin_manager_t *plugin_manager_,
     const char *name,
     plugin_sign_t **sign_out);

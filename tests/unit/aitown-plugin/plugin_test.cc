@@ -78,8 +78,8 @@ TEST(plugin_testing,t1) {
 	
 	// create the custom path
 	size_t sz;
-	char * temp_config_dir = (char*)malloc(sz+64);
 	const char * crtd = du_pwd (&sz);
+	char * temp_config_dir = (char*)malloc(sz+64);
 	sprintf (temp_config_dir, "%s" DU_PATH_SEP "%s", crtd, "test_dir_utils_002" );
 	du_mkdir_p (temp_config_dir);
 	
@@ -115,6 +115,86 @@ TEST(plugin_testing,t1) {
 }
 /* ========================================================================= */
 
+/* ------------------------------------------------------------------------- */
+TEST(plugin_testing,t2) {
+
+	plugin_manager_t * mng;
+	func_error_t err_code;
+
+	// start the manager
+	err_code = plugin_manager_init (&mng);
+	EXPECT_EQ (err_code, FUNC_OK);
+	EXPECT_TRUE (mng != NULL);
+	EXPECT_EQ (mng->plugin_count, 0);
+	EXPECT_EQ (mng->sign_count, 0);
+
+	// tigger reloads
+	err_code = plugin_manager_rescan (mng);
+	EXPECT_EQ (err_code, FUNC_OK);
+	EXPECT_EQ (mng->plugin_count, 0);
+	EXPECT_GT (mng->sign_count, 0);
+	
+	// find sample plug-in
+	plugin_sign_t * sample;
+	offset_t off_sample = plugin_manager_find_signature (
+	    mng, "sample-plugin", &sample);
+	EXPECT_NE (off_sample, ACCUMULATOR_BAD_OFFSET);
+	EXPECT_FALSE (sample == NULL);
+	EXPECT_NE (sample->path_lib, ACCUMULATOR_BAD_OFFSET);
+	EXPECT_NE (sample->plugin_name, ACCUMULATOR_BAD_OFFSET);
+	EXPECT_NE (sample->pretty_name, ACCUMULATOR_BAD_OFFSET);
+	EXPECT_NE (sample->description, ACCUMULATOR_BAD_OFFSET);
+	EXPECT_NE (sample->my_ver, VERSION_DEFAULT);
+	EXPECT_NE (sample->mng_ver, VERSION_DEFAULT);
+	EXPECT_EQ (sample->first_dep, ACCUMULATOR_BAD_OFFSET);
+	EXPECT_EQ (sample->flags & PLUGIN_SIGN_FAIL_TO_LOAD, 0);
+	EXPECT_NE (sample->flags & PLUGIN_SIGN_FOR_SERVER, 0);
+	EXPECT_NE (sample->flags & PLUGIN_SIGN_FOR_CLIENT, 0);
+	EXPECT_EQ (sample->flags & PLUGIN_IN_LOADING, 0);
+	EXPECT_TRUE (sample->loaded_plugin == NULL);
+	
+	// load it
+	plugin_data_t * plugin;
+	err_code = plugin_manager_load (mng, &plugin, off_sample);
+	EXPECT_EQ (err_code, FUNC_OK);
+	EXPECT_FALSE (plugin == NULL);	
+	EXPECT_EQ (mng->plugin_count, 1);
+	
+	EXPECT_EQ (plugin->sign, off_sample);
+	EXPECT_EQ (strcmp(plugin->name, "sample-plugin"), 0);
+	EXPECT_FALSE (plugin->handle == NULL);
+	EXPECT_FALSE (plugin->user_data == NULL);
+
+	EXPECT_TRUE (sample->loaded_plugin == plugin);
+	
+	
+	// unload it
+	plugin_manager_unload (mng, plugin);
+	plugin = NULL;
+	EXPECT_EQ (mng->plugin_count, 0);
+	EXPECT_TRUE (sample->loaded_plugin == NULL);
+	
+	// load it again
+	err_code = plugin_manager_load (mng, &plugin, off_sample);
+	EXPECT_EQ (err_code, FUNC_OK);
+	EXPECT_FALSE (plugin == NULL);	
+	EXPECT_EQ (mng->plugin_count, 1);
+	
+	EXPECT_EQ (plugin->sign, off_sample);
+	EXPECT_EQ (strcmp(plugin->name, "sample-plugin"), 0);
+	EXPECT_FALSE (plugin->handle == NULL);
+	EXPECT_FALSE (plugin->user_data == NULL);
+
+	EXPECT_TRUE (sample->loaded_plugin == plugin);
+	
+	
+	// stop the manager
+	err_code = plugin_manager_end (&mng);
+	EXPECT_EQ (err_code, FUNC_OK);
+	EXPECT_TRUE (mng == NULL);
+
+}
+/* ========================================================================= */
 
 /*  FUNCTIONS    =========================================================== */
 //
