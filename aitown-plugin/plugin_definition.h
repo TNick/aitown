@@ -61,7 +61,7 @@ extern "C" {
 #   endif
 #endif
 
-PLUGIN_EXPORT func_error_t *
+PLUGIN_EXPORT func_error_t
 plugin__initialize (
     plugin_manager_t *manager_,
     plugin_data_t *plugin_

@@ -48,7 +48,7 @@ static const char * sample_data = "Sample data";
 //
 /*  FUNCTIONS    ----------------------------------------------------------- */
 
-func_error_t * plugin__initialize ( 
+func_error_t plugin__initialize ( 
 plugin_manager_t *manager_, plugin_data_t *plugin_ )
 {
 	VAR_UNUSED (manager_);

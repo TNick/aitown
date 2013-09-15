@@ -239,7 +239,6 @@ func_error_t plugin_manager_load (plugin_manager_t *plugin_manager_,
 	err_code = plugin_manager_call_init (plugin_manager_, ret_ptr);
 	if ( err_code != FUNC_OK ) {
 		plugin_manager_unload (plugin_manager_, ret_ptr);
-		err_code = FUNC_GENERIC_ERROR;
 	}
 	
 	// and a happy exit to everyone
