@@ -30,27 +30,25 @@ title: aitown-plugin
     <ul>
     <li>
 	<div class="codearea">
-        plugin_data *plugin__initialize (<br>
-        &nbsp;&nbsp;&nbsp;&nbsp;plugin_manager *manager,<br>
-        &nbsp;&nbsp;&nbsp;&nbsp;const char *cfg_file<br>
+        func_error_t plugin__initialize (<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;plugin_manager *manager_,<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;plugin_data_t *plugin_<br>
         );
     </div>
     This function is called when the plug-in is loaded.
-    The library must respond either by creating 
-    a plugin_data structure or by
-    returning NULL. The ownership of is plugin_data taken by the
-    manager and is returned with plugin__terminate(). During this 
+    The library must respond with FUNC_OK or it will be 
+    unloaded on return. During this 
     call the plug-in registers the interfaces it exposes.
     </li>
     <li>
 	<div class="codearea">
         void plugin__terminate (<br>
-        &nbsp;&nbsp;&nbsp;&nbsp;plugin_manager *manager,<br>
-        &nbsp;&nbsp;&nbsp;&nbsp;plugin_data *plugin<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;plugin_manager *manager_,<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;plugin_data *plugin_<br>
         );
     </div>
     This function is called before the plug-in is unloaded.
-    The library takes back the ownership of plugin_data. During this 
+    During this 
     call the plug-in unregisters the interfaces it exposes.
     </li>
     </ul>
@@ -133,10 +131,11 @@ title: aitown-plugin
     following directories:
     <ol>
     <li>$PROGPATH/plugins</li>
+    <li>$env(AITOWN_PLUGIN_DIR)</li>
     <li>$HOME/.aitown/plugins</li>
-    <li>$UNIXROOT/usr/lib/aitown/plugins</li>
+    <li>$env(UNIXROOT)/usr/lib/aitown/plugins</li>
     <li>/usr/lib/aitown/plugins</li>
-    <li>$UNIXROOT/lib/aitown/plugins</li>
+    <li>$env(UNIXROOT)/lib/aitown/plugins</li>
     <li>/lib/aitown/plugins</li>
     </ol>
     The directories are searched in this exact order.
@@ -145,5 +144,6 @@ title: aitown-plugin
     $HOME is the user's home directory; $PROGPATH is the 
     path from where the prgram was started; $UNIXROOT is an
     environment variable indicating a base path for a UNIX
-    like directory structure.
+    like directory structure. AITOWN_PLUGIN_DIR is another environment
+    variable.
 </p>
