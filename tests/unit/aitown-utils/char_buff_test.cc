@@ -63,23 +63,23 @@ TEST(char_buff,t1) {
 	for ( k = 0; k < 10; k++ ) {
 		char_buff_init(&cbuff, 124);
 		EXPECT_TRUE (cbuff.data != NULL);
-		EXPECT_EQ (strlen(cbuff.data), 0);
+		EXPECT_EQ (strlen(cbuff.data), (size_t)0);
 		EXPECT_TRUE (cbuff.allocated > 0);
-		EXPECT_TRUE (cbuff.used == 0);
+		EXPECT_EQ (cbuff.used, (size_t)0);
 		
 		exit_code = char_buff_add (&cbuff,"");
 		EXPECT_EQ(exit_code, FUNC_OK);
 		EXPECT_TRUE (cbuff.data != NULL);
-		EXPECT_EQ (strlen(cbuff.data), 0);
+		EXPECT_EQ (strlen(cbuff.data), (size_t)0);
 		EXPECT_TRUE (cbuff.allocated > 0);
-		EXPECT_TRUE (cbuff.used == 0);
+		EXPECT_EQ (cbuff.used, (size_t)0);
 		
 		exit_code = char_buff_add (&cbuff,"test");
 		EXPECT_EQ(exit_code, FUNC_OK);
 		EXPECT_TRUE (cbuff.data != NULL);
-		EXPECT_EQ (strlen (cbuff.data), 4);
+		EXPECT_EQ (strlen (cbuff.data), (size_t)4);
 		EXPECT_EQ (strcmp (cbuff.data,"test"), 0);
-		EXPECT_TRUE (cbuff.used == 4);
+		EXPECT_EQ (cbuff.used, (size_t)4);
 		
 		exit_code = char_buff_add (&cbuff," is being build");
 		EXPECT_EQ(exit_code, FUNC_OK);
@@ -135,7 +135,7 @@ TEST(char_buff,t2) {
 		loc_buff[j] = 0;
 		exit_code = char_buff_from_str (&cbuff, loc_buff);
 		EXPECT_EQ(exit_code, FUNC_OK);
-		EXPECT_EQ(cbuff.used, 63);
+		EXPECT_EQ(cbuff.used, (size_t)63);
 		last_known_size = cbuff.used;
 		
 		for ( j = 0 ; j < 63; j++ ) {
@@ -144,12 +144,12 @@ TEST(char_buff,t2) {
 		loc_buff[j] = 0;
 		exit_code = char_buff_add (&cbuff, loc_buff);
 		EXPECT_EQ(exit_code, FUNC_OK);
-		EXPECT_EQ(cbuff.used, last_known_size+63);
+		EXPECT_EQ(cbuff.used, (size_t)(last_known_size+63));
 		
 		char_buff_end(&cbuff);
 		EXPECT_TRUE (cbuff.data == NULL);
-		EXPECT_TRUE (cbuff.allocated == 0);
-		EXPECT_TRUE (cbuff.used == 0);
+		EXPECT_EQ (cbuff.allocated, (size_t)0);
+		EXPECT_EQ (cbuff.used, (size_t)0);
 		
 	}
 }

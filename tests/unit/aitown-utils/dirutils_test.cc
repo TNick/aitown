@@ -20,7 +20,7 @@
 
 #ifdef AITOWN_WIN32
 #define REAL_TREE_DIR_1 "C:"
-#define REAL_TREE_DIR_2 "C:\Documents and Settings"
+#define REAL_TREE_DIR_2 "C:\\Documents and Settings"
 #else
 #define REAL_TREE_DIR_1 getenv("HOME")
 #define REAL_TREE_DIR_2 "/tmp"
@@ -48,7 +48,7 @@ TEST(dir_utils,du_pwd) {
 	size_t sz;
 	const char * crtd = du_pwd (&sz);
 	EXPECT_TRUE(crtd != NULL);
-	EXPECT_GT(sz, 0);
+	EXPECT_GT(sz, (size_t)0);
 	
 }
 /* ========================================================================= */

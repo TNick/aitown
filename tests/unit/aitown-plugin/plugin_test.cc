@@ -125,14 +125,14 @@ TEST(plugin_testing,t2) {
 	err_code = plugin_manager_init (&mng);
 	EXPECT_EQ (err_code, FUNC_OK);
 	EXPECT_TRUE (mng != NULL);
-	EXPECT_EQ (mng->plugin_count, 0);
-	EXPECT_EQ (mng->sign_count, 0);
+	EXPECT_EQ (mng->plugin_count, (size_t)0);
+	EXPECT_EQ (mng->sign_count, (size_t)0);
 
 	// tigger reloads
 	err_code = plugin_manager_rescan (mng);
 	EXPECT_EQ (err_code, FUNC_OK);
-	EXPECT_EQ (mng->plugin_count, 0);
-	EXPECT_GT (mng->sign_count, 0);
+	EXPECT_EQ (mng->plugin_count, (size_t)0);
+	EXPECT_GT (mng->sign_count, (size_t)0);
 	
 	// find sample plug-in
 	plugin_sign_t * sample;
@@ -145,7 +145,7 @@ TEST(plugin_testing,t2) {
 	EXPECT_NE (sample->pretty_name, ACCUMULATOR_BAD_OFFSET);
 	EXPECT_NE (sample->description, ACCUMULATOR_BAD_OFFSET);
 	EXPECT_NE (sample->my_ver, VERSION_DEFAULT);
-	EXPECT_NE (sample->mng_ver, VERSION_DEFAULT);
+	EXPECT_NE (sample->mng_ver, (version_t)VERSION_DEFAULT);
 	EXPECT_EQ (sample->first_dep, ACCUMULATOR_BAD_OFFSET);
 	EXPECT_EQ (sample->flags & PLUGIN_SIGN_FAIL_TO_LOAD, 0);
 	EXPECT_NE (sample->flags & PLUGIN_SIGN_FOR_SERVER, 0);
@@ -158,7 +158,7 @@ TEST(plugin_testing,t2) {
 	err_code = plugin_manager_load (mng, &plugin, off_sample);
 	EXPECT_EQ (err_code, FUNC_OK);
 	EXPECT_FALSE (plugin == NULL);	
-	EXPECT_EQ (mng->plugin_count, 1);
+	EXPECT_EQ (mng->plugin_count, (size_t)1);
 	
 	EXPECT_EQ (plugin->sign, off_sample);
 	EXPECT_EQ (strcmp(plugin->name, "sample-plugin"), 0);
@@ -171,14 +171,14 @@ TEST(plugin_testing,t2) {
 	// unload it
 	plugin_manager_unload (mng, plugin);
 	plugin = NULL;
-	EXPECT_EQ (mng->plugin_count, 0);
+	EXPECT_EQ (mng->plugin_count, (size_t)0);
 	EXPECT_TRUE (sample->loaded_plugin == NULL);
 	
 	// load it again
 	err_code = plugin_manager_load (mng, &plugin, off_sample);
 	EXPECT_EQ (err_code, FUNC_OK);
 	EXPECT_FALSE (plugin == NULL);	
-	EXPECT_EQ (mng->plugin_count, 1);
+	EXPECT_EQ (mng->plugin_count, (size_t)1);
 	
 	EXPECT_EQ (plugin->sign, off_sample);
 	EXPECT_EQ (strcmp(plugin->name, "sample-plugin"), 0);

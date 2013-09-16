@@ -12,6 +12,14 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
 
 set ( LOC_PRJ_NAME "aitown-plugin" )
 project( ${LOC_PRJ_NAME} )
+
+add_definitions( -DAITOWN_SHARED=1 )
+if   (CMAKE_BUILD_TYPE STREQUAL "Debug")
+    add_definitions( -DAITOWN_PLUGIN_DEBUG=1 )
+else (CMAKE_BUILD_TYPE STREQUAL "Debug")
+    add_definitions( -DAITOWN_PLUGIN_NOT_DEBUG=1 )
+endif(CMAKE_BUILD_TYPE STREQUAL "Debug")
+
 # ============================================================================
 
 
@@ -55,12 +63,14 @@ else (WIN32)
     )
 endif (WIN32)
 
-add_library( ${LOC_PRJ_NAME}
+add_library( ${LOC_PRJ_NAME} SHARED
     ${LIB_SOURCES}
 )
 target_link_libraries( ${LOC_PRJ_NAME}
     "inih"
-    ${AITOWN_PLUGINS_LIBS}
+    "aitown-core"
+    "aitown-utils"
+   ${AITOWN_PLUGINS_LIBS}
 )
 
 if (INCLUDE_OUTPUT_PATH)

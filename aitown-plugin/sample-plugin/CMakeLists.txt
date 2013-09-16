@@ -93,6 +93,11 @@ set ( LIBRARY_OUTPUT_PATH  "${CMAKE_BINARY_DIR}/build/bin/plugins" )
 add_library( ${LOC_PRJ_NAME} SHARED
     ${LIB_SOURCES}
 )
+target_link_libraries( ${LOC_PRJ_NAME}
+    "aitown-core"
+    "aitown-utils"
+    "aitown-plugin"
+)
 set_target_properties(${LOC_PRJ_NAME} PROPERTIES PREFIX "")
 
 # ============================================================================

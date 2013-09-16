@@ -14,6 +14,7 @@
 */
 /* ------------------------------------------------------------------------- */
 /* ========================================================================= */
+#define DIR_UTILS_C 1
 //
 //
 //
@@ -30,13 +31,9 @@
 #include "utils_unused.h"
 
 #ifdef AITOWN_WIN32
-#	include <>
+#	include "utils_win.h"
 #else
-#   define _XOPEN_SOURCE 500
-#   define __USE_XOPEN_EXTENDED
-#	include <unistd.h>
-#	include <sys/stat.h>
-#   include <ftw.h>
+#	include "utils_posix.h"
 #endif
 
 #include <string.h>
@@ -71,45 +68,7 @@ static size_t crt_dir_sz = 0;
 const char * du_pwd (size_t *sz)
 {
 	if ( crt_dir_buff == NULL ) {
-#ifdef AITOWN_WIN32
-		/** @todo */
-#else
-		// allocate an initial buffer
-		int storage_sz = 256;
-		char * tmp_buf = (char *)malloc(storage_sz);
-		if ( tmp_buf == NULL )
-			return NULL;
-		
-		// but be ready to enlarge it
-		int i = 0;
-		for ( ;; ) {
-			if ( getcwd (tmp_buf, storage_sz) == tmp_buf ) {
-				// probably too large, so shrink it down and set it
-				crt_dir_sz = strlen(tmp_buf);
-				char * tmp_buf2 = (char*)realloc(tmp_buf, crt_dir_sz+1);
-				if ( tmp_buf2 == NULL )
-					break;
-				crt_dir_buff = tmp_buf2;
-				tmp_buf = NULL;
-				break;
-			}
-			// attempt to enlarge the buffer if that's the issue
-			i++; if ( i > 5 ) break;
-			if ( ( errno == ENOMEM ) || ( errno == ERANGE ) ) {
-				char * tmp_buf2;
-				storage_sz += 256;
-				tmp_buf2 = (char*)realloc(tmp_buf, storage_sz);
-				if ( tmp_buf2 == NULL )
-					break;
-				tmp_buf = tmp_buf2;
-			} else {
-				break;
-			}
-		} // for ( ;; )
-		if ( tmp_buf != NULL ) {
-			free (tmp_buf);
-		}
-#endif
+		crt_dir_buff = du_pwd_sysdep (&crt_dir_sz);
 	}
 	if ( sz != NULL )
 		*sz = crt_dir_sz;
@@ -188,32 +147,17 @@ func_error_t du_mkdir (const char * path_, const char * name_)
 	memcpy (buff_ptr+sz_p+1, name_, sz_n);
 	buff_ptr[buff_actual_sz-1] = 0;
 	
-#ifdef AITOWN_WIN32
-		/** @todo */
-#else
-	// read/write/search permissions for owner and group, 
-	// and with read/search permissions for others.
-	int sts = mkdir (buff_ptr, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
-	err_code = (sts == 0 ? FUNC_OK : FUNC_GENERIC_ERROR);
-#endif
+	// create
+	err_code = du_mkdir_sysdep(buff_ptr);
+	
+	// free & return
 	STACKBUFF_END(buff);
 	return err_code;
 }
 
 func_error_t du_mkdir_p (const char * path_)
 {
-	func_error_t err_code;
-
-#ifdef AITOWN_WIN32
-		/** @todo */
-#else
-	// read/write/search permissions for owner and group, 
-	// and with read/search permissions for others.
-	int sts = mkdir (path_, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
-	err_code = (sts == 0 ? FUNC_OK : FUNC_GENERIC_ERROR);
-#endif
-
-	return err_code;
+	return du_mkdir_sysdep(path_);
 }
 
 func_error_t du_mkpath (const char * path_)
@@ -258,88 +202,24 @@ func_error_t du_mkpath (const char * path_)
 	return err_code;
 }
 
-#ifndef AITOWN_WIN32
-static int unlink_cb(const char *fpath, const struct stat *sb, 
-    int typeflag, struct FTW *ftwbuf)
-{
-	VAR_UNUSED (sb);
-	VAR_UNUSED (typeflag);
-	int rv = 0;
-	if ( ftwbuf->level > 0 ) {
-		rv = remove(fpath);
-	}
-	return rv;
-}
-#endif
-
 func_error_t du_rm (const char * path_)
 {
-	func_error_t err_code;
-#ifdef AITOWN_WIN32
-		/** @todo */
-#else
-	int ret = nftw (path_, unlink_cb, 64, FTW_DEPTH | FTW_PHYS);
-	if ( ret == 0 ) {
-		err_code = (rmdir(path_) == 0 ? FUNC_OK : FUNC_GENERIC_ERROR);
-	} else {
-		err_code = FUNC_GENERIC_ERROR; 
-	}
-#endif
-	return err_code;
+	return du_rm_sysdep(path_, 1);
 }
 
 func_error_t du_cleardir (const char * path_)
 {
-	func_error_t err_code;
-#ifdef AITOWN_WIN32
-		/** @todo */
-#else
-	int ret = nftw (path_, unlink_cb, 64, FTW_DEPTH | FTW_PHYS);
-	err_code = (ret == 0 ? FUNC_OK : FUNC_GENERIC_ERROR);
-#endif
-	return err_code;
+	return du_rm_sysdep(path_, 0);
 }
 
 access_rights_t du_existsdir (const char * path_)
 {
-#ifdef AITOWN_WIN32
-		/** @todo */
-#else
-	struct stat sb;
-	int ret = DU_NONE;
-	
-	if ( stat(path_, &sb) == 0 && S_ISDIR(sb.st_mode) )
-	{
-		if ( sb.st_mode & S_IRUSR )
-			ret = ret | DU_READABLE;
-		if ( sb.st_mode & S_IWUSR )
-			ret = ret | DU_WRITABLE;
-		if ( sb.st_mode & S_IXUSR )
-			ret = ret | DU_EXECUTABLE;
-	}
-	return (access_rights_t)ret;
-#endif	
+	return du_existsdir_sysdep (path_);
 }
 
 access_rights_t du_existsfile (const char * path_)
 {
-#ifdef AITOWN_WIN32
-		/** @todo */
-#else
-	struct stat sb;
-	int ret = DU_NONE;
-	
-	if ( stat(path_, &sb) == 0 && S_ISREG(sb.st_mode) )
-	{
-		if ( sb.st_mode & S_IRUSR )
-			ret = ret | DU_READABLE;
-		if ( sb.st_mode & S_IWUSR )
-			ret = ret | DU_WRITABLE;
-		if ( sb.st_mode & S_IXUSR )
-			ret = ret | DU_EXECUTABLE;
-	}
-	return (access_rights_t)ret;
-#endif	
+	return du_existsfile_sysdep (path_);
 }
 
 /*  FUNCTIONS    =========================================================== */

@@ -29,6 +29,8 @@
 #include <stdlib.h>
 #include <unistd.h>
 
+#include "plugin_definition.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -62,7 +64,7 @@ plugin_manager_load_binary (plugin_data_t *ret_ptr_, const char * path_)
 {
 	ret_ptr_->handle = dlopen (path_, RTLD_LAZY | RTLD_GLOBAL);
 	if ( ret_ptr_->handle == NULL ) {
-		err_message ("Failed to load %s plugin: %s", dlerror());
+		err_message ("Failed to load %s plugin: %s", path_, dlerror());
 		return FUNC_GENERIC_ERROR;
 	}
 	return FUNC_OK;
@@ -80,13 +82,21 @@ plugin_manager_unload_binary (plugin_data_t **plugin_)
 }
 #endif
 
+#ifdef PLUGIN_MANAGER_C
 //! call initialisation function
 static inline func_error_t
 plugin_manager_call_init (plugin_manager_t *plugin_manager_, plugin_data_t *ret_ptr_)
 {
 	func_error_t err_code = FUNC_OK;
-	func_error_t (*fptr)(plugin_manager_t*, plugin_data_t*);
+	plugin__initialize_t fptr;
 	*(void **)(&fptr) = dlsym(ret_ptr_->handle, "plugin__initialize");
+	if ( fptr == NULL ) {
+		err_message (
+		    "Failed to load %s plugin: "
+		    "plugin__initialize() method was not found.", 
+		    path_);
+		return FUNC_GENERIC_ERROR;
+	}
 	err_code = (*fptr)(plugin_manager_, ret_ptr_);
 	return err_code;
 }
@@ -95,11 +105,13 @@ plugin_manager_call_init (plugin_manager_t *plugin_manager_, plugin_data_t *ret_
 static inline void
 plugin_manager_call_end (plugin_manager_t *plugin_manager_, plugin_data_t *plugin_)
 {
-	void (*fptr)(plugin_manager_t*, plugin_data_t*);
+	plugin__terminate_t fptr;
 	*(void **)(&fptr) = dlsym(plugin_->handle, "plugin__terminate");
 	(*fptr)(plugin_manager_, plugin_);
 }
+#endif // PLUGIN_MANAGER_C
 
+#ifdef PLUGIN_MANAGER_INF_C
 //! extension for plug-in binary (max 3 characters)
 static inline void
 plugin_manager_shared_binary_extension (char * out_buff)
@@ -174,6 +186,7 @@ plugin_manager_program_path ()
 	
 	return linkname;
 }
+#endif // PLUGIN_MANAGER_INF_C
 
 /*  FUNCTIONS    =========================================================== */
 //

@@ -22,6 +22,8 @@
 //
 /*  INCLUDES    ------------------------------------------------------------ */
 
+#include <aitown/aitown_global.h>
+
 #if !defined _WIN32_WCE
 #include <errno.h>
 #endif
@@ -74,31 +76,31 @@ extern "C" {
 
 //!  Sleep for a number of milliseconds
 /// from zhelpers.h
-extern void
+AITOWN_EXPORT void
 z_sleep (int msecs);
 
 //!  Return current system clock as milliseconds
 /// from zhelpers.h
-extern int64_t
+AITOWN_EXPORT int64_t
 z_clock (void);
 
 //!  Print formatted string to stdout, prefixed by date/time and
 //!  terminated with a newline.
 /// from zhelpers.h
-extern void
+AITOWN_EXPORT void
 log_message (const char *format, ...);
 
 //!  Print formatted string to stdout, prefixed by date/time and
 //!  terminated with a newline.
 /// from zhelpers.h
-extern void
+AITOWN_EXPORT void
 err_message (const char *format, ...);
 
 #ifdef	AITOWN_DEBUG
 //!  Print formatted string to stdout, prefixed by date/time and
 //!  terminated with a newline.
 /// from zhelpers.h
-extern void
+AITOWN_EXPORT void
 dbg_message (const char *format, ...);
 #else
 inline void

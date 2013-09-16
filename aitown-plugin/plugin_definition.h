@@ -73,6 +73,17 @@ plugin__terminate (
     plugin_data_t *plugin_
 );
 
+typedef func_error_t (*plugin__initialize_t) (
+    plugin_manager_t *manager_,
+    plugin_data_t *plugin_
+);
+
+typedef void (*plugin__terminate_t) (
+    plugin_manager_t *manager_,
+    plugin_data_t *plugin_
+);
+
+
 /*  FUNCTIONS    =========================================================== */
 //
 //

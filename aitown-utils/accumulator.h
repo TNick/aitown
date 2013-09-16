@@ -51,7 +51,7 @@ typedef struct _accumulator_t {
 } accumulator_t;
 
 //! the value of an invalid offset is 0 (first position is reserver)
-#define ACCUMULATOR_BAD_OFFSET 0
+#define ACCUMULATOR_BAD_OFFSET ((offset_t)0)
 
 /*  DEFINITIONS    ========================================================= */
 //

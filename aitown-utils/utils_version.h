@@ -39,10 +39,10 @@ extern "C" {
 //! identify a version
 typedef unsigned long version_t;
 
-#define VERSION_MAJOR_FACTOR		0x00100000
-#define VERSION_MINOR_FACTOR		0x00001000
+#define VERSION_MAJOR_FACTOR		((version_t)0x00100000)
+#define VERSION_MINOR_FACTOR		((version_t)0x00001000)
 
-#define VERSION_DEFAULT				0x00000000
+#define VERSION_DEFAULT				((version_t)0x00000000)
 #define VERSION_NOT_SPECIFIED		VERSION_DEFAULT
 
 /*  DEFINITIONS    ========================================================= */
