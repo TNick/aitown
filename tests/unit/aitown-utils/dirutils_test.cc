@@ -20,7 +20,7 @@
 
 #ifdef AITOWN_WIN32
 #define REAL_TREE_DIR_1 "C:"
-#define REAL_TREE_DIR_2 "C:\\Documents and Settings"
+#define REAL_TREE_DIR_2 getenv("TEMP")
 #else
 #define REAL_TREE_DIR_1 getenv("HOME")
 #define REAL_TREE_DIR_2 "/tmp"

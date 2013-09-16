@@ -90,6 +90,11 @@ set ( LIB_HEADERS
 
 set ( CMAKE_DEBUG_POSTFIX  "")
 set ( LIBRARY_OUTPUT_PATH  "${CMAKE_BINARY_DIR}/build/bin/plugins" )
+set ( EXECUTABLE_OUTPUT_PATH  "${CMAKE_BINARY_DIR}/build/bin/plugins" )
+set ( CMAKE_RUNTIME_OUTPUT_DIRECTORY
+        "${CMAKE_BINARY_DIR}/build/bin/plugins" CACHE
+        PATH "Directory where .exe and .dll files are dumped." FORCE)
+
 add_library( ${LOC_PRJ_NAME} SHARED
     ${LIB_SOURCES}
 )

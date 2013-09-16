@@ -212,7 +212,7 @@ func_error_t plugin_manager_load (plugin_manager_t *plugin_manager_,
 	    plugin_manager_load_dependency, 
 	    NULL);
 	if ( err_code != FUNC_OK ) {
-		err_message("Loading of plugin %s failed due to missing dependencies", 
+		err_message ("Loading of plugin %s failed due to missing dependencies", 
 		    plugin_name);
 		return FUNC_GENERIC_ERROR;
 	}
@@ -341,7 +341,7 @@ func_error_t plugin_manager_foreach_dependency (
 	plugin_manager_t *plugin_manager_, plugin_sign_t *sign_, 
 	plugin_manager_foreach_dep_t kb_, void *user_data_)
 {
-	func_error_t err_code;
+	func_error_t err_code = FUNC_OK;
 	offset_t crt_off = sign_->first_dep;
 	plugin_dep_t *crt_dep_ptr;
 	const char * dep_name;
