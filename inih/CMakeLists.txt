@@ -9,7 +9,7 @@ set ( LIB_SOURCES
     "ini.c"
 )
 
-add_library ( inih 
+add_library ( inih SHARED
     ${LIB_SOURCES}
 )
 

@@ -85,19 +85,19 @@ plugin_manager_unload_binary (plugin_data_t **plugin_)
 #ifdef PLUGIN_MANAGER_C
 //! call initialisation function
 static inline func_error_t
-plugin_manager_call_init (plugin_manager_t *plugin_manager_, plugin_data_t *ret_ptr_)
+plugin_manager_call_init (plugin_manager_t *plugin_manager_, plugin_data_t *plugin_)
 {
 	func_error_t err_code = FUNC_OK;
 	plugin__initialize_t fptr;
-	*(void **)(&fptr) = dlsym(ret_ptr_->handle, "plugin__initialize");
+	*(void **)(&fptr) = dlsym(plugin_->handle, "plugin__initialize");
 	if ( fptr == NULL ) {
 		err_message (
 		    "Failed to load %s plugin: "
 		    "plugin__initialize() method was not found.", 
-		    path_);
+		    plugin_->name);
 		return FUNC_GENERIC_ERROR;
 	}
-	err_code = (*fptr)(plugin_manager_, ret_ptr_);
+	err_code = (*fptr)(plugin_manager_, plugin_);
 	return err_code;
 }
 

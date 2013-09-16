@@ -67,10 +67,10 @@ add_library( ${LOC_PRJ_NAME} SHARED
     ${LIB_SOURCES}
 )
 target_link_libraries( ${LOC_PRJ_NAME}
-    "inih"
     "aitown-core"
     "aitown-utils"
-   ${AITOWN_PLUGINS_LIBS}
+    ${AITOWN_PLUGINS_LIBS}
+    "inih"
 )
 
 if (INCLUDE_OUTPUT_PATH)
