@@ -22,6 +22,10 @@
 //
 /*  INCLUDES    ------------------------------------------------------------ */
 
+#include <aitown/dbg_assert.h>
+#include <aitown/utils_unused.h>
+#include <aitown/error_codes.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif 
@@ -33,21 +37,12 @@ extern "C" {
 //
 /*  DEFINITIONS    --------------------------------------------------------- */
 
-//! generic exit codes
-typedef enum {
-	AISERVER_OK = 0,
-	AISERVER_GENERIC_ERROR,
-	AISERVER_MEMORY_ERROR
-} aiserver_error;
-
 //! our assert
 #ifdef AITOWN_AISERVER_DEBUG
-#  define AISERVER_ASSERT(a) assert(a)
+#  define AISERVER_ASSERT(a) DBG_ASSERT(a)
 #else
 #  define AISERVER_ASSERT(a)
 #endif
-
-#define AISERVER_UNUSED(expr) do { (void)(expr); } while (0)
 
 #ifndef NULL
 #define NULL ((void*)0)

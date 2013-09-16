@@ -37,6 +37,7 @@
 #include <aitown/cfgpath.h>
 #include <aitown/utils.h>
 #include <aitown/protobuf_wrapper.h>
+#include <aitown/error_codes.h>
 
 /*  INCLUDES    ============================================================ */
 //
@@ -47,6 +48,7 @@
 
 //! name of this program
 #define APP_NAME "aitown-server"
+#define APP_INI_FILE APP_NAME ".ini"
 
 //! number of times to retry to connect to index server
 #define AISERVER_SERVER_RETRIES 3
@@ -92,12 +94,12 @@ static int keep_running = 1;
 
 //! interrupt hendler
 void intHandler(int dummy) {
-	AISERVER_UNUSED (dummy);
+	VAR_UNUSED (dummy);
     keep_running = 0;
 }
 
 //! parse command line
-static aiserver_error parse_command_line (
+static func_error_t parse_command_line (
     aiserver_data_t* server_data_, int argc, char *argv[] )
 {
 	// initialise the table of arguments
@@ -120,12 +122,12 @@ static aiserver_error parse_command_line (
     const char* progname = APP_NAME;
     
 	int nerrors;
-	aiserver_error exitcode = AISERVER_OK;
+	func_error_t exitcode = FUNC_OK;
 	for (;;) {
 		// verify the argtable[] entries were allocated sucessfully
 		if (arg_nullcheck (argtable) != 0) {
 			fprintf (stderr, "%s: insufficient memory\n", progname);
-			exitcode = AISERVER_MEMORY_ERROR;
+			exitcode = FUNC_MEMORY_ERROR;
 			break;
 		}
 		
@@ -156,19 +158,19 @@ static aiserver_error parse_command_line (
 		if (nerrors > 0) {
 			arg_print_errors (stderr,end,progname);
 			fprintf (stderr, "Try '%s --help' for more information.\n",progname);
-			exitcode = AISERVER_GENERIC_ERROR;
+			exitcode = FUNC_GENERIC_ERROR;
 			break;
 		}
 		
 		// sanity checking
 		if ( ( port->ival[0] <= 0 ) | ( port->ival[0] > 65535 ) ) {
 			fprintf (stderr, "Port number must be a positive integer.\n");
-			exitcode = AISERVER_GENERIC_ERROR;
+			exitcode = FUNC_GENERIC_ERROR;
 			break;
 		}
 		if ( ( index_port->ival[0] <= 0 ) | ( index_port->ival[0] > 65535 ) ) {
 			fprintf (stderr, "Port number must be a positive integer.\n");
-			exitcode = AISERVER_GENERIC_ERROR;
+			exitcode = FUNC_GENERIC_ERROR;
 			break;
 		}
 		if ( index_addr->sval[0] == NULL ) {
@@ -254,9 +256,8 @@ static int handler(void* user_, const char* section_, const char* name_,
 }
 
 //! locate config file and load it
-static aiserver_error load_config ( aiserver_data_t* server_data_ )
+static func_error_t load_config ( aiserver_data_t* server_data_ )
 {
-#define APP_INI_FILE APP_NAME ".ini"
 
 	FILE *fp;
 	char cfg_file[MAX_PATH*2];
@@ -287,24 +288,24 @@ static aiserver_error load_config ( aiserver_data_t* server_data_ )
 		dbg_message ("loading config file %s", cfg_file);
 		if ( ini_parse (cfg_file, handler, server_data_) < 0 ) {
 			fprintf (stderr, "Can't load configuration file %s\n", cfg_file);
-			return AISERVER_GENERIC_ERROR;
+			return FUNC_GENERIC_ERROR;
 		}
 	} else {
 		dbg_message ("no config file to load" );
 	}
 	
-	return AISERVER_OK;
+	return FUNC_OK;
 }
 
 //! free a buffer after it has been send by ZMQ
 static void
 zmq_buffer_free (void *data, void *hint) {
 	free (data);
-	AISERVER_UNUSED (hint);
+	VAR_UNUSED (hint);
 }
 
 //! inform the index server about our existance (if one is defined)
-static aiserver_error inform_index_server (aiserver_data_t *server_data_, AiTownIndex*input_msg)
+static func_error_t inform_index_server (aiserver_data_t *server_data_, AiTownIndex*input_msg)
 {
 	int linger = 0;
 	char *addr_buf = NULL;
@@ -312,7 +313,7 @@ static aiserver_error inform_index_server (aiserver_data_t *server_data_, AiTown
 	int rc;
 	void *content_buff;
 	zmq_msg_t msg_send;
-	aiserver_error err_code = AISERVER_GENERIC_ERROR;
+	func_error_t err_code = FUNC_GENERIC_ERROR;
 	
 	// if not required, exit
 	if ( (server_data_->index_server_address == NULL) || 
@@ -429,7 +430,7 @@ static aiserver_error inform_index_server (aiserver_data_t *server_data_, AiTown
 					switch ( incoming->type ) {
 					case   AI_TOWN_INDEX_MESSAGE_TYPE__AITMT_INDEX_OK: {
 						log_message ("Index server ack");
-						err_code = AISERVER_OK;
+						err_code = FUNC_OK;
 						break; }
 					case   AI_TOWN_INDEX_MESSAGE_TYPE__AITMT_INDEX_ERROR: {
 						err_message ("Index server replied: %s", incoming->error_message);
@@ -512,7 +513,7 @@ static void inform_index_server_start (aiserver_data_t *server_data_)
 	add_data.address = (char*)server_data_->address;
 	add_data.has_port = 1;
 	add_data.port = server_data_->port;
-	if ( inform_index_server(server_data_, &input_msg) == AISERVER_OK )
+	if ( inform_index_server(server_data_, &input_msg) == FUNC_OK )
 		server_data_->was_registered = 1;
 	
 }
@@ -544,20 +545,20 @@ int			main			( int argc, char *argv[] )
 	signal(SIGINT, intHandler);
 	
 	aiserver_data_t server_data;
-	aiserver_error exitcode;
+	func_error_t exitcode;
 	for (;;) {
 	
 		// initialize aiserver structure for this program
 		exitcode = aiserver_data_init (&server_data);
-		if ( exitcode != AISERVER_OK )
+		if ( exitcode != FUNC_OK )
 			break;
 
 		// get values from configuration file and command line
 		exitcode = load_config (&server_data);
-		if ( exitcode != AISERVER_OK )
+		if ( exitcode != FUNC_OK )
 			break;
 		exitcode = parse_command_line (&server_data, argc, argv);
-		if ( exitcode != AISERVER_OK )
+		if ( exitcode != FUNC_OK )
 			break;
 			
 		// set a default name

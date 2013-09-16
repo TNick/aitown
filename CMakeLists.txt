@@ -79,8 +79,8 @@ set (modules_testing_src)
 # ----------------------------------------------------------------------------
 # external libraries
 
-#find_package(OGRE REQUIRED)
-#include_directories(${OGRE_INCLUDE_DIRS})
+find_package(OGRE)
+include_directories(${OGRE_INCLUDE_DIRS})
 
 find_package(ZeroMQ REQUIRED)
 include_directories(${ZEROMQ_INCLUDE_DIRS})

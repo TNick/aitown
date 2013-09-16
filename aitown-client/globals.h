@@ -1,9 +1,9 @@
 /* ========================================================================= */
 /* ------------------------------------------------------------------------- */
 /*!
-  \file			aiserver_data.c
-  \date			September 2013
-  \author		TNick
+  \file            globals.h
+  \date            September 2013
+  \author        TNick
   
 *//*
 
@@ -14,15 +14,21 @@
 */
 /* ------------------------------------------------------------------------- */
 /* ========================================================================= */
+#ifndef AITOWN_client_globals_h_INCLUDE
+#define AITOWN_client_globals_h_INCLUDE
 //
 //
 //
 //
 /*  INCLUDES    ------------------------------------------------------------ */
 
-#include <zmq.h>
-#include "aiserver_data.h"
-#include "string.h"
+#include <aitown/dbg_assert.h>
+#include <aitown/utils_unused.h>
+#include <aitown/error_codes.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif 
 
 /*  INCLUDES    ============================================================ */
 //
@@ -30,6 +36,17 @@
 //
 //
 /*  DEFINITIONS    --------------------------------------------------------- */
+
+//! our assert
+#ifdef AITOWN_AICLIENT_DEBUG
+#  define AICLIENT_ASSERT(a) DBG_ASSERT(a)
+#else
+#  define AICLIENT_ASSERT(a)
+#endif
+
+#ifndef NULL
+#define NULL ((void*)0)
+#endif
 
 /*  DEFINITIONS    ========================================================= */
 //
@@ -45,30 +62,6 @@
 //
 /*  FUNCTIONS    ----------------------------------------------------------- */
 
-func_error_t aiserver_data_init (aiserver_data_t *aiserver_data_)
-{
-	// clear all fields to zero
-	memset (aiserver_data_, 0, sizeof(aiserver_data_t));
-	
-	// prepare zmq
-	aiserver_data_->context = zmq_ctx_new ();
-	if ( aiserver_data_->context == NULL )
-		return FUNC_GENERIC_ERROR;
-	
-	// good to go
-	return FUNC_OK;
-}
-
-void aiserver_data_end (aiserver_data_t *aiserver_data_)
-{
-	// end zmq
-	if ( aiserver_data_->context != NULL )
-		zmq_ctx_destroy (aiserver_data_->context);
-	
-	// clear all fields to zero
-	memset (aiserver_data_, 0, sizeof(aiserver_data_t));
-}
-
 /*  FUNCTIONS    =========================================================== */
 //
 //
@@ -76,3 +69,7 @@ void aiserver_data_end (aiserver_data_t *aiserver_data_)
 //
 /* ------------------------------------------------------------------------- */
 /* ========================================================================= */
+#ifdef __cplusplus
+}
+#endif 
+#endif /* AITOWN_client_globals_h_INCLUDE */

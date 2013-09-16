@@ -70,7 +70,7 @@ typedef struct _aiserver_data_t {
 /*  FUNCTIONS    ----------------------------------------------------------- */
 
 //! initialise a pre-allocated aiserver structure
-extern aiserver_error
+extern func_error_t
 aiserver_data_init (aiserver_data_t *aiserver_data_);
 
 //! terminate a pre-allocated aiserver structure

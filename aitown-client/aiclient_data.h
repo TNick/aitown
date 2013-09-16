@@ -1,9 +1,9 @@
 /* ========================================================================= */
 /* ------------------------------------------------------------------------- */
 /*!
-  \file			aiserver_data.c
-  \date			September 2013
-  \author		TNick
+  \file            aiclient_data.h
+  \date            September 2013
+  \author        TNick
   
 *//*
 
@@ -14,15 +14,19 @@
 */
 /* ------------------------------------------------------------------------- */
 /* ========================================================================= */
+#ifndef AITOWN_aiclient_data_h_INCLUDE
+#define AITOWN_aiclient_data_h_INCLUDE
 //
 //
 //
 //
 /*  INCLUDES    ------------------------------------------------------------ */
 
-#include <zmq.h>
-#include "aiserver_data.h"
-#include "string.h"
+#include "globals.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif 
 
 /*  INCLUDES    ============================================================ */
 //
@@ -30,6 +34,17 @@
 //
 //
 /*  DEFINITIONS    --------------------------------------------------------- */
+
+//! singleton management structure
+/// one such structure exists in each program
+typedef struct _aiclient_data_t {
+	void *context; // zmq contenxt
+
+
+} aiclient_data_t;
+
+//! the version of the protocol to use when sending messages
+#define AISERVER_CURRENT_PROTOCOL_VERSION 1
 
 /*  DEFINITIONS    ========================================================= */
 //
@@ -45,29 +60,13 @@
 //
 /*  FUNCTIONS    ----------------------------------------------------------- */
 
-func_error_t aiserver_data_init (aiserver_data_t *aiserver_data_)
-{
-	// clear all fields to zero
-	memset (aiserver_data_, 0, sizeof(aiserver_data_t));
-	
-	// prepare zmq
-	aiserver_data_->context = zmq_ctx_new ();
-	if ( aiserver_data_->context == NULL )
-		return FUNC_GENERIC_ERROR;
-	
-	// good to go
-	return FUNC_OK;
-}
+//! initialise a pre-allocated aiclient structure
+extern func_error_t
+aiclient_data_init (aiclient_data_t *aiclient_data_);
 
-void aiserver_data_end (aiserver_data_t *aiserver_data_)
-{
-	// end zmq
-	if ( aiserver_data_->context != NULL )
-		zmq_ctx_destroy (aiserver_data_->context);
-	
-	// clear all fields to zero
-	memset (aiserver_data_, 0, sizeof(aiserver_data_t));
-}
+//! terminate a pre-allocated aiclient structure
+extern void
+aiclient_data_end (aiclient_data_t *aiclient_data_);
 
 /*  FUNCTIONS    =========================================================== */
 //
@@ -76,3 +75,7 @@ void aiserver_data_end (aiserver_data_t *aiserver_data_)
 //
 /* ------------------------------------------------------------------------- */
 /* ========================================================================= */
+#ifdef __cplusplus
+}
+#endif 
+#endif // AITOWN_aiclient_data_h_INCLUDE

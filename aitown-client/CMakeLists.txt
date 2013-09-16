@@ -25,17 +25,26 @@ project( ${LOC_PRJ_NAME} )
 # ----------------------------------------------------------------------------
 # our library
 set ( LIB_SOURCES
-    main.cc
+    main.c
+    aiclient_data.c
 )
 set ( LIB_HEADERS
-    
+    aiclient_data.h
 )
 
 add_executable( ${LOC_PRJ_NAME}
     ${LIB_SOURCES}
 )
 target_link_libraries( ${LOC_PRJ_NAME}
+	"inih"
+	"cfgpath"
+	${PROTOBUF_LIBRARY}
+	${ARGTABLE_LIBRARIES}
+	${ZEROMQ_LIBRARIES}
+	${OGRE_LIBRARIES}
+
 	"aitown-core"
+	"aitown-utils"
 )
 
 if (INCLUDE_OUTPUT_PATH)
