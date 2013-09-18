@@ -54,6 +54,7 @@ set ( LIB_HEADERS
     utils_version.h
     utils_offset.h
     stack_buff.h
+    zmq_wrapper.h
 )
 
 add_library( ${LOC_PRJ_NAME} SHARED
