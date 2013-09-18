@@ -1,0 +1,104 @@
+---
+layout: default
+title: Building aitown
+---
+
+<p>
+	We are developing aitown on two platforms: Ubuntu and Windows XP.
+    The workflow on this page may be used to build the package
+    on different platforms. CMake is used to generate platform-specific
+    builds.
+</p>
+
+<h2>Building on Ubuntu</h2>
+
+A binary package is not provided, so you will have to build 
+from source.
+
+<h3>Prerequisites</h3>
+
+Some libraries are embedded in source code, others need to
+be retreived:
+<div class="codearea">
+sudo apt-get install cmake-curses-gui cmake<br>
+sudo apt-get install git<br>
+sudo apt-get install libzmq-dev<br>
+sudo apt-get install libargtable2-dev<br>
+sudo apt-get install libprotobuf-lite7 libprotoc7 libprotobuf7<br>
+sudo apt-get install protobuf-compiler libprotobuf-dev<br>
+sudo apt-get install protobuf-c-compiler libprotobuf-c0 libprotobuf-c0-dev<br>
+</div>
+
+<h3>Gettng the source</h3>
+
+Following script will create a directory for aitown 
+and will get the source in src subdirectory.
+<div class="codearea">
+mkdir aitown<br>
+cd aitown<br>
+git clone https://github.com/TNick/aitown.git src<br>
+</div>
+
+<h3>Building and instaling</h3>
+
+Symply type:
+<div class="codearea">
+mkdir build<br>
+cd build<br>
+cmake ../build<br>
+make<br>
+make install<br>
+</div>
+
+
+<h2>Building on Windows XP</h2>
+
+An installer is not provided at this time, so you will have to build 
+from source. Only <a href="http://www.mingw.org/">MinGW</a>
+builds have been tested.
+
+<h3>Prerequisites</h3>
+
+<ul>
+<li>
+download and install <a href="http://www.mingw.org/">MinGW</a>
+</li>
+<li>
+download and install <a href="http://www.cmake.org/">CMake</a>
+</li>
+<li>
+download and install <a href="http://zeromq.org/docs:windows-installations">ZeroMQ</a>
+</li>
+<li>
+download and build <a href="http://argtable.sourceforge.net/">Argtable</a>
+</li>
+<li>
+download and build <a href="http://code.google.com/p/protobuf/">protobuf</a> and 
+<a href="http://code.google.com/p/protobuf-c/">protobuf-c</a>
+</li>
+</ul>
+
+<h3>Building and instaling</h3>
+
+Symply type:
+<div class="codearea">
+mkdir build<br>
+cd build<br>
+cmake ../build -G "MinGW Makefiles" <br>
+make<br>
+make install<br>
+</div>
+
+
+<h2>Common notes</h2>
+
+To direct the installed files toward a specific directory 
+invoke cmake as follows:
+<div class="codearea">
+cmake ../build -DCMAKE_INSTALL_PREFIX:PATH=/a/b/c/d<br>
+</div>
+
+To create a debug build (by default it creates a Release build) use:
+<div class="codearea">
+cmake ../build -DCMAKE_BUILD_TYPE=Debug<br>
+</div>
