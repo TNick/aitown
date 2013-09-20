@@ -1,5 +1,4 @@
 name: AiTown
-pygments: true
 source:      .
 destination: ./_site
 plugins:     ./_plugins
@@ -16,4 +15,5 @@ relative_permalinks: true
 permalink:     date
 paginate_path: 'page:num'
 port: 4001
-baseurl: http://tnick.github.io/aitown
+baseurl: 'http://tnick.github.io/aitown'
+

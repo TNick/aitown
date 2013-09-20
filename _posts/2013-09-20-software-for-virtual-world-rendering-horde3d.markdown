@@ -6,7 +6,7 @@ categories: rendering
 ---
 
 This page is part of the series that explores existing
-[software for virtual world rendering]( {{ site.baseurl }}/rendering/2013/09/20/software-for-virtual-world-rendering.html ).
+[software for virtual world rendering][root].
 
 Horde3D is a small open source 3D rendering engine
 written in C++. 
@@ -61,4 +61,5 @@ If I had more time this would have been my first option.
 Bookmarked it for future use.
 
 
+[root]: {{ site.baseurl }}/rendering/2013/09/20/software-for-virtual-world-rendering.html
 [h3d]: (http://horde3d.org/)

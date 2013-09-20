@@ -44,7 +44,9 @@ Here is the list of pages exploring various projects:
 * [Delta3D]({{ site.baseurl }}/rendering/2013/09/20/software-for-virtual-world-rendering-delta3d.html)
 * [other projects]({{ site.baseurl }}/rendering/2013/09/20/software-for-virtual-world-rendering-other.html)
 
-Apart from [Google](https://www.google.ro), following pages helped 
+-------------------------------------------------------------
+
+Apart from [Google](https://www.google.com), following pages helped 
 this survey:
 
 * [UC Santa Cruz](http://courses.soe.ucsc.edu/courses/cmps164/Spring12/01/pages/enginelist)

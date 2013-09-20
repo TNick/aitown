@@ -69,6 +69,8 @@ p {
 
 pre {
     overflow:auto;
+    width: 40em;
+    max-height:30em;
 }
 
 .inlinecode {

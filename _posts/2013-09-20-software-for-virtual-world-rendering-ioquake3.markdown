@@ -6,7 +6,7 @@ categories: rendering
 ---
 
 This page is part of the series that explores existing
-[software for virtual world rendering]( {{ site.baseurl }}/rendering/2013/09/20/software-for-virtual-world-rendering.html ).
+[software for virtual world rendering][root].
 
 [ioquake3][io3] is a free software (GPLv2+) first person shooter engine. 
 ioquake3 is divided into two general parts, the client part and 
@@ -25,4 +25,5 @@ It has a [wiki](http://wiki.ioquake3.org/) amd a
 From the description above it looks very similar to what we need.
 Experimenting with it is planned for next days.
 
+[root]: {{ site.baseurl }}/rendering/2013/09/20/software-for-virtual-world-rendering.html
 [io3]: (http://ioquake3.org/)

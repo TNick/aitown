@@ -6,7 +6,7 @@ categories: rendering
 ---
 
 This page is part of the series that explores existing
-[software for virtual world rendering]( {{ site.baseurl }}/rendering/2013/09/20/software-for-virtual-world-rendering.html ).
+[software for virtual world rendering][root].
 
 [Unity3D][u3d] is a game development ecosystem: 
 a powerful rendering engine fully integrated 
@@ -36,5 +36,6 @@ looks quite complex. The source code being close-source is
 another minus.
 
 
+[root]: {{ site.baseurl }}/rendering/2013/09/20/software-for-virtual-world-rendering.html
 [u3d]: (http://unity3d.com/)
 [ocg]: (http://opencog.org/)

@@ -6,7 +6,7 @@ categories: rendering
 ---
 
 This page is part of the series that explores existing
-[software for virtual world rendering]( {{ site.baseurl }}/rendering/2013/09/20/software-for-virtual-world-rendering.html ).
+[software for virtual world rendering][root].
 
 Since 2001, 
 [Object-Oriented Graphics Rendering Engine][ogre]
@@ -170,5 +170,5 @@ Here is a script that I thought I would use to help the users:
     exit /b 1
 
 
-
+[root]: {{ site.baseurl }}/rendering/2013/09/20/software-for-virtual-world-rendering.html
 [ogre]: (http://www.ogre3d.org/)

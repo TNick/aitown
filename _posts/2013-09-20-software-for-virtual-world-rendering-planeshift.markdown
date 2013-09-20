@@ -6,7 +6,7 @@ categories: rendering
 ---
 
 This page is part of the series that explores existing
-[software for virtual world rendering]( {{ site.baseurl }}/rendering/2013/09/20/software-for-virtual-world-rendering.html ).
+[software for virtual world rendering][root].
 
 [PlaneShift][pshift] is a Role Playing Game immersed into a 
 3D virtual fantasy world which is FULLY FREE to play. 
@@ -25,4 +25,5 @@ this looks like a good balance between the complexity of the
 world (that we want to be high) and the resources used
 (that we want to be low).
 
+[root]: {{ site.baseurl }}/rendering/2013/09/20/software-for-virtual-world-rendering.html
 [pshift]: (http://g3d.sourceforge.net/)

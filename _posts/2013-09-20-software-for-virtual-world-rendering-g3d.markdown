@@ -6,7 +6,7 @@ categories: rendering
 ---
 
 This page is part of the series that explores existing
-[software for virtual world rendering]( {{ site.baseurl }}/rendering/2013/09/20/software-for-virtual-world-rendering.html ).
+[software for virtual world rendering][root].
 
 The G3D Innovation Engine is a commercial-grade C++ 3D 
 engine available as Open Source (BSD License). 
@@ -24,4 +24,5 @@ functionality or performance. G3D is a rock-solid,
 highly optimized base on which to build your 
 3D application. 
 
+[root]: {{ site.baseurl }}/rendering/2013/09/20/software-for-virtual-world-rendering.html
 [g3d]: (http://g3d.sourceforge.net/)
