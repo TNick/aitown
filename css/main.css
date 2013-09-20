@@ -67,6 +67,10 @@ p {
     text-align: justify;
 }
 
+pre {
+    overflow:auto;
+}
+
 .inlinecode {
 	font-family:courier, "courier new", monospace;
 }

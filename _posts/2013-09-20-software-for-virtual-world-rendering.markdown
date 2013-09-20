@@ -34,4 +34,6 @@ Here is the list of pages exploring various projects:
 
 * [Unity3D]({{ site.url }}/rendering/2013/09/20/software-for-virtual-world-rendering-unity3d.html)
 * [OGRE]({{ site.url }}/rendering/2013/09/20/software-for-virtual-world-rendering-ogre.html)
+* [ioquake3]({{ site.url }}/rendering/2013/09/20/software-for-virtual-world-rendering-ioquake3.html)
+* [Horde3D]({{ site.url }}/rendering/2013/09/20/software-for-virtual-world-rendering-horde3d.html)
 

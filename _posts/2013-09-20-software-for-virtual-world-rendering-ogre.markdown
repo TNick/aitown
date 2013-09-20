@@ -28,8 +28,9 @@ that: an excuse. The project has simply grown out of the
 hands of the team that manages it. 
 The [forum](http://www.ogre3d.org/forums/) shows 
 [initiatives ](http://www.ogre3d.org/forums/viewtopic.php?f=25&t=78165)
-to simplify it being discarded. The MinGW build (once 
-you get it right) fails to link. Various 
+to simplify it being discarded. The MinGW build (
+[once you get it right](http://www.ogre3d.org/forums/viewtopic.php?f=2&t=76798)
+) fails to link. Various 
 [wiki pages](http://www.ogre3d.org/tikiwiki/tiki-index.php)
 provide conflicting information at times and many are obsolete.
 
