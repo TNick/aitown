@@ -16,4 +16,4 @@ relative_permalinks: true
 permalink:     date
 paginate_path: 'page:num'
 port: 4001
-url: http://tnick.github.io/aitown
+baseurl: http://tnick.github.io/aitown
