@@ -11,6 +11,49 @@ title: Home
 	aims to provide an easy way to train an AI agent.
 </p>
 
+<p>
+    The project consists of three components: the client, the server and the index.
+    The role of the index is to provide a list of servers at a known address, so
+    it's a simple program that servers contact when they become alive and when
+    they are terminating to request the index to add/remove themselves, and the 
+    client contacts the index to get a list of available servers that the user
+    may use to choose a server to connect to.
+</p>
+
+<p>
+    Both the client and the server are programs used as a publishing method
+    for plug-ins. The server runs a virtual world and it may or may not
+    be connected with a rendering device. Its main purpose is to keep and
+    update a "scene graph" and to send streams of informations to clients.
+    Plug-ins are registered with the server to provide avatar types
+    that handle both the way the avatar is being rendered (textures, meshes, etc)
+    and the way it behaves (capabilities).
+</p>
+
+<p>
+    After choosing a server (that is, a virtual world), a client querries the
+    server about the types of avatars it has and allows the user to choose
+    an avatar. This avatar then needs to be associated with an actor - the brain
+    of the avatar provided as a plug-in for the client. The actor may the
+    start to learn to use the avatar or it may load previously stored knowledge
+    and go interact with other actors incarnated in avatars.
+</p>
+
+<p>
+    The way this system is envisioned is as follows: the user runs both a 
+    server and a client on a local machine and lets the actor learn to deal with
+    the avatar body (maybe in a simplified world) and, once that is done,
+    the actor is connected with an avatar in a remote virtual world,
+    where it may continue the training in the complex environment that
+    results from other actors interacting with the virtual world.
+</p>
+
+<p>
+    The client side software that controls the avatar is called an <i>actor</i>
+    and not a <i>brain</i> because it may contain aditional components
+    like DNA for evolutionary learning.
+</p>
+
 <!--div id="home"-->
   <h2>News</h2>
   <ul class="posts">
