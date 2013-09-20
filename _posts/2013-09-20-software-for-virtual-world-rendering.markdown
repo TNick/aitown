@@ -32,6 +32,6 @@ independent of the actor and as the actor sees it.
 
 Here is the list of pages exploring various projects:
 
-* [Unity3D]({% post_url 2013-09-20-software-for-virtual-world-rendering-unity3d %})
-* [OGRE]({% post_url 2013-09-20-software-for-virtual-world-rendering-ogre %})
+* [Unity3D]({{ site.url }}/rendering/2013/09/20/software-for-virtual-world-rendering-unity3d.html)
+* [OGRE]({{ site.url }}/rendering/2013/09/20/software-for-virtual-world-rendering-ogre.html)
 
