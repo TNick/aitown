@@ -6,7 +6,7 @@ categories: rendering
 ---
 
 This page is part of the series that explores existing
-[software for virtual world rendering]({{ site.url }}/rendering/2013/09/20/software-for-virtual-world-rendering.html).
+[software for virtual world rendering]( {{ site.baseurl }}/rendering/2013/09/20/software-for-virtual-world-rendering.html ).
 
 Since 2001, 
 [Object-Oriented Graphics Rendering Engine][ogre]

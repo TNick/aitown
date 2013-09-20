@@ -26,14 +26,27 @@ streams of data it sends, thus lowering the requirements of
 the searched project.
 
 The client needs to allow the user to view/hear the scene 
-independent of the actor and as the actor sees it.
+independent of the actor and as the actor sees it. What we're looking
+for is a world as complex as possible using as few resources
+as possible (because they need to be transmitted over the network, that
+is slow).
 
 -------------------------------------------------------------
 
 Here is the list of pages exploring various projects:
 
-* [Unity3D]({{ site.url }}/rendering/2013/09/20/software-for-virtual-world-rendering-unity3d.html)
-* [OGRE]({{ site.url }}/rendering/2013/09/20/software-for-virtual-world-rendering-ogre.html)
-* [ioquake3]({{ site.url }}/rendering/2013/09/20/software-for-virtual-world-rendering-ioquake3.html)
-* [Horde3D]({{ site.url }}/rendering/2013/09/20/software-for-virtual-world-rendering-horde3d.html)
+* [Unity3D]({{ site.baseurl }}/rendering/2013/09/20/software-for-virtual-world-rendering-unity3d.html)
+* [OGRE]({{ site.baseurl }}/rendering/2013/09/20/software-for-virtual-world-rendering-ogre.html)
+* [ioquake3]({{ site.baseurl }}/rendering/2013/09/20/software-for-virtual-world-rendering-ioquake3.html)
+* [Horde3D]({{ site.baseurl }}/rendering/2013/09/20/software-for-virtual-world-rendering-horde3d.html)
+* [G3D]({{ site.baseurl }}/rendering/2013/09/20/software-for-virtual-world-rendering-g3d.html)
+* [PlaneShift]({{ site.baseurl }}/rendering/2013/09/20/software-for-virtual-world-rendering-planeshift.html)
+* [Delta3D]({{ site.baseurl }}/rendering/2013/09/20/software-for-virtual-world-rendering-delta3d.html)
+* [other projects]({{ site.baseurl }}/rendering/2013/09/20/software-for-virtual-world-rendering-other.html)
+
+Apart from [Google](https://www.google.ro), following pages helped 
+this survey:
+
+* [UC Santa Cruz](http://courses.soe.ucsc.edu/courses/cmps164/Spring12/01/pages/enginelist)
+* [sourceforge MMORPG](http://sourceforge.net/directory/games/mmorpg/)
 

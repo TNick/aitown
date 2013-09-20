@@ -118,7 +118,7 @@ li.sidebar 		{
 }
 
 .greenbutton 	{
-	background-image: url('{{ site.url }}/images/green-button.png');
+	background-image: url('{{ site.baseurl }}/images/green-button.png');
 	background-repeat:no-repeat;
 	width: 150px;
 	height: 75px;
@@ -138,16 +138,16 @@ li.sidebar 		{
 }
 
 .windows		{
-	background-image: url('{{ site.url }}/images/windows.png');
+	background-image: url('{{ site.baseurl }}/images/windows.png');
 }
 
 .macos			{
-	background-image: url('{{ site.url }}/images/mac.png');
+	background-image: url('{{ site.baseurl }}/images/mac.png');
 	
 }
 
 .linux			{
-	background-image: url('{{ site.url }}/images/linux.png');
+	background-image: url('{{ site.baseurl }}/images/linux.png');
 }
 
 .lefticon		{
@@ -161,19 +161,19 @@ li.sidebar 		{
 }
 
 .savebutton		{
-	background-image: url('{{ site.url }}/images/save.png');
+	background-image: url('{{ site.baseurl }}/images/save.png');
 }
 
 .gitbutton		{
-	background-image: url('{{ site.url }}/images/git.png');
+	background-image: url('{{ site.baseurl }}/images/git.png');
 }
 
 .docsbutton		{
-	background-image: url('{{ site.url }}/images/information.png');
+	background-image: url('{{ site.baseurl }}/images/information.png');
 }
 
 .bugbutton		{
-	background-image: url('{{ site.url }}/images/bug.png');
+	background-image: url('{{ site.baseurl }}/images/bug.png');
 }
 
 table.btmnav	{
