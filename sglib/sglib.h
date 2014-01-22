@@ -1,4 +1,4 @@
-/* 
+/*
 
   This is SGLIB version 1.0.3
 
@@ -25,7 +25,7 @@
 
 #ifdef __cplusplus
 extern "C" {
-#endif 
+#endif
 
 /* ---------------------------------------------------------------------------- */
 /* ---------------------------------------------------------------------------- */
@@ -38,7 +38,7 @@ extern "C" {
 /* ------------------------------ STATIC ARRAYS ------------------------------- */
 /* ---------------------------------------------------------------------------- */
 
-/* 
+/*
 
   Basic algorithms  for sorting arrays. Multiple  depending arrays can
   be rearranged using user defined 'elem_exchangers'
@@ -258,7 +258,7 @@ extern "C" {
   table occurs on exactly one index.  Once an object is stored in the
   table, it can be represented via its index.
 
-  In case of collision while adding an object the index shifted 
+  In case of collision while adding an object the index shifted
   by SGLIB_HASH_TAB_SHIFT_CONSTANT (constant can be redefined)
 
   You can NOT delete an element from such hash table. The only
@@ -266,7 +266,7 @@ extern "C" {
   file format, having an index table at the beginning and then
   refering objects via indexes.
 
-  !!!!!!! This data structure is NOT documented, do not use it !!!!!!!!!! 
+  !!!!!!! This data structure is NOT documented, do not use it !!!!!!!!!!
 
 */
 
@@ -744,6 +744,7 @@ extern "C" {
   type *_cn_;\
   int _pathi_;\
   type *iteratedVariable;\
+  SGLIB_UNUSED (iteratedVariable); \
   _cn_ = (tree);\
   _pathi_ = 0;\
   while (_cn_!=NULL) {\
@@ -931,7 +932,7 @@ extern "C" {
 
 /* ------------------------ hashed table  (level 1) ------------------------- */
 /*
- 
+
   sglib's hash table is an array storing directly pointers to objects (not containers).
   In this table there is a one-to-one mapping between 'objects' stored
   in the table and indexes where they are placed. Each index is
@@ -944,7 +945,7 @@ extern "C" {
   hash_function - is a hashing function mapping type* to unsigned
   comparator    - is a comparator on elements
 
-  !!!!!!! This data structure is NOT documented, do not use it !!!!!!!!!! 
+  !!!!!!! This data structure is NOT documented, do not use it !!!!!!!!!!
 */
 
 #define SGLIB_DEFINE_HASHED_TABLE_PROTOTYPES(type, dim, hash_function, comparator) \
@@ -1014,7 +1015,7 @@ extern "C" {
 
 
 /* ------------------- hashed container (only for level 1)  -------------------- */
-/* 
+/*
   hashed container is a table of given fixed size containing another
   (dynamic) base container in each cell. Once an object should be
   inserted into the hashed container, a hash function is used to
@@ -1026,7 +1027,7 @@ extern "C" {
   parameters:
   type - the type of the container stored in each cell.
   dim  - the size of the hashed array
-  hash_function - the hashing function hashing 'type *' to unsigned.  
+  hash_function - the hashing function hashing 'type *' to unsigned.
 
 */
 
@@ -1097,7 +1098,7 @@ extern "C" {
     return(e);\
   }\
   type *sglib_hashed_##type##_it_init(struct sglib_hashed_##type##_iterator *it, type *table[dim]) {\
-	return(sglib_hashed_##type##_it_init_on_equal(it, table, NULL, NULL));\
+    return(sglib_hashed_##type##_it_init_on_equal(it, table, NULL, NULL));\
   }\
   type *sglib_hashed_##type##_it_current(struct sglib_hashed_##type##_iterator *it) {\
     return(sglib_##type##_it_current(&it->containerIt));\
@@ -1202,7 +1203,7 @@ extern "C" {
    ce = it->nextelem;\
    it->nextelem = NULL;\
    if (it->subcomparator != NULL) {\
-	 eq = it->equalto; \
+     eq = it->equalto; \
      scp = it->subcomparator;\
      while (ce!=NULL && scp(ce, eq)!=0) ce = ce->next;\
    }\
@@ -1288,7 +1289,7 @@ extern "C" {
    ce = it->nextelem;\
    it->nextelem = NULL;\
    if (it->subcomparator != NULL) {\
-	 eq = it->equalto; \
+     eq = it->equalto; \
      scp = it->subcomparator;\
      while (ce!=NULL && (c=scp(ce, eq)) < 0) ce = ce->next;\
      if (ce != NULL && c > 0) ce = NULL;\
@@ -1416,7 +1417,7 @@ extern "C" {
    ce = it->prevelem;\
    it->prevelem = NULL;\
    if (it->subcomparator != NULL) {\
-	 eq = it->equalto; \
+     eq = it->equalto; \
      scp = it->subcomparator;\
      while (ce!=NULL && scp(eq, ce)!=0) ce = ce->previous;\
    }\
@@ -1426,7 +1427,7 @@ extern "C" {
      ce = it->nextelem;\
      it->nextelem = NULL;\
      if (it->subcomparator != NULL) {\
-	   eq = it->equalto; \
+       eq = it->equalto; \
        scp = it->subcomparator;\
        while (ce!=NULL && scp(ce, eq)!=0) ce = ce->next;\
      }\
@@ -1451,6 +1452,8 @@ http://www.cis.ohio-state.edu/~gurari/course/cis680/cis680Ch11.html
 
 #define SGLIB___RBTREE_FIX_INSERTION_DISCREPANCY(type, tree, leftt, rightt, bits, RED, BLACK) {\
   type *t, *tl, *a, *b, *c, *ar, *bl, *br, *cl, *cr;\
+  SGLIB_UNUSED(bl); \
+  SGLIB_UNUSED(ar); \
   t = *tree;\
   tl = t->leftt;\
   if (t->rightt!=NULL && SGLIB___GET_VALUE(t->rightt->bits)==RED) {\
@@ -1490,6 +1493,8 @@ http://www.cis.ohio-state.edu/~gurari/course/cis680/cis680Ch11.html
 
 #define SGLIB___RBTREE_FIX_DELETION_DISCREPANCY(type, tree, leftt, rightt, bits, RED, BLACK, res) {\
   type  *t, *a, *b, *c, *d, *ar, *bl, *br, *cl, *cr, *dl, *dr;\
+  SGLIB_UNUSED(bl); \
+  SGLIB_UNUSED(ar); \
   t = a = *tree;\
   assert(t!=NULL);\
   ar = a->rightt;\
@@ -1771,6 +1776,7 @@ int sglib_##type##_len(type *t) {\
     type  *e;\
     n = 0;\
     SGLIB_BIN_TREE_MAP_ON_ELEMENTS(type, t, e, left, right, n++);\
+    SGLIB_UNUSED(e); \
     return(n);\
 }\
 \
@@ -1781,6 +1787,7 @@ void sglib__##type##_it_compute_current_elem(struct sglib_##type##_iterator *it)
     eqt = it->equalto;\
     subcomparator = it->subcomparator;\
     it->currentelem = NULL;\
+    SGLIB_UNUSED(cmp); \
     while(it->pathi > 0 && it->currentelem==NULL) {\
         i = it->pathi-1;\
         if (i >= 0) {\
@@ -1958,5 +1965,5 @@ void sglib___##type##_consistency_check(type *t) {\
 
 #ifdef __cplusplus
 }
-#endif 
+#endif
 #endif /* _SGLIB__h_ */

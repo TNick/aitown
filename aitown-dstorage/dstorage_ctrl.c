@@ -1,7 +1,7 @@
 /* ========================================================================= */
 /* ------------------------------------------------------------------------- */
 /*!
-  \file			aitown-plugin.h
+  \file			dstorage_handle.c
   \date			September 2013
   \author		TNick
   
@@ -14,23 +14,21 @@
 */
 /* ------------------------------------------------------------------------- */
 /* ========================================================================= */
-#ifndef AITOWN_plugin_h_INCLUDE
-#define AITOWN_plugin_h_INCLUDE
 //
 //
 //
 //
 /*  INCLUDES    ------------------------------------------------------------ */
 
-#include "globals.h"
-#include "plugin_data.h"
-#include "plugin_definition.h"
-#include "plugin_manager.h"
-#include "plugin_sign.h"
+#include "aitown-dstorage.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif 
+#include <stdlib.h>
+#include <string.h>
+#include <aitown/error_codes.h>
+#include <aitown/dbg_assert.h>
+#include <aitown/pointer_aritmetic.h>
+#include <aitown/char_buff.h>
+#include <aitown/utils_unused.h>
 
 /*  INCLUDES    ============================================================ */
 //
@@ -53,6 +51,17 @@ extern "C" {
 //
 /*  FUNCTIONS    ----------------------------------------------------------- */
 
+void dstorage_ctrl_init (dstorage_ctrl_t *ctrl, dstorage_t *dstorage)
+{
+    memset (ctrl, 0, sizeof(dstorage_ctrl_t));
+    ctrl->dstorage = dstorage;
+}
+
+void dstorage_ctrl_end (dstorage_ctrl_t *ctrl)
+{
+    memset (ctrl, 0, sizeof(dstorage_ctrl_t));
+}
+
 /*  FUNCTIONS    =========================================================== */
 //
 //
@@ -60,7 +69,5 @@ extern "C" {
 //
 /* ------------------------------------------------------------------------- */
 /* ========================================================================= */
-#ifdef __cplusplus
-}
-#endif 
-#endif /* AITOWN_plugin_h_INCLUDE */
+
+

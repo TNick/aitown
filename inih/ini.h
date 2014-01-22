@@ -65,6 +65,14 @@ int ini_parse_file(FILE* file,
 #define INI_MAX_LINE 200
 #endif
 
+#define INIH_KB_SUCCESS 1
+#define INIH_KB_ERROR 0
+
+#define INIH_ERR_SUCCESS 0
+#define INIH_ERR_FILE_IO -1
+#define INIH_ERR_MALLOC -2
+#define INIH_IS_OK(r) (r == 0)
+
 #ifdef __cplusplus
 }
 #endif

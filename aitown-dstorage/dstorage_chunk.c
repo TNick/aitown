@@ -1,7 +1,7 @@
 /* ========================================================================= */
 /* ------------------------------------------------------------------------- */
 /*!
-  \file			aitown-plugin.h
+  \file			dstorage_handle.c
   \date			September 2013
   \author		TNick
   
@@ -14,23 +14,22 @@
 */
 /* ------------------------------------------------------------------------- */
 /* ========================================================================= */
-#ifndef AITOWN_plugin_h_INCLUDE
-#define AITOWN_plugin_h_INCLUDE
 //
 //
 //
 //
 /*  INCLUDES    ------------------------------------------------------------ */
 
-#include "globals.h"
-#include "plugin_data.h"
-#include "plugin_definition.h"
-#include "plugin_manager.h"
-#include "plugin_sign.h"
+#include "dstorage_chunk.h"
+#include "dstorage_chunk_mng.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif 
+#include <stdlib.h>
+#include <string.h>
+#include <aitown/error_codes.h>
+#include <aitown/dbg_assert.h>
+#include <aitown/pointer_aritmetic.h>
+#include <aitown/char_buff.h>
+#include <aitown/utils_unused.h>
 
 /*  INCLUDES    ============================================================ */
 //
@@ -53,6 +52,21 @@ extern "C" {
 //
 /*  FUNCTIONS    ----------------------------------------------------------- */
 
+void dstorage_chunk_init (dstorage_chunk_mng_t *mng, dstorage_chunk_t *ck,
+                          size_t user_sz)
+{
+    VAR_UNUSED (mng);
+    memset (ck, 0, sizeof(dstorage_chunk_t));
+    ck->user_sz = user_sz;
+}
+
+void dstorage_chunk_end (dstorage_chunk_mng_t *mng, dstorage_chunk_t *ck)
+{
+    VAR_UNUSED (mng);
+    memset (ck, 0, sizeof(dstorage_chunk_t));
+}
+
+
 /*  FUNCTIONS    =========================================================== */
 //
 //
@@ -60,7 +74,5 @@ extern "C" {
 //
 /* ------------------------------------------------------------------------- */
 /* ========================================================================= */
-#ifdef __cplusplus
-}
-#endif 
-#endif /* AITOWN_plugin_h_INCLUDE */
+
+

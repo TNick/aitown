@@ -103,7 +103,7 @@ err_message (const char *format, ...);
 AITOWN_EXPORT void
 dbg_message (const char *format, ...);
 #else
-inline void
+static inline void
 dbg_message (const char *format, ...) {
 	do { (void)(format); } while (0);
 }

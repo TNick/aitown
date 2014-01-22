@@ -1,10 +1,10 @@
 /* ========================================================================= */
 /* ------------------------------------------------------------------------- */
 /*!
-  \file			aitown-plugin.h
+  \file			dstorage_handle_mng.h
   \date			September 2013
   \author		TNick
-  
+    
 *//*
 
 
@@ -14,23 +14,25 @@
 */
 /* ------------------------------------------------------------------------- */
 /* ========================================================================= */
-#ifndef AITOWN_plugin_h_INCLUDE
-#define AITOWN_plugin_h_INCLUDE
+#ifndef AITOWN_dstorage_handle_mng_h_INCLUDE
+#define AITOWN_dstorage_handle_mng_h_INCLUDE
 //
 //
 //
 //
 /*  INCLUDES    ------------------------------------------------------------ */
 
-#include "globals.h"
-#include "plugin_data.h"
-#include "plugin_definition.h"
-#include "plugin_manager.h"
-#include "plugin_sign.h"
+#include <aitown/aitown_global.h>
+#include <aitown/utils.h>
+#include <aitown/error_codes.h>
+#include <aitown/pivotal_gmtime.h>
+#include <aitown/dstorage_id.h>
+#include <aitown/dstorage_func.h>
+#include <stddef.h>
 
 #ifdef __cplusplus
 extern "C" {
-#endif 
+#endif
 
 /*  INCLUDES    ============================================================ */
 //
@@ -38,6 +40,14 @@ extern "C" {
 //
 //
 /*  DEFINITIONS    --------------------------------------------------------- */
+
+//! describes a dstorage handle manager
+///
+/// This is a stub now but may be used to optimise allocation of handlers
+/// in the future.
+typedef struct _dstorage_handle_mng_t {
+    char tmp[8];
+} dstorage_handle_mng_t;
 
 /*  DEFINITIONS    ========================================================= */
 //
@@ -53,6 +63,20 @@ extern "C" {
 //
 /*  FUNCTIONS    ----------------------------------------------------------- */
 
+/* DEPRECATED */
+//! initialize a handle manager
+DSTORAGE_FUNC void
+dstorage_handle_mng_init (dstorage_handle_mng_t *mng);
+
+//! terminate the handle manager
+DSTORAGE_FUNC void
+dstorage_handle_mng_end (dstorage_handle_mng_t *mng);
+
+//! get a handle for a given id
+DSTORAGE_FUNC void
+dstorage_handle_mng_get (dstorage_handle_mng_t *mng, dstorage_id_t id);
+/* DEPRECATED */
+
 /*  FUNCTIONS    =========================================================== */
 //
 //
@@ -62,5 +86,5 @@ extern "C" {
 /* ========================================================================= */
 #ifdef __cplusplus
 }
-#endif 
-#endif /* AITOWN_plugin_h_INCLUDE */
+#endif
+#endif // AITOWN_dstorage_handle_mng_h_INCLUDE

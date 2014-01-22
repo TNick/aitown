@@ -3,10 +3,12 @@
 
 set ( LIB_HEADERS
     "ini.h"
+    "struct_ini.h"
 )
 
 set ( LIB_SOURCES
     "ini.c"
+    "struct_ini.c"
 )
 
 add_library ( inih SHARED

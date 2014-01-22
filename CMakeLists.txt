@@ -91,6 +91,11 @@ include_directories(${ARGTABLE_INCLUDE_DIRS})
 find_package(ProtobufC REQUIRED)
 include_directories(${PROTOBUFC_INCLUDE_DIR})
 
+find_package(KyotoCabinet REQUIRED)
+include_directories(${KYOTOCABINET_INCLUDE_DIR})
+
+
+
 add_subdirectory( "googletest" )
 include_directories(googletest/include)
 # ============================================================================
@@ -102,6 +107,7 @@ set ( lib_modules
     "aitown-utils"
     "aitown-core"
     "aitown-plugin"
+    "aitown-dstorage"
 )
 
 set ( modules
@@ -131,6 +137,8 @@ if (modules_testing_src)
     target_link_libraries ( internal-test 
         ${lib_modules}
         gtest_main gtest
+        ${KYOTOCABINET_LIBRARIES}
+        cfgpath
     )
     set ( props "AITOWN_INTERNAL_TESTS=1")
     set_target_properties ( internal-test

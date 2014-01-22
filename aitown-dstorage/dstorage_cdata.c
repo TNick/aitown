@@ -1,7 +1,7 @@
 /* ========================================================================= */
 /* ------------------------------------------------------------------------- */
 /*!
-  \file			aitown-plugin.h
+  \file			dstorage_cdata.c
   \date			September 2013
   \author		TNick
   
@@ -14,23 +14,16 @@
 */
 /* ------------------------------------------------------------------------- */
 /* ========================================================================= */
-#ifndef AITOWN_plugin_h_INCLUDE
-#define AITOWN_plugin_h_INCLUDE
 //
 //
 //
 //
 /*  INCLUDES    ------------------------------------------------------------ */
 
-#include "globals.h"
-#include "plugin_data.h"
-#include "plugin_definition.h"
-#include "plugin_manager.h"
-#include "plugin_sign.h"
+#include "dstorage_cdata.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif 
+#include <stdlib.h>
+#include <string.h>
 
 /*  INCLUDES    ============================================================ */
 //
@@ -53,6 +46,16 @@ extern "C" {
 //
 /*  FUNCTIONS    ----------------------------------------------------------- */
 
+void dstorage_cdata_init (dstorage_cdata_t * cdata)
+{
+    memset (cdata, 0, sizeof(dstorage_cdata_t));
+}
+
+void dstorage_cdata_end (dstorage_cdata_t * cdata)
+{
+    memset (cdata, 0, sizeof(dstorage_cdata_t));
+}
+
 /*  FUNCTIONS    =========================================================== */
 //
 //
@@ -60,7 +63,5 @@ extern "C" {
 //
 /* ------------------------------------------------------------------------- */
 /* ========================================================================= */
-#ifdef __cplusplus
-}
-#endif 
-#endif /* AITOWN_plugin_h_INCLUDE */
+
+

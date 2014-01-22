@@ -160,9 +160,9 @@ static int handler(void* user_, const char* section_, const char* name_,
 				   const char* value_)
 {
 	aiclient_data_t* client_data = (aiclient_data_t*)user_;
-
+    VAR_UNUSED(client_data);
 	if ( strcmp (section_, "general") ) {
-		
+        /** @todo */
 	} else {
 		return 0;
 	}

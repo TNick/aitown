@@ -5,6 +5,8 @@ set ( test_modules
     #"aitown-client"
     #"aitown-server"
     #"aitown-index"
+    "aitown-dstorage"
+    "inih"
 )
 
 FOREACH ( mod ${test_modules} )

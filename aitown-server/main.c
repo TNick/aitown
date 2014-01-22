@@ -70,7 +70,7 @@
 #   define zmq_msg_send(msg,sock,opt) zmq_send (sock, msg, opt)
 #   define zmq_msg_recv(msg,sock,opt) zmq_recv (sock, msg, opt)
 #   define ZMQ_POLL_MSEC    1000        //  zmq_poll is usec
-#elif ZMQ_VERSION_MAJOR == 3
+#elif (ZMQ_VERSION_MAJOR == 3) || (ZMQ_VERSION_MAJOR == 4)
 #   define more_t int
 #   define ZMQ_POLL_MSEC    1           //  zmq_poll is msec
 #endif
@@ -297,12 +297,12 @@ static func_error_t load_config ( aiserver_data_t* server_data_ )
 	return FUNC_OK;
 }
 
-//! free a buffer after it has been send by ZMQ
+/*//! free a buffer after it has been send by ZMQ
 static void
 zmq_buffer_free (void *data, void *hint) {
 	free (data);
 	VAR_UNUSED (hint);
-}
+}*/
 
 //! inform the index server about our existance (if one is defined)
 static func_error_t inform_index_server (aiserver_data_t *server_data_, AiTownIndex*input_msg)
