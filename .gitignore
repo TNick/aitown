@@ -1,5 +1,6 @@
 build/**/*
 build
+devel
 archive/**/*
 archive
 *.o
