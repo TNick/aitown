@@ -73,11 +73,21 @@ TEST(dstorage_testing,handle) {
 
 /* ------------------------------------------------------------------------- */
 TEST(dstorage_testing,lookup) {
-
+/*
     dstorage_lookup_t lku;
     dstorage_lookup_init (&lku);
 
     dstorage_lookup_end (&lku);
+*/
+}
+/* ========================================================================= */
+
+
+/* ------------------------------------------------------------------------- */
+void all_response (
+        dstorage_ctrl_sts_t sts, struct _dstorage_ctrl_param_t* req)
+{
+
 }
 /* ========================================================================= */
 
@@ -125,14 +135,14 @@ TEST(dstorage_testing,all) {
     fprintf (f_cfg_file, "limit=1048576\n");
     fprintf (f_cfg_file, "\n");
 
-    fprintf (f_cfg_file, "[controller/1]\n");
-    fprintf (f_cfg_file, "name=localdb\n");
-    fprintf (f_cfg_file, "path=%s\n", locdbf);
-    fprintf (f_cfg_file, "\n");
-
     fprintf (f_cfg_file, "[controller/2]\n");
     fprintf (f_cfg_file, "name=localdir\n");
     fprintf (f_cfg_file, "path=%s/localdir\n", gtest_path);
+    fprintf (f_cfg_file, "\n");
+
+    fprintf (f_cfg_file, "[controller/1]\n");
+    fprintf (f_cfg_file, "name=localdb\n");
+    fprintf (f_cfg_file, "path=%s\n", locdbf);
     fprintf (f_cfg_file, "\n");
 
     fprintf (f_cfg_file, "[controller/3]\n");
@@ -142,20 +152,80 @@ TEST(dstorage_testing,all) {
 
     fclose (f_cfg_file);
 
+#define BUFF_CONTENT "test string"
+#define BUFF_SIZE sizeof(BUFF_CONTENT)
 
     // now start storage based on those settings
     dstorage_t ds;
     dstorage_init (&ds, "gtest", cfgf);
 
-    //dstorage_handle_t* h1 = dstorage_handle_mng_new (&ds.hmng, 1);
-    //EXPECT_FALSE (h1 == NULL);
+    // create a new ID
+    dstorage_handle_t* h1 = dstorage_new (&ds, BUFF_SIZE);
+    dstorage_id_t id = h1->id;
+    EXPECT_FALSE (h1 == NULL);
+    EXPECT_FALSE (h1->p_data == NULL);
+    EXPECT_FALSE (h1->id == 0);
+    EXPECT_FALSE (h1->tstamp == 0);
+    EXPECT_TRUE (dstorage_handle_is_init(h1));
+    EXPECT_FALSE (dstorage_handle_is_waiting(h1));
+    EXPECT_TRUE (dstorage_handle_is_resolved(h1));
+    EXPECT_FALSE (dstorage_handle_temp_errors(h1));
+    EXPECT_FALSE (dstorage_handle_data_lost(h1));
+    EXPECT_TRUE (dstorage_handle_is_dirty(h1));
+    EXPECT_TRUE (dstorage_handle_ref_count(h1) == 1);
+    memcpy (dstorage_chunk_user(h1->p_data), BUFF_CONTENT, BUFF_SIZE);
+
+    // request another handle for same ID (should be the same with increased ref count)
+    dstorage_handle_t* h2 = dstorage_handle(&ds, h1->id, &ds);
+    EXPECT_TRUE (h1 == h2);
+    EXPECT_TRUE (dstorage_handle_ref_count(h1) == 2);
+
+    // release both references
+    dstorage_handle_done (&ds, &h1, &h1);
+    EXPECT_TRUE (dstorage_handle_ref_count(h2) == 1);
+    EXPECT_TRUE (h1 == NULL);
+    dstorage_handle_done (&ds, &h2, &h2);
+    EXPECT_TRUE (h2 == NULL);
+
+    // get the handle back
+    h1 = dstorage_handle(&ds, id, &ds);
+    EXPECT_TRUE (h1->id == id);
+    EXPECT_TRUE (dstorage_handle_ref_count(h1) == 1);
+    EXPECT_TRUE (h1->p_data == NULL);
+
+    // resolve the data
+    dstorage_handle_resolve (&ds, h1, all_response);
+    EXPECT_FALSE (h1->p_data == NULL);
+    EXPECT_TRUE (memcmp(dstorage_chunk_user(h1->p_data),
+                             BUFF_CONTENT, BUFF_SIZE) == 0);
+
+    // alocate a lot of chunks, each time freeing the memory
+    int i;
+    for (i=0; i<1000; i++) {
+        dstorage_handle_t* h3 = dstorage_new (&ds, BUFF_SIZE);
+        EXPECT_FALSE (h3 == NULL);
+        EXPECT_FALSE (h3->p_data == NULL);
+        EXPECT_FALSE (h3->id == 0);
+        EXPECT_FALSE (h3->tstamp == 0);
+        EXPECT_TRUE (dstorage_handle_is_init(h3));
+        EXPECT_FALSE (dstorage_handle_is_waiting(h3));
+        EXPECT_TRUE (dstorage_handle_is_resolved(h3));
+        EXPECT_FALSE (dstorage_handle_temp_errors(h3));
+        EXPECT_FALSE (dstorage_handle_data_lost(h3));
+        EXPECT_TRUE (dstorage_handle_is_dirty(h3));
+        EXPECT_TRUE (dstorage_handle_ref_count(h3) == 1);
+        memcpy (dstorage_chunk_user(h3->p_data), BUFF_CONTENT, BUFF_SIZE);
+        dstorage_handle_done (&ds, &h3, &h3);
+    }
+
+
 
     dstorage_end (&ds);
 }
 /* ========================================================================= */
 
 /* ------------------------------------------------------------------------- */
-struct _dstorage_ctrl_t * dstorage_ctrl_creator_stub (
+dstorage_ctrl_t * dstorage_ctrl_creator_stub (
         dstorage_t * dstorage, struct_ini_sect_t *settings)
 {
     return NULL;

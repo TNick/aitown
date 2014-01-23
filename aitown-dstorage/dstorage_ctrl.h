@@ -46,6 +46,7 @@ struct _dstorage_t;
 struct _dstorage_ctrl_t;
 struct _dstorage_handle_t;
 struct _dstorage_ctrl_param_t;
+struct _dstorage_cdata_t;
 
 //! response status
 typedef enum {
@@ -64,6 +65,9 @@ typedef void (*dstorage_ctrl_ending) (struct _dstorage_ctrl_t* ctrl);
 typedef void (*dstorage_ctrl_read) (struct _dstorage_ctrl_param_t* req);
 //! function type for asking a controller to write an id;
 typedef void (*dstorage_ctrl_write) (struct _dstorage_ctrl_param_t* req);
+//! function type for informing a controller that it received a new id in custody
+typedef void (*dstorage_ctrl_new) (struct _dstorage_ctrl_t* ctrl, struct _dstorage_cdata_t* data);
+
 //! function type for responding to a request
 typedef void (*dstorage_ctrl_response) (
         dstorage_ctrl_sts_t sts, struct _dstorage_ctrl_param_t* req);
@@ -93,9 +97,12 @@ typedef struct _dstorage_ctrl_param_t {
 /// functions in the dstorage_clist group.
 typedef struct _dstorage_ctrl_t {
     struct _dstorage_t*     dstorage;
+    struct _dstorage_ctrl_t* next;
+    int                     efficiency;
     dstorage_ctrl_ending    ending;
     dstorage_ctrl_read      read;
     dstorage_ctrl_write     write;
+    dstorage_ctrl_new       newid;
     // this structure may be extended for other user-defined data
 } dstorage_ctrl_t;
 

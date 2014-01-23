@@ -31,6 +31,8 @@
 #include <aitown/utils_unused.h>
 #include <aitown/struct_ini.h>
 
+#include <aitown/sglib.h>
+
 /*  INCLUDES    ============================================================ */
 //
 //
@@ -39,6 +41,10 @@
 /*  DEFINITIONS    --------------------------------------------------------- */
 
 #define DSTORAGE_CLIST_STEPU 16
+
+#define CTRL_COMPARATOR(a,b) (a->efficiency - b->efficiency)
+SGLIB_DEFINE_SORTED_LIST_PROTOTYPES(dstorage_ctrl_t, CTRL_COMPARATOR, next)
+SGLIB_DEFINE_SORTED_LIST_FUNCTIONS(dstorage_ctrl_t, CTRL_COMPARATOR, next)
 
 /*  DEFINITIONS    ========================================================= */
 //
@@ -77,6 +83,47 @@ static dstorage_ctrl_t ** dstorage_clist_add_new (dstorage_clist_t *clist)
     return p;
 }
 
+dstorage_ctrl_t * dstorage_clist_add (
+        dstorage_t * dstorage, const char * plugin,
+        const char * name, struct_ini_sect_t * sect) {
+    dstorage_ctrl_creator kb;
+    dstorage_ctrl_t ** slot;
+    dstorage_ctrl_t * controller;
+
+    if (plugin != NULL) {
+        /** @todo load plugin; don't break on errors */
+
+    }
+
+    // now look for the callback of this controller
+    kb = dstorage_controllers_find_callback (name);
+    if (kb == NULL) {
+        log_message ("No way to create controller %s", name);
+        controller = NULL;
+    } else {
+        controller = kb (dstorage, sect);
+    }
+
+    // add controller or NULL to array
+    slot = dstorage_clist_add_new (&dstorage->clist);
+    if (slot == NULL) {
+        err_message ("Memeory allocation error for dstorage controller %s", name);
+        return NULL;
+    }
+    *slot = controller;
+
+    // insert it sorted in the priority list
+    if (controller != NULL) {
+        if (dstorage->clist.pri_dirty) {
+            sglib_dstorage_ctrl_t_sort (&dstorage->clist.priority);
+            dstorage->clist.pri_dirty = 0;
+        }
+        sglib_dstorage_ctrl_t_add (&dstorage->clist.priority, controller);
+    }
+
+    return controller;
+}
+
 void dstorage_clist_init (dstorage_t * dstorage)
 {
     dstorage_clist_t *clist = &dstorage->clist;
@@ -96,10 +143,8 @@ void dstorage_clist_init (dstorage_t * dstorage)
     struct_ini_sect_t * sect;
     struct_ini_value_t * entry;
     const char *name;
+    const char *plugin;
     unsigned i;
-    dstorage_ctrl_creator kb;
-    dstorage_ctrl_t ** slot;
-    dstorage_ctrl_t * controller;
     for (i=1; i< 65000; i++) {
 
         // check if the controller at this index exists
@@ -120,27 +165,12 @@ void dstorage_clist_init (dstorage_t * dstorage)
 
         // does it require a plug-in?
         entry = struct_ini_find_value_0 (sect,"pluigin");
+        plugin = NULL;
         if ((entry != NULL) && (entry->value != NULL)) {
-            /** @todo load plugin; don't break on errors */
-
+            plugin = entry->value;
         }
 
-        // now look for the callback of this controller
-        kb = dstorage_controllers_find_callback (name);
-        if (kb == NULL) {
-            log_message ("No way to create controller %u (%s)", i, name);
-            controller = NULL;
-        } else {
-            controller = kb(dstorage, sect);
-        }
-
-        // add controller or NULL to array
-        slot = dstorage_clist_add_new (clist);
-        if (slot == NULL) {
-            err_message ("Memeory allocation eror for dstorage controller %u", i);
-            break;
-        }
-        *slot = controller;
+        dstorage_clist_add (dstorage, plugin, name, sect);
     }
 }
 
@@ -198,8 +228,44 @@ dstorage_ctrl_t* dstorage_clist_get (dstorage_clist_t *clist, unsigned index)
     }
 
     // may still  be null
-    dstorage_ctrl_t ** p = (dstorage_ctrl_t**)clist->array;
-    return p[index];
+    dstorage_ctrl_t ** p;
+    void * ptr = clist->array;
+    p = (dstorage_ctrl_t **)ptr;
+    return *(p+index);
+}
+
+dstorage_ctrl_t *dstorage_clist_get_best(dstorage_clist_t *clist)
+{
+    // have any?
+    if (clist->priority == NULL) {
+        return NULL;
+    }
+
+    // make sure is sorted
+    if (clist->pri_dirty) {
+        sglib_dstorage_ctrl_t_sort (&clist->priority);
+    }
+
+    return clist->priority;
+}
+
+int dstorage_clist_index(dstorage_clist_t *clist, dstorage_ctrl_t *controller)
+{
+    // see if there is an array
+    dstorage_ctrl_t ** iter = (dstorage_ctrl_t**)clist->array;
+    if (iter == NULL)
+        return -1;
+
+    // iterate it
+    int i;
+    int i_max = (int)clist->used;
+    for (i=0; i<i_max; i++ ) {
+        if (*iter == controller) {
+            return i;
+        }
+        iter++;
+    }
+    return -1;
 }
 
 /* FUNCTIONS =========================================================== */
@@ -209,5 +275,9 @@ dstorage_ctrl_t* dstorage_clist_get (dstorage_clist_t *clist, unsigned index)
 //
 /* ------------------------------------------------------------------------- */
 /* ========================================================================= */
+
+
+
+
 
 

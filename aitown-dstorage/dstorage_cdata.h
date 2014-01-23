@@ -91,7 +91,7 @@ dstorage_cdata_end (dstorage_cdata_t * cdata);
 #define dstorage_cdata_3_set(cd,v)   dstorage_cdata_3(cd) = (v)
 
 //! get the 64-bit value (2 and 3 combined)
-#define dstorage_cdata_64(cd) (*((u_int64t*)(&(cd)->f2[0])))
+#define dstorage_cdata_64(cd) (*((uint64_t*)(&(cd)->f2[0])))
 
 //! set the 64-bit value (2 and 3 combined)
 #define dstorage_cdata_64_set(cd,v)   dstorage_cdata_64(cd) = (v)

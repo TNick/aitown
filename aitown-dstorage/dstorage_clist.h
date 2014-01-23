@@ -49,9 +49,12 @@ struct _dstorage_ctrl_t;
 ///
 ///
 typedef struct _dstorage_clist_t {
-    void *      array;
-    size_t		allocated;
-    size_t		used;
+    void *                      array;      /**< the dynamic array */
+    size_t                      allocated;  /**< the size of the array */
+    size_t                      used;       /**< top used in array */
+
+    struct _dstorage_ctrl_t *   priority;   /**< controllers sorted by priority */
+    int                         pri_dirty;  /**< the cost changed and list should be sortred */
 } dstorage_clist_t;
 
 struct _struct_ini_t;
@@ -93,6 +96,19 @@ DSTORAGE_FUNC struct _dstorage_ctrl_t*
 dstorage_clist_get (
         dstorage_clist_t *clist,
         unsigned index);
+
+//! get best controller
+DSTORAGE_FUNC struct _dstorage_ctrl_t*
+dstorage_clist_get_best (
+        dstorage_clist_t *clist);
+
+//! get the index of a controller or -1 if not found
+DSTORAGE_FUNC int
+dstorage_clist_index (
+        dstorage_clist_t *clist,
+        struct _dstorage_ctrl_t *controller
+        );
+
 
 /*  FUNCTIONS    =========================================================== */
 //

@@ -162,7 +162,7 @@ func_error_t du_mkdir_p (const char * path_)
 
 func_error_t du_mkpath (const char * path_)
 {
-	func_error_t err_code;
+    func_error_t err_code = FUNC_OK;
 	STACKBUFF_INIT(char, buff, 256, strlen (path_) + 1);
 	
 	offset_t i;

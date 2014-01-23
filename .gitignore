@@ -53,6 +53,7 @@ Obj/**/*
 *.csproj.user
 *.vcxproj.user
 *.user
+*.user*
 Makefile*
 object_script.*.Debug
 object_script.*.Release

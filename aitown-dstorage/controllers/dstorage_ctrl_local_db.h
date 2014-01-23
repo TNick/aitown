@@ -41,7 +41,7 @@ extern "C" {
 /// data. The key is the id and the value is the content.
 typedef struct _dstorage_ctrl_local_db_t {
     dstorage_ctrl_t header;
-
+    void *          database;   /**< database handle */
 } dstorage_ctrl_local_db_t;
 
 

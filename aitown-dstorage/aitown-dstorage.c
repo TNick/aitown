@@ -29,6 +29,7 @@
 #include <aitown/utils_unused.h>
 #include <aitown/cfgpath.h>
 #include <aitown/ini.h>
+#include <aitown/pivotal_gmtime.h>
 
 /*  INCLUDES    ============================================================ */
 //
@@ -171,8 +172,6 @@ void dstorage_init (
 
     // start-up the list of controllers
     dstorage_clist_init (dstorage);
-
-
 }
 
 void dstorage_end (dstorage_t *dstorage)
@@ -218,17 +217,76 @@ dstorage_handle_t * dstorage_handle (dstorage_t *dstorage, dstorage_id_t id, voi
         dstorage_lookup_add (&dstorage->lku, ret);
     }
     dstorage_handle_inc_ref (ret, owner);
+    ret->tstamp = z_clock();
 
     // and that's it
     return ret;
 }
 
+static void ctrl_kb_free_common(dstorage_t *dstorage, dstorage_handle_t *handle)
+{
+
+    /** @todo add it to a list of free handles */
+    /** @todo take memory scarcity into account */
+
+    // free memory chunk
+    if (handle->p_data != NULL) {
+        dstorage_chunk_mng_free (&dstorage->ckmng, &handle->p_data);
+    }
+
+    // remove from btree and free memory
+    dstorage_lookup_rem (&dstorage->lku, handle);
+    dstorage_handle_end (&dstorage->hmng, &handle);
+}
+
 static void ctrl_kb_free (
         dstorage_ctrl_sts_t sts, struct _dstorage_ctrl_param_t* req)
 {
+    if (sts == DSTORAGE_CTRL_OK) {
+        ctrl_kb_free_common (req->ctrl->dstorage, req->handle);
+    } else {
+        /** @todo attempt to save in a different controller; if succesfull
+            update the id in the database */
 
+    }
 }
 
+
+void dstorage_handle_save (
+        dstorage_t *dstorage, dstorage_handle_t *handle,
+        dstorage_ctrl_response kb)
+{
+    dstorage_ctrl_param_t   param;
+    param.handle = handle;
+    param.kb = kb;
+
+    // querry the database for controller specific data and controller's index
+    param.ctrl_data = dstorage_lookup_cdata (&dstorage->lku, handle);
+    if (param.ctrl_data == NULL) {
+        // the index
+        /** @todo register this id */
+        dbg_message ("resolve failed to find id %u in database", (unsigned)handle->id);
+        return;
+    }
+
+    // get the controller;
+    unsigned ctrl_index = dstorage_cdata_ctrl (param.ctrl_data);
+    param.ctrl = dstorage_clist_get (
+                &dstorage->clist,
+                ctrl_index);
+    if (param.ctrl == NULL) {
+        /** @todo try other controllers? */
+
+        dbg_message ("controller %u for id %u is missing", ctrl_index, (unsigned)handle->id);
+        return;
+    }
+
+    // update time stamp
+    handle->tstamp = z_clock();
+
+    // finaly, ask the controller to do hard part
+    param.ctrl->write (&param);
+}
 
 void dstorage_handle_done (dstorage_t *dstorage, dstorage_handle_t **handle, void *owner)
 {
@@ -247,21 +305,12 @@ void dstorage_handle_done (dstorage_t *dstorage, dstorage_handle_t **handle, voi
 
         // check if is dirty; ask the controller to write it
         if (dstorage_handle_is_dirty (h)) {
-            /** @todo write using controller */
+            dstorage_handle_save (dstorage, h, ctrl_kb_free);
         } else {
-
+            ctrl_kb_free_common (dstorage, h);
         }
-
-            ctrl_kb_free
-        /** @todo add it to a list of free handles */
-        /** @todo take memory scarcity into account */
-
-        dstorage_lookup_rem (&dstorage->lku, h);
-        dstorage_handle_end (&dstorage->hmng, handle);
-
-    } else {
-        *handle = NULL;
     }
+    *handle = NULL;
 }
 
 void dstorage_handle_resolve (
@@ -271,6 +320,17 @@ void dstorage_handle_resolve (
     dstorage_ctrl_param_t   param;
     param.handle = handle;
     param.kb = kb;
+
+    // check the status
+    dstorage_sts_t sts = (dstorage_sts_t)handle->dstorage_handle_gen_status;
+    if (!((sts == DSTORAGE_H_NO_DATA) ||
+         (sts == DSTORAGE_H_TEMP_FAILURE) ||
+         (sts == DSTORAGE_H_LOST))) {
+
+        /* should we call the callback, anyway? */
+        dbg_message ("handle state not proper for resolving");
+        return;
+    }
 
     // querry the database for controller specific data and controller's index
     param.ctrl_data = dstorage_lookup_cdata (&dstorage->lku, handle);
@@ -290,6 +350,9 @@ void dstorage_handle_resolve (
         return;
     }
 
+    // update time stamp
+    handle->tstamp = z_clock();
+
     // finaly, ask the controller to do hard part
     param.ctrl->read (&param);
 }
@@ -297,8 +360,11 @@ void dstorage_handle_resolve (
 dstorage_handle_t * dstorage_new (dstorage_t *dstorage, size_t sz)
 {
 
+    // get the controller to use
+    dstorage_ctrl_t * ctrl = dstorage_clist_get_best (&dstorage->clist);
+
     // allocate a new id; should not have been used before
-    dstorage_id_t id = dstorage_lookup_new_id (&dstorage->lku);
+    dstorage_id_t id = dstorage_lookup_new_id (&dstorage->lku, ctrl);
     if (id == 0) {
         return NULL;
     }
@@ -313,12 +379,13 @@ dstorage_handle_t * dstorage_new (dstorage_t *dstorage, size_t sz)
     DBG_ASSERT (dstorage_handle_ref_count (ret) == 0);
 
     // allocate a chunk and associate it with the handle
-    dstorage_chunk_t* ret->p_data = dstorage_alloc_chunk (dstorage, sz);
+    ret->p_data = dstorage_alloc_chunk (dstorage, sz);
     if (ret->p_data == NULL) {
         /** @todo leaking an ID, here; maybe undo previous op */
-        dstorage_handle_end (&ret);
+        dstorage_handle_end (&dstorage->hmng, &ret);
         return NULL;
     }
+    dstorage_handle_mark_resolved (ret);
 
     // add the handle in the chain and take a reference
     dstorage_lookup_add (&dstorage->lku, ret);
@@ -326,6 +393,9 @@ dstorage_handle_t * dstorage_new (dstorage_t *dstorage, size_t sz)
 
     // mark it as dirty so that it gets written when released
     dstorage_handle_mark_dirty (ret);
+
+    // update time stamp
+    ret->tstamp = z_clock();
 
     return ret;
 }
@@ -335,7 +405,7 @@ dstorage_chunk_t* dstorage_alloc_chunk (dstorage_t *dstorage, size_t sz)
     dstorage_chunk_t* ret;
 
     // give it a try
-    ret = dstorage_chunk_mng_alloc (dstorage->ckmng, sz);
+    ret = dstorage_chunk_mng_alloc (&dstorage->ckmng, sz);
     if (ret != NULL) {
         return ret;
     }

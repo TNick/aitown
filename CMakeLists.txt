@@ -100,6 +100,7 @@ add_subdirectory( "googletest" )
 include_directories(googletest/include)
 # ============================================================================
 
+add_definitions(-DUSE_KYOTO_CABINET=1)
 
 # ----------------------------------------------------------------------------
 # modules

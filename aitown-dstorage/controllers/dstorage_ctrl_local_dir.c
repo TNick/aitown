@@ -38,6 +38,10 @@
 //
 /*  DEFINITIONS    --------------------------------------------------------- */
 
+#ifndef PRIu64
+#define PRIu64 "llu"
+#endif
+
 /*  DEFINITIONS    ========================================================= */
 //
 //
@@ -70,6 +74,8 @@ static void ctrl_read (dstorage_ctrl_param_t* req)
     DBG_ASSERT (req->handle->p_data == NULL);
     DBG_ASSERT (!dstorage_handle_is_resolved(req->handle));
 
+    int64_t t_start = z_clock();
+
     // set new status
     dstorage_handle_mark_waiting (req->handle);
     dstorage_ctrl_local_dir_t * ret = (dstorage_ctrl_local_dir_t*)req->ctrl;
@@ -95,7 +101,7 @@ static void ctrl_read (dstorage_ctrl_param_t* req)
 
         // get a chunk large enough
         dstorage_chunk_t * p_chunk =
-                dstorage_chunk_mng_alloc (&req->ctrl->dstorage->ckmng, filesz);
+                dstorage_alloc_chunk (req->ctrl->dstorage, filesz);
         if (p_chunk == NULL) {
             stat = DSTORAGE_CTRL_UNREACHABLE;
             break;
@@ -123,6 +129,11 @@ static void ctrl_read (dstorage_ctrl_param_t* req)
     if (req->kb != NULL) {
         req->kb(stat, req);
     }
+
+    // recompute efficiency
+    int64_t eff = (((z_clock() - t_start) / filesz)*4 + 12 * ret->header.efficiency)/16;
+    ret->header.efficiency = eff;
+    ret->header.dstorage->clist.pri_dirty = 1;
 }
 
 static void ctrl_write (dstorage_ctrl_param_t* req)
@@ -134,14 +145,17 @@ static void ctrl_write (dstorage_ctrl_param_t* req)
     DBG_ASSERT (req->handle->p_data != NULL);
     DBG_ASSERT (dstorage_handle_is_resolved(req->handle));
 
+    // assume it's us
+    dstorage_ctrl_local_dir_t * ret = (dstorage_ctrl_local_dir_t*)req->ctrl;
+    int64_t t_start = z_clock();
+    dstorage_chunk_t *ck = req->handle->p_data;
+    size_t ck_sz = ck->user_sz;
     dstorage_ctrl_sts_t stat;
 
     for (;;) {
-        // assume it's us
-        dstorage_ctrl_local_dir_t * ret = (dstorage_ctrl_local_dir_t*)req->ctrl;
 
-        // see if the buffer is resolved, no need  to bother otherwise
-        if (dstorage_handle_is_resolved(req->handle)) {
+        // see if the buffer is resolved, no need to bother otherwise
+        if (!dstorage_handle_is_resolved(req->handle)) {
             err_message ("localdir requested to write an unresolved id %" PRIu64, req->handle->id);
             stat = DSTORAGE_CTRL_GENERIC_ERR;
             break;
@@ -156,6 +170,23 @@ static void ctrl_write (dstorage_ctrl_param_t* req)
             break;
         }
 
+        // actual write
+        if ( 1 != fwrite (
+                    dstorage_chunk_user (ck),
+                    ck_sz, 1, f))
+        {
+            dbg_message ("localdir can't write id %" PRIu64, req->handle->id);
+            stat = DSTORAGE_CTRL_CANT_WRITE;
+            fclose (f); f = NULL;
+            break;
+        }
+
+        // we're done with this file
+        fclose (f); f = NULL;
+
+        // clear dirty flag for this handle
+        dstorage_handle_mark_clean (req->handle);
+
         break;
     }
 
@@ -164,6 +195,10 @@ static void ctrl_write (dstorage_ctrl_param_t* req)
         req->kb(stat, req);
     }
 
+    // recompute efficiency
+    int64_t eff = (((z_clock() - t_start) / ck_sz)*4 + 12 * ret->header.efficiency)/16;
+    ret->header.efficiency = eff;
+    ret->header.dstorage->clist.pri_dirty = 1;
 }
 
 static dstorage_ctrl_t * creator(dstorage_t *dstorage, struct_ini_sect_t *settings)
@@ -193,6 +228,7 @@ static dstorage_ctrl_t * creator(dstorage_t *dstorage, struct_ini_sect_t *settin
         path[path_sz] = '/';
         path_sz++;
     }
+    path[path_sz] = 0;
 
     // create the instance
     dstorage_ctrl_local_dir_t * ret = (dstorage_ctrl_local_dir_t*)malloc(

@@ -25,12 +25,16 @@
 
 #include <stdlib.h>
 #include <string.h>
+
+#include <aitown/aitown-dstorage.h>
 #include <aitown/error_codes.h>
 #include <aitown/dbg_assert.h>
 #include <aitown/pointer_aritmetic.h>
 #include <aitown/char_buff.h>
 #include <aitown/sglib.h>
 #include <aitown/utils_unused.h>
+#include <aitown/dstorage_cdata.h>
+#include <aitown/dstorage_clist.h>
 
 #include <kclangc.h>
 
@@ -41,9 +45,6 @@
 //
 //
 /*  DEFINITIONS    --------------------------------------------------------- */
-
-#define USE_KYOTO_CABINET 1
-
 
 #define CMPARATOR(x,y) ((x->id)-(y->id))
 
@@ -66,6 +67,8 @@ SGLIB_DEFINE_RBTREE_FUNCTIONS(dstorage_handle_t, left, right, dstorage_handle_re
 
 void dstorage_lookup_init (dstorage_lookup_t *lku)
 {
+    DBG_ASSERT (lku != NULL);
+
     memset (lku, 0, sizeof(dstorage_lookup_t));
 
 #ifdef  USE_KYOTO_CABINET
@@ -84,7 +87,7 @@ void dstorage_lookup_init_open (dstorage_lookup_t *lku, const char * database)
         // attempt to open it
         KCDB* db = lku->database;
         if (!kcdbopen (db, database, KCOWRITER | KCOCREATE)) {
-            err_message("open error: %s\n", kcecodename(kcdbecode(db)));
+            err_message("ID database open error: %s\n", kcecodename(kcdbecode(db)));
             break;
         }
 
@@ -94,7 +97,10 @@ void dstorage_lookup_init_open (dstorage_lookup_t *lku, const char * database)
 
             // set initial ID to be assigned (1)
             dstorage_lookup_set_crt_id (lku, 1);
-            if (!kcdbset (db, &id, sizeof(dstorage_id_t), &lku->header, sizeof(dstorage_cdata_t) )) {
+            if (!kcdbset (
+                    db, (const char*)&id, sizeof(dstorage_id_t),
+                    (const char*)&lku->header, sizeof(dstorage_cdata_t) )) {
+
                 err_message("database error writing record 0 (header): %s",
                       kcecodename(kcdbecode(db)));
                 kcdbclose (db);
@@ -126,11 +132,13 @@ void dstorage_lookup_init_open (dstorage_lookup_t *lku, const char * database)
 
         }
 #       endif
+        break;
     }
 }
 
 void dstorage_lookup_end (dstorage_lookup_t *lku)
 {
+    DBG_ASSERT (lku != NULL);
 
     if ( lku->database != NULL) {
 
@@ -138,7 +146,7 @@ void dstorage_lookup_end (dstorage_lookup_t *lku)
 #       ifdef  USE_KYOTO_CABINET
         KCDB* db = (KCDB*)lku->database;
         if (!kcdbclose (db)) {
-            err_message("dstorage database close error: %s\n", kcecodename(kcdbecode(db)));
+            err_message("dstorage database close error: %s", kcecodename(kcdbecode(db)));
         }
         kcdbdel (db);
 #       endif
@@ -153,6 +161,8 @@ void dstorage_lookup_end (dstorage_lookup_t *lku)
 dstorage_handle_t * dstorage_lookup_handle (
         dstorage_lookup_t *lku, dstorage_id_t id)
 {
+    DBG_ASSERT (lku != NULL);
+
     dstorage_handle_t h;
     h.id = id;
     return sglib_dstorage_handle_t_find_member (lku->tree, &h);
@@ -161,6 +171,8 @@ dstorage_handle_t * dstorage_lookup_handle (
 dstorage_id_t dstorage_lookup_id (
         dstorage_lookup_t *lku, dstorage_handle_t *handle)
 {
+    DBG_ASSERT (lku != NULL);
+
     dstorage_handle_t *te;
     struct sglib_dstorage_handle_t_iterator  it;
     for( te=sglib_dstorage_handle_t_it_init_inorder(&it,lku->tree); te!=NULL; te=sglib_dstorage_handle_t_it_next(&it)) {
@@ -174,9 +186,7 @@ dstorage_id_t dstorage_lookup_id (
 void dstorage_lookup_add (
         dstorage_lookup_t *lku, dstorage_handle_t *handle)
 {
-#   ifdef AITOWN_DEBUG
     DBG_ASSERT (dstorage_lookup_handle (lku, handle->id) == NULL);
-#   endif
 
     sglib_dstorage_handle_t_add (&lku->tree, handle);
 }
@@ -184,9 +194,8 @@ void dstorage_lookup_add (
 void dstorage_lookup_rem (
         dstorage_lookup_t *lku, dstorage_handle_t *handle)
 {
-#   ifdef AITOWN_DEBUG
+    DBG_ASSERT (lku != NULL);
     DBG_ASSERT (dstorage_lookup_handle (lku, handle->id) == handle);
-#   endif
 
     sglib_dstorage_handle_t_delete (&lku->tree, handle);
 }
@@ -195,6 +204,8 @@ void dstorage_lookup_rem (
 dstorage_cdata_t * dstorage_lookup_cdata (
         dstorage_lookup_t *lku, dstorage_handle_t *handle)
 {
+    DBG_ASSERT (lku != NULL);
+
     for (;;) {
 #       ifdef  USE_KYOTO_CABINET
         KCDB* db = (KCDB*)lku->database;
@@ -228,29 +239,48 @@ dstorage_cdata_t * dstorage_lookup_cdata (
 
 void dstorage_lookup_free_cdata (dstorage_lookup_t *lku, dstorage_cdata_t *cdata)
 {
+    DBG_ASSERT (lku != NULL);
+
 #   ifdef  USE_KYOTO_CABINET
     VAR_UNUSED (lku);
     kcfree (cdata);
 #   endif
 }
 
-dstorage_id_t dstorage_lookup_new_id (dstorage_lookup_t *lku)
+dstorage_id_t dstorage_lookup_new_id (dstorage_lookup_t *lku, dstorage_ctrl_t * ctrl)
 {
+    DBG_ASSERT (ctrl != NULL);
+    DBG_ASSERT (lku != NULL);
+
     // get a new id (make sure to skip 0)
     dstorage_id_t id = 0;
     while (id == 0)
         id = dstorage_lookup_get_a_new_id (lku);
 
+    // prepare associated data
+    dstorage_cdata_t cdata;
+    dstorage_cdata_init (&cdata);
+    dstorage_cdata_ctrl_set (&cdata, dstorage_clist_index (&ctrl->dstorage->clist,ctrl));
 
-    /** @todo assign a controller */
+    // inform the controller abuot the new id
+    if (ctrl->newid != NULL) {
+        ctrl->newid (ctrl, &cdata);
+    }
 
+#   ifdef  USE_KYOTO_CABINET
+    KCDB* db = (KCDB*)lku->database;
 
-    // save this to database right away
-    if (!kcdbset (db, &id, sizeof(dstorage_id_t), &lku->header, sizeof(dstorage_cdata_t) )) {
+    // save this to ID database right away
+    if (!kcdbset (
+            db, (const char *)&id, sizeof(dstorage_id_t),
+            (const char *)&lku->header, sizeof(dstorage_cdata_t) )) {
+
         err_message("database error writing record 0 (header): %s",
               kcecodename(kcdbecode(db)));
         id = 0;
     }
+#   endif
+
 
     return id;
 }

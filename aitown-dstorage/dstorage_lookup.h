@@ -118,7 +118,7 @@ dstorage_lookup_free_cdata (dstorage_lookup_t *lku, dstorage_cdata_t *cdata);
 
 /// allocate a new id in the database
 DSTORAGE_FUNC dstorage_id_t
-dstorage_lookup_new_id (dstorage_lookup_t *lku);
+dstorage_lookup_new_id (dstorage_lookup_t *lku, dstorage_ctrl_t * ctrl);
 
 
 /*  FUNCTIONS    =========================================================== */

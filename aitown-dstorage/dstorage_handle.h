@@ -66,7 +66,7 @@ typedef enum {
 typedef struct _dstorage_handle_t {
     struct _dstorage_chunk_t*   p_data; /**< pointer to data chunk */
     dstorage_id_t               id;     /**< a 64-bit number that identifies the data */
-    time64_t                    tstamp; /**< last access time */
+    int64_t                     tstamp; /**< last access time */
     char                        sts[8]; /**< the data status */
 
     struct _dstorage_handle_t * left;   /**< left link */
@@ -127,7 +127,7 @@ struct _dstorage_handle_mng_t;
 #define dstorage_handle_dirty_status   sts[2]
 
 //! tell if a handle is dirty
-#define dstorage_handle_is_dirty(h)   (h->dstorage_handle_dirty_status == DSTORAGE_H_CLEAN)
+#define dstorage_handle_is_dirty(h)   (h->dstorage_handle_dirty_status != DSTORAGE_H_CLEAN)
 
 //! mark a handle dirty
 #define dstorage_handle_mark_dirty(h)   (h->dstorage_handle_dirty_status = DSTORAGE_H_DIRTY)

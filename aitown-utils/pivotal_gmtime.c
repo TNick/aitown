@@ -203,8 +203,9 @@ struct tm *localtime64_r (const time64_t * _t, struct tm *p)
 
 time64_t pivotal_timestamp ()
 {
+    time_t t_classic = time (NULL);
     time64_t ltime;
-    struct tm mytime;
+    struct tm mytime = *gmtime (&t_classic);
     gmtime64_r(&ltime, &mytime);
     return ltime;
 }
