@@ -391,11 +391,8 @@ static int plugin_manager_char_dep (plugin_manager_inf_t * data_)
 static int plugin_manager_parse_dep ( 
     plugin_manager_inf_t * data_, const char* value_)
 {
-<<<<<<< HEAD
-    int ret_code = 0;
-=======
+
 	int ret_code = 0;
->>>>>>> d4304003d7f9c1925cd3f8287269e504baaffd7c
 	data_->value = value_;
 	
 	// initialisation
