@@ -36,6 +36,8 @@ set ( LIB_SOURCES
     ${LOC_PRJ_NAME}.c
     ${LOC_PRJ_NAME}-mng.c
     ${LOC_PRJ_NAME}-driver.c
+
+    builtin/fse/fse.c
 )
 set ( LIB_HEADERS
     ${LOC_PRJ_NAME}.h
