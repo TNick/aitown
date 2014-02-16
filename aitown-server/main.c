@@ -23,7 +23,6 @@
 //
 /*  INCLUDES    ------------------------------------------------------------ */
 
-#include <zmq.h>
 #include <argtable2.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -38,6 +37,7 @@
 #include <aitown/utils.h>
 #include <aitown/protobuf_wrapper.h>
 #include <aitown/error_codes.h>
+#include <aitown/zmq_wrapper.h>
 
 /*  INCLUDES    ============================================================ */
 //
@@ -55,6 +55,7 @@
 //! timeout for connecting to index server
 #define AISERVER_SERVER_TIMEOUT 3000
 
+<<<<<<< HEAD
 #ifndef ZMQ_DONTWAIT
 #   define ZMQ_DONTWAIT   ZMQ_NOBLOCK
 #endif
@@ -75,6 +76,8 @@
 #   define ZMQ_POLL_MSEC    1           //  zmq_poll is msec
 #endif
 
+=======
+>>>>>>> d4304003d7f9c1925cd3f8287269e504baaffd7c
 /*  DEFINITIONS    ========================================================= */
 //
 //

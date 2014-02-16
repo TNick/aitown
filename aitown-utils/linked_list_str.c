@@ -146,7 +146,7 @@ void linked_list_str_delete_all (linked_list_str_t **first)
 	linked_list_str_t * iter = *first;
 	if ( iter != NULL ) {
 		linked_list_str_t * iter_next;
-		while ( iter_next != NULL ) {
+		while ( iter != NULL ) {
 			iter_next = iter->next;
 			free (iter);
 			iter = iter_next;

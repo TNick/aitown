@@ -20,9 +20,9 @@
 //
 /*  INCLUDES    ------------------------------------------------------------ */
 
-#include <zmq.h>
 #include "aiserver_data.h"
 #include "string.h"
+#include <aitown/zmq_wrapper.h>
 
 /*  INCLUDES    ============================================================ */
 //

@@ -391,7 +391,11 @@ static int plugin_manager_char_dep (plugin_manager_inf_t * data_)
 static int plugin_manager_parse_dep ( 
     plugin_manager_inf_t * data_, const char* value_)
 {
+<<<<<<< HEAD
     int ret_code = 0;
+=======
+	int ret_code = 0;
+>>>>>>> d4304003d7f9c1925cd3f8287269e504baaffd7c
 	data_->value = value_;
 	
 	// initialisation
@@ -511,7 +515,6 @@ static func_error_t plugin_manager_scan_an_inf ( const char * path_, const char 
 {
 	inf_dbg_message ("    file %s", path_);
 	
-	func_error_t err_code;
 	DBG_ASSERT (is_file_);
 	plugin_manager_t *plugin_manager = (plugin_manager_t *)user_data_;
 	
@@ -538,8 +541,9 @@ static func_error_t plugin_manager_scan_an_inf ( const char * path_, const char 
 	{
 		plugin_sign_t * new_sign = (plugin_sign_t*)accumulator_to_ptr(
 					&plugin_manager->acm_sign, new_sign_off);
-		err_code = plugin_sign_init (new_sign);
+		func_error_t err_code = plugin_sign_init (new_sign);
 		DBG_ASSERT (err_code==FUNC_OK);
+        VAR_UNUSED (err_code);
 		// fill in the structure
 		new_sign->path_lib = path_lib;
 		new_sign->plugin_name = plugin_name;
@@ -609,7 +613,7 @@ static func_error_t plugin_manager_scan_standard_path (
     const char * path_, size_t path_sz_ )
 {
 	func_error_t err_code;
-	char * src;
+	char * src = NULL;
 	int b_free_buffer = 0;
 
 	if ( path_sz_ == 0 ) {

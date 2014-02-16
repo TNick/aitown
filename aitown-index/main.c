@@ -23,7 +23,6 @@
 //
 /*  INCLUDES    ------------------------------------------------------------ */
 
-#include <zmq.h>
 #include <argtable2.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -38,6 +37,7 @@
 #include <aitown/utils.h>
 #include <aitown/protobuf_wrapper.h>
 #include <aitown/error_codes.h>
+#include <aitown/zmq_wrapper.h>
 
 /*  INCLUDES    ============================================================ */
 //
@@ -48,6 +48,7 @@
 
 //! name of this program
 #define APP_NAME "aitown-index"
+#define APP_INI_FILE APP_NAME ".conf"
 
 /*  DEFINITIONS    ========================================================= */
 //
@@ -189,7 +190,6 @@ static int handler(void* user_, const char* section_, const char* name_,
 //! locate config file and load it
 static index_error load_config ( index_data_t* index_data_ )
 { dbg_message (__func__);
-#define APP_INI_FILE APP_NAME ".conf"
 
 	FILE *fp;
 	char cfg_file[MAX_PATH*2];

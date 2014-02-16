@@ -30,6 +30,7 @@
 #include <unistd.h>
 
 #include "plugin_definition.h"
+#include <aitown/utils_unused.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -135,6 +136,7 @@ plugin_manager_program_path ()
 	// get its status
 	int res = lstat(sym_path, &sb);
 	DBG_ASSERT (res != -1);
+    VAR_UNUSED (res);
 	alloc_mem = sb.st_size;
 	
 	if ( alloc_mem == 0 ) {
