@@ -7,6 +7,8 @@ set ( test_modules
     #"aitown-index"
     "aitown-dstorage"
     "inih"
+    "kdtree"
+    "aitown-db"
 )
 
 FOREACH ( mod ${test_modules} )

@@ -36,6 +36,8 @@
 //
 /*  DEFINITIONS    --------------------------------------------------------- */
 
+#define CHAR_BUFFER_INCREASE_STEP   128
+
 /*  DEFINITIONS    ========================================================= */
 //
 //
@@ -64,7 +66,7 @@ void char_buff_init (char_buff_t* cbuff, size_t init_size)
 	cbuff->used = 0;
 }
 
-int char_buff_from_str (char_buff_t* cbuff, const char * src)
+func_error_t char_buff_from_str (char_buff_t* cbuff, const char * src)
 {
 	size_t sz = strlen(src);
 	size_t sz_alloc = sz + 64 + ROUND_TO_PTR(sz);
@@ -93,7 +95,7 @@ void char_buff_end (char_buff_t* cbuff)
 	cbuff->allocated = 0;
 }
 
-int char_buff_add_string (
+func_error_t char_buff_add_string (
 		char_buff_t* cbuff, const char * src, size_t sz )
 {
 	// get the lenght
@@ -101,26 +103,37 @@ int char_buff_add_string (
 		sz = strlen (src);
 	}
 
-	char * tmp_buf;
-	size_t new_used = cbuff->used + sz;
-	
-	// enlarge the buffer if required
-	if ( new_used+8 >= cbuff->allocated ) {
-		size_t new_alloc = new_used + 128 + ROUND_TO_PTR(new_used);
-		tmp_buf = (char*)realloc(cbuff->data, new_alloc);
-		if ( tmp_buf == NULL )
-			return FUNC_MEMORY_ERROR;
-		cbuff->data = tmp_buf;
-		cbuff->allocated = new_alloc;
-	}
-	
-	// append the string
-	char * dest_buf = cbuff->data + cbuff->used;
+    offset_t loc;
+    func_error_t ret = char_buff_alloc (cbuff, sz, &loc);
+    if (FUNC_OK != ret) {
+        return ret;
+    }
+
+    // append the string
+    char * dest_buf = cbuff->data + loc;
 	memcpy (dest_buf, src, sz);
 	dest_buf[sz] = 0;
-	cbuff->used = new_used;
 	
 	return FUNC_OK;
+}
+
+func_error_t char_buff_alloc (char_buff_t* cbuff, size_t sz, offset_t *out )
+{
+    char * tmp_buf;
+    size_t new_used = cbuff->used + sz;
+
+    // enlarge the buffer if required
+    if ( new_used >= cbuff->allocated ) {
+        size_t new_alloc = new_used + CHAR_BUFFER_INCREASE_STEP + ROUND_TO_PTR(new_used);
+        tmp_buf = (char*)realloc(cbuff->data, new_alloc);
+        if ( tmp_buf == NULL )
+            return FUNC_MEMORY_ERROR;
+        cbuff->data = tmp_buf;
+        cbuff->allocated = new_alloc;
+    }
+    *out = cbuff->used;
+    cbuff->used = new_used;
+    return FUNC_OK;
 }
 
 /*  FUNCTIONS    =========================================================== */

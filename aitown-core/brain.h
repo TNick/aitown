@@ -1,10 +1,10 @@
 /* ========================================================================= */
 /* ------------------------------------------------------------------------- */
 /*!
-  \file			aitown_global.h
+  \file			brain.h
   \date			September 2013
   \author		TNick
-  
+
 *//*
 
 
@@ -14,16 +14,21 @@
 */
 /* ------------------------------------------------------------------------- */
 /* ========================================================================= */
-#ifndef AITOWN_aitown_global_h_INCLUDE
-#define AITOWN_aitown_global_h_INCLUDE
+#ifndef AITOWN_core_brain_h_INCLUDE
+#define AITOWN_core_brain_h_INCLUDE
 //
 //
 //
 //
 /*  INCLUDES    ------------------------------------------------------------ */
 
-// generated on the fly from config.h.in by CMake
-#include <aitown/config.h>
+#include <aitown/aitown_global.h>
+#include <aitown/error_codes.h>
+#include <aitown/core_func.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /*  INCLUDES    ============================================================ */
 //
@@ -33,32 +38,11 @@
 /*  DEFINITIONS    --------------------------------------------------------- */
 
 
-/// borrowed from zmq
-#if defined AITOWN_WIN32
-#   if defined AITOWN_STATIC
-#       define AITOWN_EXPORT
-#   elif defined AITOWN_SHARED
-#       define AITOWN_EXPORT __declspec(dllexport)
-#   else
-#       define AITOWN_EXPORT __declspec(dllimport)
-#   endif
-#else
-#   if defined __SUNPRO_C  || defined __SUNPRO_CC
-#       define AITOWN_EXPORT __global
-#   elif (defined __GNUC__ && __GNUC__ >= 4) || defined __INTEL_COMPILER
-#       define AITOWN_EXPORT __attribute__ ((visibility("default")))
-#   else
-#       define AITOWN_EXPORT
-#   endif
-#endif
-
-#if __STDC_VERSION__ < 199901L
-#	if __GNUC__ >= 2
-#		define __func__ __FUNCTION__
-#	else
-#		define __func__ "<unknown>"
-#	endif
-#endif
+//! a brain
+///
+typedef struct _core_brain_t {
+    int      dummy;    /**<  */
+} core_brain_t;
 
 /*  DEFINITIONS    ========================================================= */
 //
@@ -74,6 +58,14 @@
 //
 /*  FUNCTIONS    ----------------------------------------------------------- */
 
+//! initialize a brain
+ATCORE_FUNC void
+core_brain_init (core_brain_t *brain);
+
+//! terminate a brain
+ATCORE_FUNC void
+core_brain_end (core_brain_t *brain);
+
 /*  FUNCTIONS    =========================================================== */
 //
 //
@@ -81,4 +73,7 @@
 //
 /* ------------------------------------------------------------------------- */
 /* ========================================================================= */
-#endif // AITOWN_aitown_global_h_INCLUDE
+#ifdef __cplusplus
+}
+#endif
+#endif // AITOWN_core_brain_h_INCLUDE

@@ -19,6 +19,9 @@ set ( PROJECT_NAME aitown )
 
 project(${PROJECT_NAME})
 
+string(TOUPPER ${PROJECT_NAME} PROJECT_NAME_U)
+string(TIMESTAMP ${PROJECT_NAME}_BUILD_TIME UTC)
+
 # may be either Release or Debug
 if ( CMAKE_BUILD_TYPE STREQUAL "" )
     set ( CMAKE_BUILD_TYPE "Release" )
@@ -78,6 +81,7 @@ set (modules_testing_src)
 
 # ----------------------------------------------------------------------------
 # external libraries
+# enable_language(Fortran REQUIRED)
 
 find_package(OGRE)
 include_directories(${OGRE_INCLUDE_DIRS})
@@ -91,10 +95,23 @@ include_directories(${ARGTABLE_INCLUDE_DIRS})
 find_package(ProtobufC REQUIRED)
 include_directories(${PROTOBUFC_INCLUDE_DIR})
 
-find_package(KyotoCabinet REQUIRED)
+find_package(KyotoCabinet)
 include_directories(${KYOTOCABINET_INCLUDE_DIR})
 
+find_package(TokyoCabinet)
+include_directories(${TOKYOCABINET_INCLUDE_DIR})
 
+find_package(MySQL)
+include_directories(${MYSQL_INCLUDE_DIR})
+
+
+# -DBLA_VENDOR=ATLAS,Goto, etc; see FindBLASS.cmake
+# sets BLAS_LIBRARIES; BLAS_INCLUDE_DIRS not set
+find_package(BLAS REQUIRED)
+#include_directories(${BLAS_INCLUDE_DIRS})
+#message (${BLAS_LIBRARIES})
+
+# -DCMAKE_BUILD_TYPE=Debug -DBLA_VENDOR=ATLAS
 
 add_subdirectory( "googletest" )
 include_directories(googletest/include)
@@ -103,18 +120,30 @@ include_directories(googletest/include)
 add_definitions(-DUSE_KYOTO_CABINET=1)
 
 # ----------------------------------------------------------------------------
+# configure a header file to pass some of the CMake settings
+# to the source code
+configure_file (
+    "${PROJECT_SOURCE_DIR}/config.h.in"
+    "${PROJECT_BINARY_DIR}/build/include/aitown/config.h"
+)
+# ============================================================================
+
+# ----------------------------------------------------------------------------
 # modules
 set ( lib_modules
     "aitown-utils"
     "aitown-core"
     "aitown-plugin"
     "aitown-dstorage"
+    "aitown-image"
+    "aitown-db"
 )
 
 set ( modules
     "sglib"
     "inih"
     "cfgpath"
+    "kdtree"
     ${lib_modules}
     "aitown-index"
     "aitown-client"

@@ -37,7 +37,9 @@ extern "C" {
 typedef enum {
 	FUNC_OK = 0,
 	FUNC_GENERIC_ERROR,
-	FUNC_MEMORY_ERROR
+    FUNC_MEMORY_ERROR,
+    FUNC_BAD_INPUT,
+    FUNC_NOT_IMPLEMENTED
 } func_error_t;
 
 /*  DEFINITIONS    ========================================================= */

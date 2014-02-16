@@ -24,6 +24,7 @@
 
 #include <aitown/aitown_global.h>
 #include <stddef.h>
+#include <aitown/error_codes.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -68,7 +69,7 @@ AITOWN_EXPORT void
 char_buff_init (char_buff_t* cbuff, size_t init_size);
 
 //! initialize the buffer from a string
-AITOWN_EXPORT int
+AITOWN_EXPORT func_error_t
 char_buff_from_str (char_buff_t* cbuff, const char * src);
 
 //! terminate the manager
@@ -77,15 +78,20 @@ char_buff_end (char_buff_t* cbuff);
 
 //! add a string in the char_buff
 /// if the size is 0 the lenght is computed
-AITOWN_EXPORT int
+AITOWN_EXPORT func_error_t
 char_buff_add_string (char_buff_t* cbuff, const char * src, size_t sz );
 
 //! add a string in the char_buff
 /// the lenght is computed by the function
-static inline int
+static inline func_error_t
 char_buff_add (char_buff_t* cbuff, const char * src ) {
 	return char_buff_add_string (cbuff, src, 0);
 }
+
+//! allocate space
+AITOWN_EXPORT func_error_t
+char_buff_alloc (char_buff_t* cbuff, size_t sz, offset_t * out);
+
 
 /*  FUNCTIONS    =========================================================== */
 //

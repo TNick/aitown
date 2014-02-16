@@ -1,10 +1,10 @@
 /* ========================================================================= */
 /* ------------------------------------------------------------------------- */
 /*!
-  \file			aitown_global.h
+  \file			actuator.h
   \date			September 2013
   \author		TNick
-  
+
 *//*
 
 
@@ -14,16 +14,15 @@
 */
 /* ------------------------------------------------------------------------- */
 /* ========================================================================= */
-#ifndef AITOWN_aitown_global_h_INCLUDE
-#define AITOWN_aitown_global_h_INCLUDE
+#ifndef AITOWN_core_actuator_h_INCLUDE
+#define AITOWN_core_actuator_h_INCLUDE
 //
 //
 //
 //
 /*  INCLUDES    ------------------------------------------------------------ */
 
-// generated on the fly from config.h.in by CMake
-#include <aitown/config.h>
+#include <aitown/iobase.h>
 
 /*  INCLUDES    ============================================================ */
 //
@@ -32,33 +31,7 @@
 //
 /*  DEFINITIONS    --------------------------------------------------------- */
 
-
-/// borrowed from zmq
-#if defined AITOWN_WIN32
-#   if defined AITOWN_STATIC
-#       define AITOWN_EXPORT
-#   elif defined AITOWN_SHARED
-#       define AITOWN_EXPORT __declspec(dllexport)
-#   else
-#       define AITOWN_EXPORT __declspec(dllimport)
-#   endif
-#else
-#   if defined __SUNPRO_C  || defined __SUNPRO_CC
-#       define AITOWN_EXPORT __global
-#   elif (defined __GNUC__ && __GNUC__ >= 4) || defined __INTEL_COMPILER
-#       define AITOWN_EXPORT __attribute__ ((visibility("default")))
-#   else
-#       define AITOWN_EXPORT
-#   endif
-#endif
-
-#if __STDC_VERSION__ < 199901L
-#	if __GNUC__ >= 2
-#		define __func__ __FUNCTION__
-#	else
-#		define __func__ "<unknown>"
-#	endif
-#endif
+IOBASE_DEFINE_PROTOTYPES(actuator)
 
 /*  DEFINITIONS    ========================================================= */
 //
@@ -81,4 +54,4 @@
 //
 /* ------------------------------------------------------------------------- */
 /* ========================================================================= */
-#endif // AITOWN_aitown_global_h_INCLUDE
+#endif // AITOWN_core_actuator_h_INCLUDE

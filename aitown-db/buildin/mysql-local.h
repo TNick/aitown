@@ -1,10 +1,10 @@
 /* ========================================================================= */
 /* ------------------------------------------------------------------------- */
 /*!
-  \file			aitown_global.h
+  \file			aitown-db_mysql.h
   \date			September 2013
   \author		TNick
-  
+
 *//*
 
 
@@ -14,16 +14,19 @@
 */
 /* ------------------------------------------------------------------------- */
 /* ========================================================================= */
-#ifndef AITOWN_aitown_global_h_INCLUDE
-#define AITOWN_aitown_global_h_INCLUDE
+#ifndef AITOWN_db_mysql_h_INCLUDE
+#define AITOWN_db_mysql_h_INCLUDE
 //
 //
 //
 //
 /*  INCLUDES    ------------------------------------------------------------ */
 
-// generated on the fly from config.h.in by CMake
-#include <aitown/config.h>
+#include <aitown/aitown_global.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /*  INCLUDES    ============================================================ */
 //
@@ -32,33 +35,7 @@
 //
 /*  DEFINITIONS    --------------------------------------------------------- */
 
-
-/// borrowed from zmq
-#if defined AITOWN_WIN32
-#   if defined AITOWN_STATIC
-#       define AITOWN_EXPORT
-#   elif defined AITOWN_SHARED
-#       define AITOWN_EXPORT __declspec(dllexport)
-#   else
-#       define AITOWN_EXPORT __declspec(dllimport)
-#   endif
-#else
-#   if defined __SUNPRO_C  || defined __SUNPRO_CC
-#       define AITOWN_EXPORT __global
-#   elif (defined __GNUC__ && __GNUC__ >= 4) || defined __INTEL_COMPILER
-#       define AITOWN_EXPORT __attribute__ ((visibility("default")))
-#   else
-#       define AITOWN_EXPORT
-#   endif
-#endif
-
-#if __STDC_VERSION__ < 199901L
-#	if __GNUC__ >= 2
-#		define __func__ __FUNCTION__
-#	else
-#		define __func__ "<unknown>"
-#	endif
-#endif
+struct _aitown_db_mng_t;
 
 /*  DEFINITIONS    ========================================================= */
 //
@@ -74,6 +51,27 @@
 //
 /*  FUNCTIONS    ----------------------------------------------------------- */
 
+
+//! initialize a database structure
+///
+/// @warning This method is intended for driver writers and should not be
+/// called by the database users.
+///
+AITOWN_EXPORT void
+aitown_db_mysql_init (
+        struct _aitown_db_mng_t *db_mng);
+
+
+//! terminate a db_mysql structure
+///
+/// @warning This method is intended for driver writers and should not be
+/// called by the database users.
+///
+AITOWN_EXPORT void
+aitown_db_mysql_end (
+        struct _aitown_db_mng_t *db_mng);
+
+
 /*  FUNCTIONS    =========================================================== */
 //
 //
@@ -81,4 +79,7 @@
 //
 /* ------------------------------------------------------------------------- */
 /* ========================================================================= */
-#endif // AITOWN_aitown_global_h_INCLUDE
+#ifdef __cplusplus
+}
+#endif
+#endif /* AITOWN_db_mysql_h_INCLUDE */

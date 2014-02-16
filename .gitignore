@@ -40,6 +40,8 @@ cvs/**/*
 CVS/**/*
 .CVS
 .cvs
+.svn
+.SVN
 release
 Release
 debug

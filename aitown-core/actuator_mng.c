@@ -1,13 +1,13 @@
 /* ========================================================================= */
 /* ------------------------------------------------------------------------- */
 /*!
-  \file			main.cc
+  \file			actuator_mng.c
   \date			September 2013
   \author		TNick
-  
-  \brief		Entry point for the application
-  
-  
+
+  \brief		implementation of an actuator_mng
+
+
 *//*
 
 
@@ -23,7 +23,9 @@
 //
 /*  INCLUDES    ------------------------------------------------------------ */
 
-#include "protobuf/protobuf_wrapper.h"
+#include "actuator_mng.h"
+#include <aitown/aitown-core.h>
+
 
 /*  INCLUDES    ============================================================ */
 //
@@ -32,7 +34,11 @@
 //
 /*  DEFINITIONS    --------------------------------------------------------- */
 
-using namespace std;
+#define SENSOR_COMPARATOR(a,b) (((int64_t)a) - ((int64_t)b))
+SGLIB_DEFINE_LIST_PROTOTYPES(core_actuator_t,SENSOR_COMPARATOR, next)
+SGLIB_DEFINE_LIST_FUNCTIONS(core_actuator_t,SENSOR_COMPARATOR, next)
+
+IOBASE_MNG_DEFINE_FUNCTIONS (actuator)
 
 /*  DEFINITIONS    ========================================================= */
 //
@@ -47,18 +53,6 @@ using namespace std;
 //
 //
 /*  FUNCTIONS    ----------------------------------------------------------- */
-
-/* ------------------------------------------------------------------------- */
-//! application entry point
-int			dummy			( int argc, char *argv[] )
-{
-	AiTownIndex message;
-	void*bout;
-	size_t i = AiTownIndex__pack (&message, &bout);
-	
-	return i;
-}
-/* ========================================================================= */
 
 /*  FUNCTIONS    =========================================================== */
 //

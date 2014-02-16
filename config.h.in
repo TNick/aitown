@@ -1,10 +1,10 @@
 /* ========================================================================= */
 /* ------------------------------------------------------------------------- */
 /*!
-  \file			aitown_global.h
+  \file			config.h
   \date			September 2013
   \author		TNick
-  
+
 *//*
 
 
@@ -14,16 +14,17 @@
 */
 /* ------------------------------------------------------------------------- */
 /* ========================================================================= */
-#ifndef AITOWN_aitown_global_h_INCLUDE
-#define AITOWN_aitown_global_h_INCLUDE
+#ifndef AITOWN_config_h_INCLUDE
+#define AITOWN_config_h_INCLUDE
 //
 //
 //
 //
 /*  INCLUDES    ------------------------------------------------------------ */
 
-// generated on the fly from config.h.in by CMake
-#include <aitown/config.h>
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /*  INCLUDES    ============================================================ */
 //
@@ -32,33 +33,40 @@
 //
 /*  DEFINITIONS    --------------------------------------------------------- */
 
+//! the name of this project
+#define @PROJECT_NAME_U@_PROJECT_NAME   "@PROJECT_NAME@"
 
-/// borrowed from zmq
-#if defined AITOWN_WIN32
-#   if defined AITOWN_STATIC
-#       define AITOWN_EXPORT
-#   elif defined AITOWN_SHARED
-#       define AITOWN_EXPORT __declspec(dllexport)
-#   else
-#       define AITOWN_EXPORT __declspec(dllimport)
-#   endif
-#else
-#   if defined __SUNPRO_C  || defined __SUNPRO_CC
-#       define AITOWN_EXPORT __global
-#   elif (defined __GNUC__ && __GNUC__ >= 4) || defined __INTEL_COMPILER
-#       define AITOWN_EXPORT __attribute__ ((visibility("default")))
-#   else
-#       define AITOWN_EXPORT
-#   endif
-#endif
+//! major version (ABI not preserved between these)
+#define @PROJECT_NAME_U@_MAJOR_VERSION      @aitown_MAJOR_VERSION@
 
-#if __STDC_VERSION__ < 199901L
-#	if __GNUC__ >= 2
-#		define __func__ __FUNCTION__
-#	else
-#		define __func__ "<unknown>"
-#	endif
-#endif
+//! minor version; ABI is preserved
+#define @PROJECT_NAME_U@_MINOR_VERSION      @aitown_MINOR_VERSION@
+
+//! bug fixes
+#define @PROJECT_NAME_U@_PATCH_VERSION      @aitown_PATCH_VERSION@
+
+//! the version ans a 32-bit integer
+#define @PROJECT_NAME_U@_VERSION            \
+    @PROJECT_NAME_U@_MAJOR_VERSION * 0x100000 + \
+    @PROJECT_NAME_U@_MINOR_VERSION * 0x1000 + \
+    @PROJECT_NAME_U@_PATCH_VERSION * 0x1
+
+//! version as a string
+#define @PROJECT_NAME_U@_VERSION_S          "@aitown_VERSION@"
+
+//! when it was build (UTC)
+#define @PROJECT_NAME_U@_BUILD_TIME         "@aitown_BUILD_TIME@"
+
+//! components on target system
+/// @{
+#cmakedefine ZEROMQ_FOUND
+#cmakedefine ARGTABLE_FOUND
+#cmakedefine PROTOBUFC_FOUND
+#cmakedefine KYOTOCABINET_FOUND
+#cmakedefine TOKYOCABINET_FOUND
+#cmakedefine MYSQL_FOUND
+#cmakedefine BLAS_FOUND
+/// @}
 
 /*  DEFINITIONS    ========================================================= */
 //
@@ -81,4 +89,7 @@
 //
 /* ------------------------------------------------------------------------- */
 /* ========================================================================= */
-#endif // AITOWN_aitown_global_h_INCLUDE
+#ifdef __cplusplus
+}
+#endif
+#endif /* AITOWN_config_h_INCLUDE */

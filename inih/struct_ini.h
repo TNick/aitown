@@ -22,6 +22,10 @@
 //
 /*  INCLUDES    ------------------------------------------------------------ */
 
+#include <aitown/aitown_global.h>
+
+#include <stdio.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -79,62 +83,62 @@ typedef enum {
 /*  FUNCTIONS    ----------------------------------------------------------- */
 
 //! initialize a structure;
-void
+AITOWN_EXPORT void
 struct_ini_init (struct_ini_t *sini);
 
 //! terminate a structure and free all memory;
-void
+AITOWN_EXPORT void
 struct_ini_end (struct_ini_t *sini);
 
 //! parse a file
-int
+AITOWN_EXPORT int
 struct_ini_parse (struct_ini_t *sini, const char *p_file);
 
 //! parse a file
-int
+AITOWN_EXPORT int
 struct_ini_parse_file (struct_ini_t *sini, FILE *f);
 
 //! initialise and parse a file
-int
+AITOWN_EXPORT int
 struct_ini_init_and_parse (struct_ini_t *sini, const char *p_file);
 
 //! create a structure using malloc(), initialise and parse a file
 ///
 /// the pointer is valid only if result is INIH_ERR_SUCCESS
 /// and must be freed by the caller.
-int
+AITOWN_EXPORT int
 struct_ini_get (struct_ini_t **sini, const char *p_file);
 
 //! create a structure using malloc(), initialise and parse a file
 ///
 /// the pointer is valid only if result is INIH_ERR_SUCCESS
 /// and must be freed by the caller.
-int
+AITOWN_EXPORT int
 struct_ini_get_file (struct_ini_t **sini, FILE *f);
 
 
 //! find a section (case insensitive)
-struct_ini_sect_t *
+AITOWN_EXPORT struct_ini_sect_t *
 struct_ini_find_section (struct_ini_t *sini, const char * p_name);
 
 //! find a value in a section (case insensitive)
-struct_ini_value_t *
+AITOWN_EXPORT struct_ini_value_t *
 struct_ini_find_value (struct_ini_sect_t *sect, const char * p_name );
 
 //! find a section (case insensitive)
 /// @return NULL if not found
-struct_ini_sect_t *
+AITOWN_EXPORT struct_ini_sect_t *
 struct_ini_find_section_0 (struct_ini_t *sini, const char * p_name);
 
 //! find a value in a section (case insensitive)
 /// @return NULL if not found
-struct_ini_value_t *
+AITOWN_EXPORT struct_ini_value_t *
 struct_ini_find_value_0 (struct_ini_sect_t *sect, const char * p_name );
 
 
 //! find a value in a section (case insensitive); if not found returns NULL
 /// @return a pointer to internally stored buffer
-const char *
+AITOWN_EXPORT const char *
 struct_ini_get_value (struct_ini_t *sini, const char * p_sect, const char * p_entry );
 
 
@@ -144,7 +148,7 @@ struct_ini_get_value (struct_ini_t *sini, const char * p_sect, const char * p_en
 /// if it can't be converted an error message is presented; default value
 /// still returned.
 /// @return the value, converted from internal string, or default value
-struct_ini_status_t
+AITOWN_EXPORT struct_ini_status_t
 struct_ini_get_int (
         struct_ini_t *sini,
         const char * p_sect,
@@ -159,7 +163,7 @@ struct_ini_get_int (
 /// if it can't be converted an error message is presented; default value
 /// still returned.
 /// @return the value, converted from internal string, or default value
-struct_ini_status_t
+AITOWN_EXPORT struct_ini_status_t
 struct_ini_get_double (
         struct_ini_t *sini,
         const char * p_sect,

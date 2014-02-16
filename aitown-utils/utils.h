@@ -60,6 +60,9 @@ extern "C" {
 #   define randof(num)  (int) ((float) (num) * random () / (RAND_MAX + 1.0))
 #endif
 
+#define aitown_min(__a__,__b__) ((__a__) > (__b__)) ? (__b__) : (__a__)
+#define aitown_max(__a__,__b__) ((__a__) < (__b__)) ? (__b__) : (__a__)
+
 /*  DEFINITIONS    ========================================================= */
 //
 //
