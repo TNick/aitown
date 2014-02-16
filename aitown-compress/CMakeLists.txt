@@ -3,13 +3,6 @@
 
 cmake_minimum_required(VERSION 2.8.8)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
-
-add_definitions( -DAITOWN_SHARED=1 )
-if   (CMAKE_BUILD_TYPE STREQUAL "Debug")
-    add_definitions( -DAITOWN_UTILS_DEBUG=1 )
-else (CMAKE_BUILD_TYPE STREQUAL "Debug")
-    add_definitions( -DAITOWN_UTILS_NOT_DEBUG=1 )
-endif (CMAKE_BUILD_TYPE STREQUAL "Debug")
 # ============================================================================
 
 
@@ -17,8 +10,16 @@ endif (CMAKE_BUILD_TYPE STREQUAL "Debug")
 # ----------------------------------------------------------------------------
 # configure the project
 
-set ( LOC_PRJ_NAME "aitown-utils" )
+set ( LOC_PRJ_NAME "aitown-compress" )
 project( ${LOC_PRJ_NAME} )
+
+add_definitions( -DAITOWN_SHARED=1 )
+if   (CMAKE_BUILD_TYPE STREQUAL "Debug")
+    add_definitions( -DAITOWN_COMPRESS_DEBUG=1 )
+else (CMAKE_BUILD_TYPE STREQUAL "Debug")
+    add_definitions( -DAITOWN_COMPRESS_NOT_DEBUG=1 )
+endif(CMAKE_BUILD_TYPE STREQUAL "Debug")
+
 # ============================================================================
 
 
@@ -32,34 +33,26 @@ project( ${LOC_PRJ_NAME} )
 # ----------------------------------------------------------------------------
 # our library
 set ( LIB_SOURCES
-    utils.c
-    accumulator.c
-    linked_list_str.c
-    dir_iterator.c
-    char_buff.c
-    dir_utils.c
-    pivotal_gmtime.c
+    ${LOC_PRJ_NAME}.c
+    ${LOC_PRJ_NAME}-mng.c
+    ${LOC_PRJ_NAME}-driver.c
 )
 set ( LIB_HEADERS
-    accumulator.h
-    dbg_assert.h
-    error_codes.h
-    pointer_aritmetic.h
-    utils.h
-    utils_null.h
-    utils_unused.h
-    linked_list_str.h
-    dir_iterator.h
-    char_buff.h
-    dir_utils.h
-    utils_version.h
-    utils_offset.h
-    stack_buff.h
-    pivotal_gmtime.h
+    ${LOC_PRJ_NAME}.h
+    ${LOC_PRJ_NAME}-mng.h
+    ${LOC_PRJ_NAME}-driver.h
 )
+set (LIBS)
 
 add_library( ${LOC_PRJ_NAME} SHARED
     ${LIB_SOURCES}
+)
+
+target_link_libraries( ${LOC_PRJ_NAME}
+    "aitown-core"
+    "aitown-utils"
+    "inih"
+    ${LIBS}
 )
 
 if (INCLUDE_OUTPUT_PATH)

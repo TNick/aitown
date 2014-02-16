@@ -106,6 +106,11 @@ void aitown_db_mng_end (aitown_db_mng_t *db_mng)
     aitown_db_tokyo_end (db_mng);
 #   endif // TOKYOCABINET_FOUND
 
+#   ifdef MYSQL_FOUND
+    aitown_db_mysql_end (db_mng);
+#   endif // MYSQL_FOUND
+
+
     // clear the structure
     memset (db_mng, 0, sizeof(aitown_db_mng_t));
 }

@@ -137,6 +137,7 @@ set ( lib_modules
     "aitown-dstorage"
     "aitown-image"
     "aitown-db"
+    "aitown-compress"
 )
 
 set ( modules
