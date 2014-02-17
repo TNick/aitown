@@ -82,6 +82,7 @@ typedef struct _dstorage_ctrl_param_t {
     dstorage_cdata_t*           ctrl_data;/**< data associated with this id in the database */
     struct _dstorage_handle_t * handle; /**< the handle to recieve/give info */
     dstorage_ctrl_response      kb;     /**< callback informed of the status */
+    void *                      user; /**< payload */
     // this structure may be extended for other user-defined data
 } dstorage_ctrl_param_t;
 

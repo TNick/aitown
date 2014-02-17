@@ -194,7 +194,7 @@ TEST(dstorage_testing,all) {
     EXPECT_TRUE (h1->p_data == NULL);
 
     // resolve the data
-    dstorage_handle_resolve (&ds, h1, all_response);
+    dstorage_handle_resolve (&ds, h1, NULL, all_response);
     EXPECT_FALSE (h1->p_data == NULL);
     EXPECT_TRUE (memcmp(dstorage_chunk_user(h1->p_data),
                              BUFF_CONTENT, BUFF_SIZE) == 0);

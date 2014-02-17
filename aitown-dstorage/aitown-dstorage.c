@@ -315,7 +315,7 @@ void dstorage_handle_done (dstorage_t *dstorage, dstorage_handle_t **handle, voi
 
 void dstorage_handle_resolve (
         dstorage_t *dstorage, dstorage_handle_t *handle,
-        dstorage_ctrl_response kb)
+        void * user, dstorage_ctrl_response kb)
 {
     dstorage_ctrl_param_t   param;
     param.handle = handle;

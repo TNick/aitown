@@ -143,6 +143,7 @@ AITOWN_EXPORT void
 dstorage_handle_resolve (
         dstorage_t *dstorage,
         dstorage_handle_t *handle,
+        void * user,
         dstorage_ctrl_response kb);
 
 
