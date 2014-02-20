@@ -1,0 +1,122 @@
+---
+layout: default
+title: aitown-dstorage
+---
+
+
+<p>
+	aitown-dstorage is a library that provides distributed storage.
+</p>
+
+<p>
+    Because the working memory (RAM) in a computer is a very limited resource
+    while the physical storage is far larger, we need a way to use it
+    for storing information. The system must allow (fake) memory drives,
+    local hard-drives, drives attached to local network computers or remote
+    servers on the wild internet.
+</p>
+
+<h3>The id</h3>
+
+<p>
+    Each individual chunk is referenced using an unique id (64-bit unsigned
+    integer, at least). This value is used as a key into a database where the
+    value contains information about how to retrieve the memory chunk. For
+    efficiency reasons this value has a fixed lenght.
+</p>
+
+<p>
+    The value contains following fields:
+</p>
+<ul>
+    <li>
+        a 64-bit (8 bytes) timestamp of last access
+    </li>
+    <li>
+        a 32-bit (4 bytes) unsigned integer to indicate the controller's
+        index in the list;
+    </li>
+    <li>
+        a 32-bit (4 bytes) controller defined value
+    </li>
+    <li>
+        two 64-bit (2 x 8 bytes) controller defined values
+    </li>
+</ul>
+
+<p>
+    This reaults in a value field consisting of 32 bytes, with 20 bytes
+    being available for the controller.
+</p>
+
+<h3>Controllers</h3>
+
+<p>
+    To allow for various storage back-neds, a controller is used. Controllers
+    are identified by unique names and their index in the list of known
+    controllers. Once a controller is added to this list it never leaves it,
+    so that the index remains valid. The controller itself (the plugin providing
+    the controller) does not need to be loaded; if not present, an attempt
+    to access that resource will return a "temporarly unavailable" status.
+</p>
+
+<p>
+    Each time a controller is loaded and requests registration its name
+    is looked up and, if not found, a new entry is appended. If found,
+    that entry is used (and previous instance discarded, if any).
+</p>
+
+<p>
+    Controllers are also ranked by their performance. The fastest controller is
+    used to create new chunks; when full, next controller in the list is used
+    and so on.
+</p>
+
+<p>
+    This method of dealing with memory chunks has the advantage that the
+    data may be transferred arround without loosing the reference to it;
+    the controller only needs yo change the value field or data may
+    be transferred to another controller entierly. A task for the sleep
+    time may be to move frequently used data to fastest controllers.
+</p>
+
+<h3>The Handle</h3>
+
+<p>
+	The client code uses a <em>handle</em> to refer to a pice of information.
+    That handle contains, among other things, the <em>id</em>. Multiple
+    handle may exist for the same id but, when this condition
+    is detected, the two handles are collapsed into a single one, if possible.
+</p>
+
+<p>
+    The user only needs to store the id and may be unaware about
+    where the information is stored (on a local storage device, on a
+    computer in the local network or on a server miles away).
+</p>
+
+<p>
+    When the user wants to get a pointer to that information, it
+    first requests a handle, then requires that handle to be resolved.
+    No particular handle is guaranteed to be resolvable. The user sets a 
+    callback and is informed when information is available, or that
+    it is temporary unavailable or lost forever. This status is also
+    cached in the handle.
+</p>
+
+<p>
+    The handler holds a pointer to allocated memory (or NULL if not
+    allocated), the status (resolved, not resolved, uninitialised,
+    temporary unavailable or deleted) and a reference counter. When the
+    reference counter reaches 0 the handler is added to a list that is
+    iterated when the memory is scarce and the memory chunk is freed.
+    When the memory is really low the chunk may be freed right away.
+    In this system is is highly more likelly to get a memory allocation
+    error than in the regular malloc calls, so each request must be
+    designed with that in mind.
+</p>
+
+<p>
+    The handle also has a dirty flag to indicate that the content
+    should be writed to controller before discarding the memory chunk.
+</p>

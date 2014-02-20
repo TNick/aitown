@@ -27,7 +27,27 @@ sudo apt-get install libargtable2-dev<br>
 sudo apt-get install libprotobuf-lite7 libprotoc7 libprotobuf7<br>
 sudo apt-get install protobuf-compiler libprotobuf-dev<br>
 sudo apt-get install protobuf-c-compiler libprotobuf-c0 libprotobuf-c0-dev<br>
+sudo apt-get install libkyotocabinet-dev<br>
 </div>
+
+Make sure zerom
+<p>
+    The zeromq package that ships with Ubuntu is old. Make sure it is
+    not installed by running:
+</p>
+
+<div class="codearea">
+sudo apt-get remove libzmq-dev
+</div>
+
+<p>
+    Download
+    source files for one of the 4 series. Here is
+    <a href="http://zeromq.org/intro:get-the-software">zeromq</a> page
+    and this is a <a href="http://download.zeromq.org/zeromq-4.0.3.tar.gz">direct link to 4.0.3</a>.
+    Follow directions on <a href="http://zeromq.org/intro:get-the-software">zeromq</a> page
+    to build and install.
+</p>
 
 <h3>Gettng the source</h3>
 
@@ -38,6 +58,7 @@ mkdir aitown<br>
 cd aitown<br>
 git clone https://github.com/TNick/aitown.git src<br>
 </div>
+
 
 <h3>Building and instaling</h3>
 
@@ -77,6 +98,15 @@ download and build <a href="http://code.google.com/p/protobuf/">protobuf</a> and
 <a href="http://code.google.com/p/protobuf-c/">protobuf-c</a>
 </li>
 </ul>
+
+<p>
+    Download
+    source files for one of the zeromq 4 series. Here is
+    <a href="http://zeromq.org/intro:get-the-software">zeromq</a> page
+    and this is a <a href="http://download.zeromq.org/zeromq-4.0.3.tar.gz">direct link to 4.0.3</a>.
+    Follow directions on <a href="http://zeromq.org/intro:get-the-software">zeromq</a> page
+    to build and install.
+</p>
 
 <h3>Building and instaling</h3>
 

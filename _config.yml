@@ -14,6 +14,6 @@ pygments:    true
 relative_permalinks: true
 permalink:     date
 paginate_path: 'page:num'
-port: 4001
+port: 4002
 baseurl: 'http://tnick.github.io/aitown'
 

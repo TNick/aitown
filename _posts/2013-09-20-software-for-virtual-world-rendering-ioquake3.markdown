@@ -25,5 +25,13 @@ It has a [wiki](http://wiki.ioquake3.org/) amd a
 From the description above it looks very similar to what we need.
 Experimenting with it is planned for next days.
 
+To build it from source on an Ubuntu 13.04 64-bit machine I used
+the [guide](http://wiki.ioquake3.org/Building_ioquake3_on_Linux) in wiki.
+It all went smoothly, and I ended up with two executables that
+were refusing to start:
+    "pak0.pk3" is missing. Please copy it from your legitimate Q3 CDROM
+I had a suspicion that Quake3 should be installed before.
+
+
 [root]: {{ site.baseurl }}/rendering/2013/09/20/software-for-virtual-world-rendering.html
 [io3]: (http://ioquake3.org/)
