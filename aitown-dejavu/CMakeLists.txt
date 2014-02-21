@@ -5,7 +5,15 @@ cmake_minimum_required(VERSION 2.8.8)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
 # ============================================================================
 
+# ----------------------------------------------------------------------------
+# options
 
+option(AITOWN_DEJAVU_INPUT_IS_VARIABLE "Input image size (w,h) may be changed after initialization" ON)
+option(AITOWN_DEJAVU_FIX_WIDTH "Input image fixed width (set to 0 for variable)" 0)
+option(AITOWN_DEJAVU_FIX_HEIGHT "Input image fixed height (set to 0 for variable)" 0)
+option(AITOWN_DEJAVU_AR_SQUARE "Attention rectangle is a square or a rectangle" ON)
+
+# ============================================================================
 
 # ----------------------------------------------------------------------------
 # configure the project
