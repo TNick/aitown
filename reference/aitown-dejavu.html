@@ -1,0 +1,182 @@
+---
+layout: default
+title: aitown-dejavu
+---
+
+
+<p>
+    aitown-dejavu is a level I processing library for image input.
+    It receives images as two dimensional arrays in argb format (32-bit per
+    pixel - the only supported format) and it sends
+    <a href="aitown-dstorage.html">aitown-dstorage</a> IDs to level
+    II processing.
+</p>
+
+<p>
+    Initial input is being feeded to two processes: one that detects sudden
+    changes in the entire picture and that is used to signal attention about
+    interesting spots and one that processes the area of the image that is
+    under attention right now.
+</p>
+
+<h2>Sudden changes</h2>
+<p>
+    Each time an input image arrives, it is compared with previous state
+    to detect sudden changes. For this purpose the image is divided by a grid
+    and the values for all pixels belonging to a grid are averaged.
+    The values computed in this manner are substracted from cached values
+    from previous run. If a particular area has a high absolute difference
+    compared with the differences from other cells or if a group of cells
+    has a higher difference the atention is signaled to attend that area.
+</p>
+
+<p>
+    The attention may decide to focus the attention rectangle to that area
+    or not and this module will comply with that decision. The actual protocol
+    for communicating with attention module is not defined, yet.
+</p>
+
+<p>
+    Once the whole processing is over the averaged values are cached for the
+    next run.
+</p>
+
+<p>
+    <span style="color: blue;">Open questions</span>:
+</p>
+<ul>
+    <li>
+        Should the cells be fixed in size? Adaptable? Is the input allowed to
+        vary in size (width, height)?
+    </li>
+</ul>
+
+<h2>Attention rectangle (\(\mathcal{AR}\))</h2>
+<p>
+    <a href="{{ site.baseurl }}/reference/aitown-dejavu/ar.png">
+    <img style="padding:1em;" align="right" width="25%" src="{{ site.baseurl }}/reference/aitown-dejavu/ar.png"
+    alt="aitown-dejavu workflow"></img>
+    </a>
+    Image processing for pattern recognition does not always takes the entire
+    input into account; instead, an <em>attention rectangle</em> is implemented
+    and put under the control of attention module. Its default state is to
+    process the entire image and, if set to a smaller area, it tends to
+    enlarge back to default state; thus, the attention must keep focus
+    it to an area or it will end up processing entire image after some time.
+<p>
+
+<p>
+    The \(\mathcal{AR}\) is divided into a fixed number of rows and columns,
+    resulting virtual pixels from averaging input pixels. Thus, if the
+    \(\mathcal{AR}\) covers the entire image the resolution is worst and
+    when it has minimum size (each virtual pixel coresponds to an input pixel)
+    the resolution reaches maximum.
+</p>
+
+<p>
+    For each virtual pixel a set of values is computed by dividing individual
+    Red, Green and Blue components to increasingly higher values, starting
+    with 1. These values are then used as keys in internal database and are
+    reffered to as "<em>Level I IDs</em>".
+</p>
+
+<p>
+    The internal database contains key-value pairs, with the key being
+    an Level I ID and the value a list of entries for each position
+    in the \(\mathcal{AR}\). Each such entry contains a list of
+    Level II IDs and associated probability that Level II Id is observed
+    when Level I ID was observed in that particular spot.
+    The Level II IDs with comparativelly low probability are trimmed down
+    after some time.
+</p>
+
+<p>
+    The end result is that, for each virtual pixel, based on its position
+    inside the \(\mathcal{AR}\), a list of Level II IDs is extracted.
+</p>
+
+$$
+(r, c, ID1_1) \to [ID2_1,p_1], [ID2_2,p_2], \cdots\\
+(r, c, ID1_2) \to [ID2_1,p_1], [ID2_2,p_2], \cdots
+$$
+
+<p>
+    A set of Level II IDs is created and accumulates items as the Level I IDs
+    are iterated and evidence gathers. The evidence is function of probability
+    and is invers proportional to the level of generalization \(g\).
+</p>
+
+
+<table width="100%"><tr>
+    <td width="50%">
+        $$
+        g_i = 2^i, i \in [0, 1, 2, 3, \cdots] \\
+        g_i \in [1, 2, 4, 8, 16, 32, \cdots] \\
+        e_i = \frac {p_{ID1}}{g_i}, p_{ID1} = \frac {\sum_{j=1}^n prev_j}{n} \\
+        e_i = \frac {\sum_{j=1}^n prev_j}{n \times g_i}
+        $$
+    </td>
+    <td>
+        g - globalization value for level i<br />
+        i - index of globalization levels (fixed)<br />
+        e - evidence for a particular Level II ID<br />
+        p - probability of seeing a particular Level II ID when a
+        Level I ID is observed in a certain spot;<br />
+        n - number of cases that were observed<br />
+        prev - weight of the evidence in previous case<br />
+    </td>
+</tr></table>
+
+<p>
+    Once all evidence is gathered the list is evaluated to see if there is
+    strong evidence for any Level II ID. If no item has a comparatively
+    high probability a new Level II is created and assigned a high probability.
+</p>
+
+<p>
+    The list created in this manner is send to Level II processing. The number
+    of items may be limited and/or the items may be sorted either as the evidence
+    gathers or at the end of the process.
+</p>
+
+<p>
+    Once the probability for each Level II ID is established the list of
+    Level I IDs is updated to reflect the findings in this run.
+</p>
+
+$$
+(r, c, ID1_1)[ID2_1] = \frac{prev_1 + norm(new_1)}{n+1} \\
+(r, c, ID1_1)[ID2_2] = \frac{prev_2 + norm(new_2)}{n+1}
+$$
+
+<p>
+    <span style="color: blue;">Open questions</span>:
+</p>
+<ul>
+    <li>
+        Is the input allowed to vary in size (width, height)?
+    </li>
+    <li>
+        Is the input always square? If not, what to do with attentuon rectangle?<br/>
+        The \(\mathcal{AR}\) may be centered, with shorter of the (width,height)
+        being the side of the square. The two extreme rows/columns on the longer
+        side will be larger on that direction.
+    </li>
+    <li>
+        Driving the \(\mathcal{AR}\) back to entire image over time.
+    </li>
+    <li>
+        How many generalizations to compute? How to store?
+    </li>
+    <li>
+        The rule used to trim down Level II ID from internal database.
+    </li>
+</ul>
+
+<!-- $$\sum_{n=1}^\infty 1/n^2 = \frac{\pi^2}{6}$$ -->
+
+<a href="{{ site.baseurl }}/reference/aitown-dejavu/workflow.png">
+<img width="100%" src="{{ site.baseurl }}/reference/aitown-dejavu/workflow.png"
+alt="aitown-dejavu workflow"></img>
+</a>
+

@@ -1,0 +1,46 @@
+---
+layout: default
+title: aitown-db
+--
+
+
+<p>
+    aitown-db is a library that provides a common interface for various
+    databases.
+</p>
+
+<p>
+    The main structure is the manager (<code>aitown_db_mng_t</code>) that
+    needs to be initialised once when the application starts and terminated
+    at the end. It contains a list of providers (<code>aitown_db_driver_t</code>)
+    that are referenced by name (string) in code. Drivers can be added and
+    removed dynamically and the implementation contains drivers for
+    KyotoCabinet, TokyoCabinet and MySQL. If corresponding libraries are found at
+    cmake time them these drivers are build and loaded when the manager
+    gets initialised.
+</p>
+
+<p>
+    The driver (<code>aitown_db_driver_t</code>) is basically a structure that
+    holds pointers to functions that perform required tasks as asked by the
+    manager. The user only interacts with the manager and it selects
+    appropriate method from driver table.
+</p>
+
+<p>
+    When a connection to a database (<code>aitown_db_t</code>) is requested the
+    requested driver is looked up and the database instance is created by it.
+    Options to fine-tune the database are provided through
+    <code>aitown_db_open_t</code> (like fixed size keys and values) but the
+    driver is not required to implement them (it may use generic implementation).
+</p>
+
+<p>
+    Writing and reading are done by referencing the manager and using
+    counted buffers of bytes. No type is assumed about the key or the value
+    in the general form of the functions. If the user provides a callback
+    then the call may be asynchronous, depending on the driver. If the user
+    does not provide a callback the functions will block until a response
+    is received or a time-out occurs, even if underlying driver performs an
+    asynchronous operation.
+</p>
