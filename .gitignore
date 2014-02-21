@@ -11,7 +11,7 @@ archive
 *.log
 *.tmp
 tmp/**/*
-.*~
+*~
 object_script.*
 .DS_Store
 thumbs.db
