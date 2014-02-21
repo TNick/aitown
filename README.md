@@ -1,4 +1,4 @@
-aitown                         {#mainpage}
+aitown
 ======
 
 a town for artificial intelligence
