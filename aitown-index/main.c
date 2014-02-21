@@ -1,9 +1,9 @@
 /* ========================================================================= */
 /* ------------------------------------------------------------------------- */
 /*!
-  \file            main.c
-  \date            September 2013
-  \author        TNick
+  \file         aitown-index/main.c
+  \date         September 2013
+  \author       TNick
   
   \brief        Entry point for the application
   

@@ -115,6 +115,8 @@ find_package(BLAS REQUIRED)
 
 add_subdirectory( "googletest" )
 include_directories(googletest/include)
+
+
 # ============================================================================
 
 add_definitions(-DUSE_KYOTO_CABINET=1)
@@ -179,3 +181,23 @@ if (modules_testing_src)
 endif (modules_testing_src)
 # ============================================================================
 
+
+# ----------------------------------------------------------------------------
+# documentation
+find_package(Doxygen)
+
+configure_file (
+    "${PROJECT_SOURCE_DIR}/Doxyfile.in"
+    "${PROJECT_BINARY_DIR}/Doxyfile"
+    @ONLY
+)
+
+if(DOXYGEN_FOUND)
+    add_custom_target(doc
+        ${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile
+        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+        COMMENT "Generating API documentation with Doxygen" VERBATIM
+    )
+endif(DOXYGEN_FOUND)
+
+# ============================================================================

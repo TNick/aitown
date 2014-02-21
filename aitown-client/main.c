@@ -1,7 +1,7 @@
 /* ========================================================================= */
 /* ------------------------------------------------------------------------- */
 /*!
-  \file			main.cc
+  \file         aitown-client/main.c
   \date			September 2013
   \author		TNick
   
@@ -47,7 +47,7 @@
 //
 /*  DEFINITIONS    --------------------------------------------------------- */
 
-//! name of this program
+/// name of this program
 #define APP_NAME "aitown-client"
 #define APP_INI_FILE APP_NAME ".ini"
 

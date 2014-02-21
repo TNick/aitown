@@ -61,7 +61,7 @@ extern "C" {
  *
  * Output is typically:
  *
- *   Windows: C:\Users\jcitizen\AppData\Roaming\appname.ini
+ *   Windows: C:\\Users\\jcitizen\\AppData\\Roaming\\appname.ini
  *   Linux: /home/jcitizen/.config/appname.conf
  *   Mac: <not implemented, please send patches>
  *
@@ -92,7 +92,7 @@ extern void get_user_config_file(char *out, unsigned int maxlen, const char *app
  *
  * Output is typically:
  *
- *   Windows: C:\Users\jcitizen\AppData\Roaming\appname\
+ *   Windows: C:\\Users\\jcitizen\\AppData\\Roaming\\appname\\
  *   Linux: /home/jcitizen/.config/appname/
  *   Mac: <not implemented, please send patches>
  *
@@ -127,7 +127,7 @@ extern void get_user_config_folder(char *out, unsigned int maxlen, const char *a
  *
  * Output is typically:
  *
- *   Windows: C:\Users\jcitizen\AppData\Roaming\appname-data\
+ *   Windows: C:\\Users\\jcitizen\\AppData\\Roaming\\appname-data\\
  *   Linux: /home/jcitizen/.local/share/appname/
  *   Mac: <not implemented, please send patches>
  *
@@ -164,7 +164,7 @@ extern void get_user_data_folder(char *out, unsigned int maxlen, const char *app
  *
  * Output is typically:
  *
- *   Windows: C:\Users\jcitizen\AppData\Local\appname\
+ *   Windows: C:\\Users\\jcitizen\\AppData\\Local\\appname\\
  *   Linux: /home/jcitizen/.cache/appname/
  *   Mac: <not implemented, please send patches>
  *
