@@ -22,6 +22,9 @@
 //
 /*  INCLUDES    ------------------------------------------------------------ */
 
+/** @todo reference-count the driver; each database increases the count */
+
+
 #include <aitown/aitown_global.h>
 #include <aitown/error_codes.h>
 

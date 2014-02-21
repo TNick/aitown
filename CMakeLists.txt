@@ -138,6 +138,7 @@ set ( lib_modules
     "aitown-image"
     "aitown-db"
     "aitown-compress"
+    "aitown-dejavu"
 )
 
 set ( modules
