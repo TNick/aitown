@@ -8,6 +8,63 @@ to Artificial Intelligence. For a high level overview and design
 please check out the site at
 [tnick.github.io/aitown](http://tnick.github.io/aitown/).
 
+
+Dependencies
+============
+
+
+ZeroMQ
+------
+
+Hosted at [zeromq.org](http://zeromq.org/); looks like an embeddable
+networking library but acts like a concurrency framework.
+
+
+ArgTable
+--------
+
+Hosted at [argtable.sourceforge.net](http://argtable.sourceforge.net/)
+
+
+ProtobufC
+---------
+
+Hosted at [github.com/protobuf-c/protobuf-c](https://github.com/protobuf-c/protobuf-c),
+is a C implementation of Google Protocol Buffers.
+
+
+Blas
+----
+
+[OpenBlas](http://www.openblas.net/) is recomended.
+
+
+OpenMP
+------
+
+The OpenMP® API specification for parallel programming
+are hosted at [openmp.org](http://openmp.org/wp/openmp-specifications/).
+
+
+Databases
+---------
+
+Code to make use of following database providers is implemented:
+[KyotoCabinet](http://fallabs.com/kyotocabinet/),
+TokyoCabinet, MySQL. At cmake time an attempt is
+made to find them.
+
+
+googletest
+----------
+
+Code for unit testing uses [googletest](https://code.google.com/p/googletest/).
+
+
+
+Components
+==========
+
 Embedded libraries
 ------------------
 
@@ -36,3 +93,4 @@ Applications
 - [aitown-index](http://tnick.github.io/aitown/reference/aitown-index.html) - [implementation](aitown_index.html)
 - [aitown-client](http://tnick.github.io/aitown/reference/aitown-client.html) - [implementation](aitown_client.html)
 - [aitown-server](http://tnick.github.io/aitown/reference/aitown-server.html) - [implementation](aitown_server.html)
+

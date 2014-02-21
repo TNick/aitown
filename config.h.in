@@ -66,6 +66,7 @@ extern "C" {
 #cmakedefine TOKYOCABINET_FOUND
 #cmakedefine MYSQL_FOUND
 #cmakedefine BLAS_FOUND
+#cmakedefine OPENMP_FOUND
 /// @}
 
 /*  DEFINITIONS    ========================================================= */
