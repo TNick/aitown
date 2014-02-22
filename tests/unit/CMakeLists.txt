@@ -9,6 +9,7 @@ set ( test_modules
     "inih"
     "kdtree"
     "aitown-db"
+    "aitown-dejavu"
 )
 
 FOREACH ( mod ${test_modules} )

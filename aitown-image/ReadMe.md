@@ -5,7 +5,19 @@ For a high level overview of the library and design guide-lines read the
 [design page](http://tnick.github.io/aitown/reference/aitown-image.html).
 
 
+TODO: Auto-vectorization with gcc 4.7
+-------------------------------------
 
+[locklessinc.com/articles/vectorize/](http://locklessinc.com/articles/vectorize/)
+
+
+TODO: ispc
+----------
+
+[ispc.github.io/](http://ispc.github.io/)
+
+ispc is a compiler for a variant of the C programming language, with
+extensions for "single program, multiple data" (SPMD) programming.
 
 
 TODO: PixFC-SSE

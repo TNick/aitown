@@ -180,7 +180,8 @@ TEST(db,drivers) {
 #   endif // TOKYOCABINET_FOUND
 
 #   ifdef MYSQL_FOUND
-    aitown_db_common_test (MYSQL_NAME, get_mysql_cfg());
+    // TOWDO: requires creditentials
+    //aitown_db_common_test (MYSQL_NAME, get_mysql_cfg());
 #   endif // MYSQL_FOUND
 
 }
