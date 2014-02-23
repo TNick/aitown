@@ -19,8 +19,33 @@ aitimage_t as parameter.
 
 Attention Rectangle \f$\mathcal{AR}\f$ is represented by a aitown_dejavu_area_t.
 
+
+Implementation notes
+--------------------
+
+The implementation is open for optimisation. A naive implementation was
+partially implemented to allow testing the concept.
+
+Sudden changes are handles by the aitown_dejavu_change_t substructure
+and associated functions:
+
+- aitown_dejavu_change_init()
+- aitown_dejavu_change_end()
+- aitown_dejavu_change_reinit()
+- aitown_dejavu_change_detect()
+
+There are for cases at the top level: the image is either larger
+than our grid, one side or the other is smaller or both sides are smaller.
+Only first and last cases were implemented.
+
+
 Tunning
 -------
+
+Current implementation has a sequential
+implementation for sudden changes / ar processing,
+with OpenMP being first choice for paralelization.
+
 
 A set of definitions control the way this libray is generated:
 
