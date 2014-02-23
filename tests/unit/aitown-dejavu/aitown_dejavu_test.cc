@@ -197,14 +197,15 @@ TEST(dejavu,speed) {
     aitown_dejavu_init (&dejavu, img_gi1g->width, img_gi1g->height, 16, 16);
 
     startTime = getRealTime();
-    aitown_dejavu_feed (&dejavu, img_gi1g);
+    int i = 0;
+    for(i=0;i<100;++i){
+        aitown_dejavu_feed (&dejavu, img_gi1g);
+    }
     endTime = getRealTime();
 
     aitown_dejavu_end (&dejavu);
 
-    printf ("- Feed took in %lf\n", (endTime - startTime) );
-
-
+    printf ("- Feed %d times took in %lf\n", i, (endTime - startTime) );
 
 
     ret = aitimage_free (&img_gi1g);
