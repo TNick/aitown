@@ -53,9 +53,9 @@ int main(int argc, char **argv)
     //set = kd_nearest_range3(kd, 0, 0, 0, 40);
     set = kd_nearest3(kd, 0, 0, 0);
     double exact_coord_1[3] = {10, 15, 20};
-    struct kdnode * exact_1 = kd_find_exact(kd, exact_coord_1);
+    /*struct kdnode * exact_1 = */kd_find_exact(kd, exact_coord_1);
     double exact_coord_2[3] = {x, y, z};
-    struct kdnode * exact_2 = kd_find_exact(kd, exact_coord_2);
+    /*struct kdnode * exact_2 = */kd_find_exact(kd, exact_coord_2);
 
 
 
