@@ -1,0 +1,134 @@
+digraph		graph_name	{
+	bgcolor = transparent
+	node	[
+		fillcolor = "#FCE975"
+		style = filled
+		color = "#00aa00"
+		fontname = "Verdana"
+		shape =box
+	]
+	edge	[
+		color = "#00aa00"
+	]
+	
+	
+	start [
+		shape =point
+	]
+
+	
+		
+	
+
+	a	[
+		label = "compare with cache\ndetect changes"
+	]
+	b	[
+		label = "Average to virtual\npixels"
+	]
+	c	[
+		label ="send to \nattention"
+	]
+	d	[
+		label = "save to\n cache"
+	]
+	e	[
+		shape =circle
+		label ="for\neach"
+	]
+	f	[
+		label ="Compute N\ngeneralizations"
+	]
+	g	[
+		shape =circle
+		label ="for\neach"
+	]
+	h	[
+		label ="Look it up\nin internal db"
+	]
+	i	[
+		shape =diamond
+		label ="Found"
+	]
+	j	[
+		label ="Add it"
+	]
+	k	[
+		label ="Create"
+	]
+
+	
+	
+	start -> b
+	start -> a
+	subgraph cluster_1	{
+		a -> c
+		a -> d
+	}
+	subgraph cluster_2	{
+		b->e
+		e->f
+		f->g
+		g->h
+		h->i
+	
+		i->j [label ="y"]
+		i->k [label ="n"]
+		k->j
+		{rank=same k i}
+	}
+	
+	{rank=same b aa}
+	
+	aa	[
+		label ="Evidence\nstrong"
+		shape =diamond
+	]
+	ab	[
+		label ="Send it to\nnext stage"
+		shape =invtriangle
+	]
+	ac	[
+		label ="Create new"
+	]
+	
+	
+	b->aa[color ="#aa0000"]
+	
+	
+	aa->ab[label =y]
+	aa->ac[label =n]
+	ac->ab
+	
+	ba	[
+		shape =circle
+		label ="for\neach II"
+	]
+	bb	[
+		shape =circle
+		label ="for\neach I"
+	]
+	bc	[
+		label ="II in list?"
+		shape =diamond
+	]
+
+	bd	[
+		label ="increase\nprobability\nfor II"
+	]
+	be	[
+		label ="create new"
+	]
+
+	
+	{rank=same aa ba}
+	aa->ba[color ="#aa0000"]
+	
+	ba->bb
+	bb->bc
+	
+	bc->bd[label ="y"]
+	bc->be[label ="n"]
+	
+	
+}
