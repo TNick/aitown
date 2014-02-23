@@ -15,3 +15,11 @@ set ( test_modules
 FOREACH ( mod ${test_modules} )
     add_subdirectory( "${mod}" )
 ENDFOREACH(mod)
+
+set ( modules_testing_src ${modules_testing_src}
+    "${CMAKE_CURRENT_SOURCE_DIR}/getRealTime.c"
+    CACHE INTERNAL "" 
+)
+list( REMOVE_DUPLICATES modules_testing_src )
+
+
