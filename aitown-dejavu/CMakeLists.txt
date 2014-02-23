@@ -11,7 +11,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
 option(AITOWN_DEJAVU_INPUT_IS_VARIABLE "Input image size (w,h) may be changed after initialization" ON)
 set(AITOWN_DEJAVU_FIX_WIDTH "0" CACHE INTEGER "Input image fixed width (set to 0 for variable)")
 set(AITOWN_DEJAVU_FIX_HEIGHT "0" CACHE INTEGER "Input image fixed height (set to 0 for variable)")
-option(AITOWN_DEJAVU_AR_SQUARE "Attention rectangle is a square (ON) or a rectangle (OFF)" ON)
+option(AITOWN_DEJAVU_GRID_IS_SQUARE "Attention rectangle is a square (ON) or a rectangle (OFF)" ON)
 set(AITOWN_DEJAVU_CHANGE_ROWS "64" CACHE INTEGER "Number of rows in the sudden changes area")
 set(AITOWN_DEJAVU_CHANGE_COLS "64" CACHE INTEGER "Number of columns in the sudden changes area")
 
@@ -54,10 +54,12 @@ configure_file (
 set ( LIB_SOURCES
     aitown-dejavu.c
     dejavu-change.c
+    dejavu-ar.c
 )
 set ( LIB_HEADERS
     aitown-dejavu.h
     dejavu-change.h
+    dejavu-ar.h
 )
 set (LIBS)
 

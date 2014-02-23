@@ -66,7 +66,7 @@ A set of definitions control the way this libray is generated:
     <dd>
         same as AITOWN_DEJAVU_FIX_WIDTH;
     </dd>
-    <dt>AITOWN_DEJAVU_AR_SQUARE</dt>
+    <dt>AITOWN_DEJAVU_GRID_IS_SQUARE</dt>
     <dd>
         tells if the \f$\mathcal{AR}\f$ is a square (w=h) or a rectangle
     </dd>

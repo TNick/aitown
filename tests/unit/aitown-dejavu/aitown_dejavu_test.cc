@@ -116,7 +116,7 @@ TEST(dejavu,image) {
 
 
 
-    aitown_dejavu_init (&dejavu, 16, 16);
+    aitown_dejavu_init (&dejavu, 16, 16, 16, 16);
     dejavu.chg.kb = kb_aitown_dejavu_change_kb;
     dejavu.chg.payload = img_1616;
 
@@ -127,7 +127,7 @@ TEST(dejavu,image) {
 
 
 
-    aitown_dejavu_init (&dejavu, 16, 32);
+    aitown_dejavu_init (&dejavu, 16, 32, 16, 16);
     dejavu.chg.kb = kb_aitown_dejavu_change_kb;
     dejavu.chg.payload = img_1632;
 
@@ -138,7 +138,7 @@ TEST(dejavu,image) {
 
 
 
-    aitown_dejavu_init (&dejavu, 22, 16);
+    aitown_dejavu_init (&dejavu, 22, 16, 16, 16);
     dejavu.chg.kb = kb_aitown_dejavu_change_kb;
     dejavu.chg.payload = img_2216;
 
@@ -149,7 +149,7 @@ TEST(dejavu,image) {
 
 
 
-    aitown_dejavu_init (&dejavu, img_gi1g->width, img_gi1g->height);
+    aitown_dejavu_init (&dejavu, img_gi1g->width, img_gi1g->height, 16, 16);
     dejavu.chg.kb = kb_aitown_dejavu_change_kb;
     dejavu.chg.payload = img_gi1g;
 
@@ -194,7 +194,7 @@ TEST(dejavu,speed) {
     memcpy (AITIMAGE_GET_DATA(img_gi1g), gi1g->pixel_data, sz_gi1g);
 
 
-    aitown_dejavu_init (&dejavu, img_gi1g->width, img_gi1g->height);
+    aitown_dejavu_init (&dejavu, img_gi1g->width, img_gi1g->height, 16, 16);
 
     startTime = getRealTime();
     aitown_dejavu_feed (&dejavu, img_gi1g);

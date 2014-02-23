@@ -42,7 +42,7 @@ extern "C" {
 #define AITOWN_DEJAVU_FIX_HEIGHT   @AITOWN_DEJAVU_FIX_HEIGHT@
 
 // Attention rectangle is a square (ON) or a rectangle (OFF)
-#cmakedefine AITOWN_DEJAVU_AR_SQUARE
+#cmakedefine AITOWN_DEJAVU_GRID_IS_SQUARE
 
 // Number of rows in the sudden changes area
 #define AITOWN_DEJAVU_CHANGE_ROWS  @AITOWN_DEJAVU_CHANGE_ROWS@

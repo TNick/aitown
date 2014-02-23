@@ -144,7 +144,7 @@ aitown_dejavu_change_init (
         unsigned height);
 
 
-//! terminate a dejavu sensor
+//! terminate
 ///
 /// @param chg   address of the structure to terminate
 ///
