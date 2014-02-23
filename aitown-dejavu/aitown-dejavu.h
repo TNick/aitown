@@ -126,7 +126,7 @@ typedef struct _aitown_dejavu_t {
 
 //! macro that gets the height of the expected input in aitown_dejavu_t
 #if AITOWN_DEJAVU_FIX_HEIGHT == 0
-#define aitown_dejavu_get_height(p)  ((p)->width)
+#define aitown_dejavu_get_height(p)  ((p)->height)
 #else
 #define aitown_dejavu_get_height(p)  AITOWN_DEJAVU_FIX_HEIGHT
 #endif

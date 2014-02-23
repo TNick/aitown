@@ -107,7 +107,7 @@ static inline void fit_ar_to_whole_image (aitown_dejavu_t *dejavu)
         side = dejavu->width;
         ar->y = (dejavu->height - side)/2;
     }
-    pix = side / ar->size;
+    //pix = side / ar->size;
     /** @todo check this routine */
 #else
     // the resulted cells are non-square; we can adapt to any shape
@@ -162,17 +162,8 @@ void aitown_dejavu_feed (aitown_dejavu_t *dejavu, const aitimage_t * image)
     // detect changes:
     aitown_dejavu_change_detect (&dejavu->chg, image);
     
-    // - cache - array of uint32_t; size: virt pix r * virt pix c
-    // - there are two buffers that are used interchangably
-    // the result of the substraction may either be stored
-    // in another buffer or a loop may collect highest value
-    /*
-    sz = w * h;
-    for(i=0; i < sz; i++) {
-        a[i] = a[i] - b[1];
-        a[i] = a[i] > 0 ? a[i] : -1 * a[i];
-    }
-    */
+    // interpret the content of the
+
 
 
 

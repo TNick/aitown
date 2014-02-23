@@ -107,11 +107,18 @@ static uint32_t average_cell(const uint32_t * p_src, unsigned img_w, unsigned pi
 {
     int c, r;
     int cnt = 0;
+
+
     uint64_t sum = 0;
     const uint32_t * p_row = p_src;
+    uint32_t grey;
+    uint32_t rgba;
     for(r=0; r<pix_v; r++) {
         for(c=0; c<pix_h; c++) {
-            sum += *p_src; p_src++; cnt++;
+            rgba = *p_src;
+            grey = AITOWN_DEJAVU_CHANGE_TO_GREY(rgba);
+            sum += grey;
+            p_src++; cnt++;
         }
         p_row += img_w;
         p_src = p_row;
@@ -131,7 +138,8 @@ static void aitown_dejavu_change_detect_l (
     unsigned d_grey_min = UINT_MAX;
     unsigned d_grey_max = 0;
     uint64_t d_grey_sum = 0;
-    const uint32_t * p_image = (uint32_t *)AITIMAGE_GET_DATA(image);
+    const uint32_t * p_image_row = (uint32_t *)AITIMAGE_GET_DATA(image);
+    const uint32_t * p_image = p_image_row;
 
     int c, r;
     unsigned img_w = (chg->pix_h * AITOWN_DEJAVU_CHANGE_COLS) + chg->skip_h;
@@ -141,7 +149,7 @@ static void aitown_dejavu_change_detect_l (
         for (c=0; c<c_lim; ++c) {
 
             // compute the offset to first pixel in this cell
-            grey = average_cell(p_cache, img_w, chg->pix_h, chg->pix_v);
+            grey = average_cell(p_image, img_w, chg->pix_h, chg->pix_v);
 
             other_grey = *p_cache;
             *p_dest = grey;
@@ -154,7 +162,8 @@ static void aitown_dejavu_change_detect_l (
             p_image += chg->pix_h;
             p_dest++; p_cache++; p_dif++;
         }
-        p_image += chg->skip_h;
+        p_image_row += img_w*chg->pix_v;
+        p_image = p_image_row;
     }
 
     // compute the average
