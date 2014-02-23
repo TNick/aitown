@@ -26,14 +26,13 @@ title: aitown-dejavu
     changes in the entire picture and that is used to signal attention about
     interesting spots and one that processes the area of the image that is
     under attention right now. Theoretically, the two may
-    be executed sequential or in paralel. Current implementation has a sequential
-    implementation with OpenMP being first choice for paralelization.
+    be executed sequential or in paralel.
 </p>
 
 <h2>Sudden changes</h2>
 <p>
     Each time an input image arrives, it is compared with previous state
-    to detect sudden changes using aitown_dejavu_change_detect().
+    to detect sudden changes.
     For this purpose the image is divided by a grid
     and the values for all pixels belonging to each cell of that
     grid are converted to something resembling grey (a single value
@@ -54,11 +53,6 @@ title: aitown-dejavu
 <p>
     Once the whole processing is over the averaged values are cached for the
     next run.
-</p>
-
-<p>
-    The implementation is open for optimisation. A naive implementation was
-    partially implemented to allow testing the concept.
 </p>
 
 <p>
