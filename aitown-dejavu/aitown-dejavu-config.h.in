@@ -1,0 +1,78 @@
+/* ========================================================================= */
+/* ------------------------------------------------------------------------- */
+/*!
+  \file			aitown-dejavu-config.h.in
+  \date			September 2013
+  \author		TNick
+
+*//*
+
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ Please read COPYING and README files in root folder
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+*/
+/* ------------------------------------------------------------------------- */
+/* ========================================================================= */
+#ifndef AITOWN_dejavu_config_h_INCLUDE
+#define AITOWN_dejavu_config_h_INCLUDE
+//
+//
+//
+//
+/*  INCLUDES    ------------------------------------------------------------ */
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+/*  INCLUDES    ============================================================ */
+//
+//
+//
+//
+/*  DEFINITIONS    --------------------------------------------------------- */
+
+// Input image size (w,h) may be changed after initialization
+#cmakedefine AITOWN_DEJAVU_INPUT_IS_VARIABLE
+
+// Input image fixed width (set to 0 for variable)
+#define AITOWN_DEJAVU_FIX_WIDTH    @AITOWN_DEJAVU_FIX_WIDTH@
+
+// Input image fixed height (set to 0 for variable)
+#define AITOWN_DEJAVU_FIX_HEIGHT   @AITOWN_DEJAVU_FIX_HEIGHT@
+
+// Attention rectangle is a square (ON) or a rectangle (OFF)
+#cmakedefine AITOWN_DEJAVU_AR_SQUARE
+
+// Number of rows in the sudden changes area
+#define AITOWN_DEJAVU_CHANGE_ROWS  @AITOWN_DEJAVU_CHANGE_ROWS@
+
+// Number of columns in the sudden changes area
+#define AITOWN_DEJAVU_CHANGE_COLS  @AITOWN_DEJAVU_CHANGE_COLS@
+
+
+/*  DEFINITIONS    ========================================================= */
+//
+//
+//
+//
+/*  DATA    ---------------------------------------------------------------- */
+
+/*  DATA    ================================================================ */
+//
+//
+//
+//
+/*  FUNCTIONS    ----------------------------------------------------------- */
+
+/*  FUNCTIONS    =========================================================== */
+//
+//
+//
+//
+/* ------------------------------------------------------------------------- */
+/* ========================================================================= */
+#ifdef __cplusplus
+}
+#endif
+#endif /* AITOWN_dejavu_config_h_INCLUDE */
