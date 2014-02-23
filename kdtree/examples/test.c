@@ -26,7 +26,9 @@ int main(int argc, char **argv)
 	int i, vcount = 10;
 	void *kd, *set;
 	unsigned int msec, start;
-    float x, y, z;
+    float x = 0.0;
+    float y= 0.0;
+    float z = 0.0;
 
 	if(argc > 1 && isdigit(argv[1][0])) {
 		vcount = atoi(argv[1]);
@@ -59,7 +61,7 @@ int main(int argc, char **argv)
 
 	msec = get_msec() - start;
 	printf("range query returned %d items in %.5f sec\n", kd_res_size(set), (float)msec / 1000.0);
-	kd_res_free(set);
+    kd_res_free(set);
 
 	kd_free(kd);
 	return 0;
