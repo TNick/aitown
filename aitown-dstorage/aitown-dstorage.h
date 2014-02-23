@@ -33,6 +33,7 @@
 #include "dstorage_id.h"
 
 #include <aitown/struct_ini.h>
+#include <aitown/aitown-db-mng.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -58,9 +59,14 @@ typedef struct _dstorage_t {
     dstorage_lookup_t       lku;        /**< the database for the ids */
     dstorage_clist_t        clist;      /**< the list of controllers */
     dstorage_chunk_mng_t    ckmng;      /**< memory manager for chunks */
+    aitown_db_mng_t         db;         /**< manager for databases */
+
+
 
     /* DEPRECATED */
     dstorage_handle_mng_t   hmng;       /**< handle manager */
+
+
 } dstorage_t;
 
 /*  DEFINITIONS    ========================================================= */

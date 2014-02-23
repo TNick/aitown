@@ -149,6 +149,10 @@ void dstorage_init (
         dstorage_read_config (dstorage, p_ini_file);
     }
 
+    // start database manager
+    aitown_db_mng_init (&dstorage->db);
+
+
     // prepare the database for ids
     if (dstorage->p_db_file != NULL) {
         dstorage_lookup_init_open (&dstorage->lku, dstorage->p_db_file);
@@ -183,6 +187,9 @@ void dstorage_end (dstorage_t *dstorage)
     struct_ini_end (&dstorage->sini);
     dstorage_handle_mng_end (&dstorage->hmng);
     dstorage_chunk_mng_end (&dstorage->ckmng);
+
+    // stop database manager
+    aitown_db_mng_end (&dstorage->db);
 
     // free our copy of the name
     if ( dstorage->p_name != NULL ) {

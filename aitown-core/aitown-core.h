@@ -29,6 +29,7 @@
 #include <aitown/sensor.h>
 #include <aitown/actuator_mng.h>
 #include <aitown/sensor_mng.h>
+#include <aitown/aitown-dstorage.h>
 
 #include <stddef.h>
 
@@ -50,6 +51,7 @@ typedef struct _aitown_core_t {
     core_brain_t            brain;      /**< the brain object */
     core_actuator_mng_t     amng;       /**< manager for actuators */
     core_sensor_mng_t       smng;       /**< manager for sensors */
+    dstorage_t              dstore;     /**< manager for storage (includes database manager) */
 } aitown_core_t;
 
 /*  DEFINITIONS    ========================================================= */
