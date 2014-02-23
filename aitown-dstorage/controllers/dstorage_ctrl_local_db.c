@@ -165,7 +165,7 @@ static void ctrl_write (dstorage_ctrl_param_t* req)
     DBG_ASSERT (req->handle->p_data != NULL);
     DBG_ASSERT (dstorage_handle_is_resolved(req->handle));
 
-    dstorage_ctrl_sts_t stat;
+    dstorage_ctrl_sts_t stat = DSTORAGE_CTRL_OK;
 
     // assume it's us
     dstorage_ctrl_local_db_t *ret = (dstorage_ctrl_local_db_t*)req->ctrl;

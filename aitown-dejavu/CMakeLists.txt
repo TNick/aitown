@@ -9,9 +9,11 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
 # options
 
 option(AITOWN_DEJAVU_INPUT_IS_VARIABLE "Input image size (w,h) may be changed after initialization" ON)
-option(AITOWN_DEJAVU_FIX_WIDTH "Input image fixed width (set to 0 for variable)" 0)
-option(AITOWN_DEJAVU_FIX_HEIGHT "Input image fixed height (set to 0 for variable)" 0)
-option(AITOWN_DEJAVU_AR_SQUARE "Attention rectangle is a square or a rectangle" ON)
+set(AITOWN_DEJAVU_FIX_WIDTH "0" CACHE INTEGER "Input image fixed width (set to 0 for variable)")
+set(AITOWN_DEJAVU_FIX_HEIGHT "0" CACHE INTEGER "Input image fixed height (set to 0 for variable)")
+option(AITOWN_DEJAVU_AR_SQUARE "Attention rectangle is a square (ON) or a rectangle (OFF)" ON)
+set(AITOWN_DEJAVU_CHANGE_ROWS "64" CACHE INTEGER "Number of rows in the sudden changes area")
+set(AITOWN_DEJAVU_CHANGE_COLS "64" CACHE INTEGER "Number of columns in the sudden changes area")
 
 # ============================================================================
 
@@ -31,6 +33,15 @@ endif(CMAKE_BUILD_TYPE STREQUAL "Debug")
 # ============================================================================
 
 
+# ----------------------------------------------------------------------------
+# configure a header file to pass some of the CMake settings
+# to the source code
+configure_file (
+    "${CMAKE_CURRENT_SOURCE_DIR}/aitown-dejavu-config.h.in"
+    "${PROJECT_BINARY_DIR}/../build/include/aitown/aitown-dejavu-config.h"
+)
+# ============================================================================
+
 
 # ----------------------------------------------------------------------------
 # external libraries
@@ -42,9 +53,11 @@ endif(CMAKE_BUILD_TYPE STREQUAL "Debug")
 # our library
 set ( LIB_SOURCES
     aitown-dejavu.c
+    dejavu-change.c
 )
 set ( LIB_HEADERS
     aitown-dejavu.h
+    dejavu-change.h
 )
 set (LIBS)
 

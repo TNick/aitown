@@ -305,6 +305,7 @@ void dstorage_handle_done (dstorage_t *dstorage, dstorage_handle_t **handle, voi
 
         // check if is dirty; ask the controller to write it
         if (dstorage_handle_is_dirty (h)) {
+            dstorage_handle_set_status(h,DSTORAGE_H_WITH_DATA);
             dstorage_handle_save (dstorage, h, ctrl_kb_free);
         } else {
             ctrl_kb_free_common (dstorage, h);
@@ -322,7 +323,7 @@ void dstorage_handle_resolve (
     param.kb = kb;
 
     // check the status
-    dstorage_sts_t sts = (dstorage_sts_t)handle->dstorage_handle_gen_status;
+    dstorage_sts_t sts = (dstorage_sts_t)dstorage_handle_gen_status(handle);
     if (!((sts == DSTORAGE_H_NO_DATA) ||
          (sts == DSTORAGE_H_TEMP_FAILURE) ||
          (sts == DSTORAGE_H_LOST))) {

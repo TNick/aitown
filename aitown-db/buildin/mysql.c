@@ -340,7 +340,7 @@ func_error_t aitown_db_mysql_read (aitown_db_io_t * request)
     char * iterator;
     size_t querry_buffer_sz;
     size_t querry_computed;
-    MYSQL_RES *result;
+    MYSQL_RES *result = NULL;
 
     int vsiz = 0;
     void *vbuf = NULL;

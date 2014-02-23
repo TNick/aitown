@@ -127,9 +127,9 @@ func_error_t aitimage_greyi_from_rgba8_ptr (
 #   undef  AITIMAGE_LOC_TO_GREY
     // loosing precision but gaining speed (does not uses div)
 #   define AITIMAGE_LOC_TO_GREY(_crt_) \
-        ((AITIMAGE_RGBA_GET_R((crt)) * \
-        AITIMAGE_RGBA_GET_G((crt)) * \
-        AITIMAGE_RGBA_GET_B((crt))) / (1024*16));
+        ((AITIMAGE_RGBA_GET_R((_crt_)) * \
+        AITIMAGE_RGBA_GET_G((_crt_)) * \
+        AITIMAGE_RGBA_GET_B((_crt_))) / (1024*16));
 
     // first row
     for (i = 0; i < width; ++i) {

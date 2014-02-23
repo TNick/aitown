@@ -48,8 +48,8 @@
 
 #define CMPARATOR(x,y) ((x->id)-(y->id))
 
-SGLIB_DEFINE_RBTREE_PROTOTYPES(dstorage_handle_t, left, right, dstorage_handle_red_status, CMPARATOR)
-SGLIB_DEFINE_RBTREE_FUNCTIONS(dstorage_handle_t, left, right, dstorage_handle_red_status, CMPARATOR)
+SGLIB_DEFINE_RBTREE_PROTOTYPES(dstorage_handle_t, left, right, sts.c[0], CMPARATOR)
+SGLIB_DEFINE_RBTREE_FUNCTIONS(dstorage_handle_t, left, right, sts.c[0], CMPARATOR)
 
 /*  DEFINITIONS    ========================================================= */
 //

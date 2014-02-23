@@ -4,7 +4,7 @@
   \file			dstorage_cdata.h
   \date			September 2013
   \author		TNick
-    
+
 *//*
 
 
@@ -24,6 +24,7 @@
 
 #include <aitown/aitown_global.h>
 #include <aitown/dstorage_func.h>
+#include <inttypes.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -39,8 +40,12 @@ extern "C" {
 //! the block of bytes stored along with each id in the database managed by
 //! dstorage_lookup_t
 typedef struct _dstorage_cdata_t {
+    /*
     char    f1[8];
     char    f2[8];
+    */
+    uint64_t    f1;
+    uint64_t    f2;
 } dstorage_cdata_t;
 
 /*  DEFINITIONS    ========================================================= */
@@ -66,12 +71,13 @@ DSTORAGE_FUNC void
 dstorage_cdata_end (dstorage_cdata_t * cdata);
 
 //! get the index of the controller
-#define dstorage_cdata_ctrl(cd) (*((uint32_t*)(&(cd)->f1[0])))
+#define dstorage_cdata_ctrl(cd) ((cd)->f1 & 0xFF)/*(*((uint32_t*)(&(cd)->f1[0])))*/
 
 //! set the index of the controller
-#define dstorage_cdata_ctrl_set(cd,v)   dstorage_cdata_ctrl(cd) = (v)
+#define dstorage_cdata_ctrl_set(cd,v)   ((cd)->f1 = ((cd)->f1 & (~0xFF)) | (v & 0xFF)) /*dstorage_cdata_ctrl(cd) = (v)*/
 
 
+/*
 //! get the first 32-bit value
 #define dstorage_cdata_1(cd) (*((uint32_t*)(&(cd)->f1[4])))
 
@@ -89,13 +95,13 @@ dstorage_cdata_end (dstorage_cdata_t * cdata);
 
 //! set the third 32-bit value
 #define dstorage_cdata_3_set(cd,v)   dstorage_cdata_3(cd) = (v)
+*/
 
 //! get the 64-bit value (2 and 3 combined)
-#define dstorage_cdata_64(cd) (*((uint64_t*)(&(cd)->f2[0])))
+#define dstorage_cdata_64(cd) (cd)->f2 /*(*((uint64_t*)(&(cd)->f2[0])))*/
 
 //! set the 64-bit value (2 and 3 combined)
-#define dstorage_cdata_64_set(cd,v)   dstorage_cdata_64(cd) = (v)
-
+#define dstorage_cdata_64_set(cd,v)  (cd)->f2 = (v) /*dstorage_cdata_64(cd) = (v)*/
 
 
 

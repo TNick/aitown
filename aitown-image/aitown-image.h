@@ -109,35 +109,40 @@ typedef enum {
                         AITIMAGE_INTEGER |
                         AITIMAGE_ALPHA |
                         AITIMAGE_SIZE_8 |
-                        AITIMAGE_SPACE_sRGB,
+                        AITIMAGE_SPACE_sRGB |
+                        AITIMAGE_SIGNATURE,
 
     AITIMAGE_GREY8 =    AITIMAGE_GREY |
                         AITIMAGE_BIG_ENDIAN |
                         AITIMAGE_INTEGER |
                         AITIMAGE_NO_ALPHA |
                         AITIMAGE_SIZE_8 |
-                        AITIMAGE_SPACE_GREY_EQ,
+                        AITIMAGE_SPACE_GREY_EQ |
+                        AITIMAGE_SIGNATURE,
 
     AITIMAGE_GREY16 =   AITIMAGE_GREY |
                         AITIMAGE_BIG_ENDIAN |
                         AITIMAGE_INTEGER |
                         AITIMAGE_NO_ALPHA |
                         AITIMAGE_SIZE_16 |
-                        AITIMAGE_SPACE_GREY_EQ,
+                        AITIMAGE_SPACE_GREY_EQ |
+                        AITIMAGE_SIGNATURE,
 
     AITIMAGE_GREY32 =   AITIMAGE_GREY |
                         AITIMAGE_BIG_ENDIAN |
                         AITIMAGE_INTEGER |
                         AITIMAGE_NO_ALPHA |
                         AITIMAGE_SIZE_32 |
-                        AITIMAGE_SPACE_GREY_EQ,
+                        AITIMAGE_SPACE_GREY_EQ |
+                        AITIMAGE_SIGNATURE,
 
     AITIMAGE_GREYI =   AITIMAGE_GREY |
                         AITIMAGE_BIG_ENDIAN |
                         AITIMAGE_FPOINT |
                         AITIMAGE_NO_ALPHA |
                         AITIMAGE_SIZE_64 |
-                        AITIMAGE_SPACE_GREY_INTEGRAL
+                        AITIMAGE_SPACE_GREY_INTEGRAL |
+                        AITIMAGE_SIGNATURE
 
 
 } aitimage_type_t;

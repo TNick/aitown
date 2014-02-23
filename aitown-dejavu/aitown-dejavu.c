@@ -73,11 +73,17 @@ void aitown_dejavu_init (aitown_dejavu_t *dejavu, unsigned width, unsigned heigh
     }
 #   endif
 
+    // initialize the structure tracking changes
+    aitown_dejavu_change_init (&dejavu->chg, dejavu->width, dejavu->height);
 }
 
 
 void aitown_dejavu_end (aitown_dejavu_t *dejavu)
 {
+
+    // terminate the structure tracking changes
+    aitown_dejavu_change_end (&dejavu->chg);
+
     memset (dejavu, 0, sizeof(aitown_dejavu_t));
 }
 
@@ -89,6 +95,7 @@ static inline void fit_ar_to_whole_image (aitown_dejavu_t *dejavu)
 
 #ifdef AITOWN_DEJAVU_AR_SQUARE
     unsigned side;
+    unsigned pix;
     // the ar must remain square; we take shortest side and ignore
     // some margins on one direction
     if (dejavu->width > dejavu->height) {
@@ -101,6 +108,7 @@ static inline void fit_ar_to_whole_image (aitown_dejavu_t *dejavu)
         ar->y = (dejavu->height - side)/2;
     }
     pix = side / ar->size;
+    /** @todo check this routine */
 #else
     // the resulted cells are non-square; we can adapt to any shape
     ar->x = 0;
@@ -113,7 +121,7 @@ static inline void fit_ar_to_whole_image (aitown_dejavu_t *dejavu)
 
 # ifdef AITOWN_DEJAVU_INPUT_IS_VARIABLE
 //! called when a change in input size was detected and we're allowed to do this
-static void adjust_to_size_change (aitown_dejavu_t *dejavu, aitimage_t * image)
+static void adjust_to_size_change (aitown_dejavu_t *dejavu, const aitimage_t * image)
 {
 
     // save new size
@@ -122,11 +130,15 @@ static void adjust_to_size_change (aitown_dejavu_t *dejavu, aitimage_t * image)
 
     // reset attention rectangle to new dimensions
     fit_ar_to_whole_image (dejavu);
+    
+    // inform tracking structure
+    aitown_dejavu_change_reinit (&dejavu->chg, image->width, image->height);
+    
 }
 #endif
 
 
-void aitown_dejavu_feed (aitown_dejavu_t *dejavu, aitimage_t * image)
+void aitown_dejavu_feed (aitown_dejavu_t *dejavu, const aitimage_t * image)
 {
     DBG_ASSERT (dejavu != NULL);
     DBG_ASSERT (image != NULL);
@@ -148,6 +160,8 @@ void aitown_dejavu_feed (aitown_dejavu_t *dejavu, aitimage_t * image)
     }
 
     // detect changes:
+    aitown_dejavu_change_detect (&dejavu->chg, image);
+    
     // - cache - array of uint32_t; size: virt pix r * virt pix c
     // - there are two buffers that are used interchangably
     // the result of the substraction may either be stored
@@ -160,13 +174,6 @@ void aitown_dejavu_feed (aitown_dejavu_t *dejavu, aitimage_t * image)
     }
     */
 
-    // create a simplified representation to check for changes
-
-    // check for changes
-
-    // inform attention
-
-    // either create a simplified repr. or use previously generated one
 
 
 

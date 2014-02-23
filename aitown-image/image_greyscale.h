@@ -51,7 +51,7 @@ struct _aitimage_t;
 //
 /*  FUNCTIONS    ----------------------------------------------------------- */
 
-//! convert a color image to its greyscale represenattion
+//! convert a color image to its greyscale representation
 ///
 /// Source image is assumed to be in Red Green Blue Alpha representation
 /// (AITIMAGE_RGBA8) with each component represented as
@@ -67,7 +67,7 @@ aitimage_grey16_from_rgba8_ptr (
         const uint32_t *p_src,
         uint16_t *p_dst);
 
-//! convert a color image to its greyscale represenattion
+//! convert a color image to its greyscale representation
 ///
 /// Source image is assumed to be in Red Green Blue Alpha representation
 /// (AITIMAGE_RGBA8) with each component represented as
@@ -82,7 +82,7 @@ aitimage_grey16_from_rgba8 (
         struct _aitimage_t *destination);
 
 
-//! convert a color image to its greyscale integral represenattion
+//! convert a color image to its greyscale integral representation
 ///
 /// Source image is assumed to be in Red Green Blue Alpha representation
 /// (AITIMAGE_RGBA8) with each component represented as
@@ -100,7 +100,7 @@ aitimage_greyi_from_rgba8_ptr (
         const uint32_t *p_src,
         double *p_dst);
 
-//! convert a color image to its greyscale integral represenattion
+//! convert a color image to its greyscale integral representation
 ///
 /// Source image is assumed to be in Red Green Blue Alpha representation
 /// (AITIMAGE_RGBA8) with each component represented as

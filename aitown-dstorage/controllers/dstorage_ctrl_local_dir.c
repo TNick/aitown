@@ -81,7 +81,7 @@ static void ctrl_read (dstorage_ctrl_param_t* req)
     dstorage_ctrl_local_dir_t * ret = (dstorage_ctrl_local_dir_t*)req->ctrl;
     sprintf(ret->p_file, "%" PRIu64, req->handle->id);
 
-    long filesz;
+    long filesz = 0;
     dstorage_ctrl_sts_t stat;
     for (;;) {
 
@@ -150,7 +150,7 @@ static void ctrl_write (dstorage_ctrl_param_t* req)
     int64_t t_start = z_clock();
     dstorage_chunk_t *ck = req->handle->p_data;
     size_t ck_sz = ck->user_sz;
-    dstorage_ctrl_sts_t stat;
+    dstorage_ctrl_sts_t stat = DSTORAGE_CTRL_UNREACHABLE;
 
     for (;;) {
 

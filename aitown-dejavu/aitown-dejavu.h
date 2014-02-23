@@ -28,6 +28,8 @@
 /*  INCLUDES    ------------------------------------------------------------ */
 
 #include <aitown/aitown_global.h>
+#include <aitown/aitown-dejavu-config.h>
+#include <aitown/dejavu-change.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -76,28 +78,28 @@ typedef struct _aitown_dejavu_area_t {
 } aitown_dejavu_area_t;
 
 //! macro that gets the width of the attention rectangle
-#if AITOWN_DEJAVU_AR_SQUARE == 0
+#ifdef AITOWN_DEJAVU_AR_SQUARE
 #define aitown_dejavu_area_get_width(p)  ((p)->width)
 #else
 #define aitown_dejavu_area_get_width(p)  ((p)->size)
 #endif
 
 //! macro that gets the height of the attention rectangle
-#if AITOWN_DEJAVU_AR_SQUARE == 0
+#ifdef AITOWN_DEJAVU_AR_SQUARE
 #define aitown_dejavu_area_get_height(p)  ((p)->height)
 #else
 #define aitown_dejavu_area_get_height(p)  ((p)->size)
 #endif
 
 //! macro that gets the number of pixels in a cell's row
-#if AITOWN_DEJAVU_AR_SQUARE == 0
+#ifdef AITOWN_DEJAVU_AR_SQUARE
 #define aitown_dejavu_area_get_pixel_width(p)  ((p)->pix_w)
 #else
 #define aitown_dejavu_area_get_pixel_width(p)  ((p)->pix)
 #endif
 
 //! macro that gets the number of pixels in a cell's column
-#if AITOWN_DEJAVU_AR_SQUARE == 0
+#ifdef AITOWN_DEJAVU_AR_SQUARE
 #define aitown_dejavu_area_get_pixel_height(p)  ((p)->pix_h)
 #else
 #define aitown_dejavu_area_get_pixel_height(p)  ((p)->pix)
@@ -112,6 +114,7 @@ typedef struct _aitown_dejavu_t {
     unsigned                height;     /**< height of the input image in pixels */
 
     aitown_dejavu_area_t    ar;         /**< attention rectangle \f$\mathcal{AR}\f$ */
+    aitown_dejavu_change_t  chg;        /**< structure in charge of tracking changes */
 } aitown_dejavu_t;
 
 //! macro that gets the width of the expected input in aitown_dejavu_t
@@ -175,7 +178,7 @@ aitown_dejavu_end (
 AITOWN_EXPORT void
 aitown_dejavu_feed (
         aitown_dejavu_t *dejavu,
-        struct _aitimage_t * image);
+        const struct _aitimage_t * image);
 
 
 /*  FUNCTIONS    =========================================================== */

@@ -132,13 +132,14 @@ static func_error_t aitown_db_read_ini (
         // the path to config file
         char computed_name[MAX_PATH];
         int tolerant;
-        const char * cfg_path;
+        const char * cfg_path = NULL;
         if (data->cfg_file == NULL) {
             computed_name[0] = 0;
             get_user_config_folder (computed_name, MAX_PATH-drv_len-1, "aitown_db");
             size_t cpth = strlen (computed_name);
             memcpy (&computed_name[cpth], data->driver, drv_len+1);
             tolerant = 1;
+            data->cfg_file = computed_name;
         } else {
             cfg_path = data->cfg_file;
             tolerant = 0;
