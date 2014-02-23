@@ -104,6 +104,7 @@ static func_error_t aitown_compress_shrink_ini (
             size_t cpth = strlen (computed_name);
             memcpy (&computed_name[cpth], data->driver, drv_len+1);
             tolerant = 1;
+            cfg_path = computed_name;
         } else {
             cfg_path = data->cfg_file;
             tolerant = 0;
