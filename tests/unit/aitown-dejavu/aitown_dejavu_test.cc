@@ -23,6 +23,16 @@
 //
 /*  DEFINITIONS    --------------------------------------------------------- */
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+double getRealTime();
+
+#ifdef __cplusplus
+}
+#endif
+
 /*  DEFINITIONS    ========================================================= */
 //
 //
@@ -45,7 +55,31 @@ test_image_22x16;
 //
 /*  FUNCTIONS    ----------------------------------------------------------- */
 
+static void kb_aitown_dejavu_change_kb (
+        void * payload, unsigned average, unsigned max)
+{
+    aitimage_t * img = (aitimage_t *)payload;
 
+    if (img->width == 16) {
+        if (img->height == 16) {
+            EXPECT_EQ(average, 2019);
+            EXPECT_EQ(max, 14114);
+        } else if (img->height == 32) {
+            EXPECT_EQ(average, 0);
+            EXPECT_EQ(max, 0);
+
+        }
+    } else if (img->width == 22) {
+        EXPECT_EQ(average, 0);
+        EXPECT_EQ(max, 0);
+
+    } else if (img->width == 1200) {
+        /*
+        EXPECT_EQ(average, 0);
+        EXPECT_EQ(max, 0);
+        */
+    }
+}
 
 TEST(dejavu,image) {
 
@@ -53,6 +87,7 @@ TEST(dejavu,image) {
     aitimage_t *img_1616;
     aitimage_t *img_1632;
     aitimage_t *img_2216;
+    aitimage_t *img_gi1g;
     func_error_t ret;
 
     ret = aitimage_new (&img_1616, 16, 16, AITIMAGE_RGBA8, 16*16*4);
@@ -67,15 +102,68 @@ TEST(dejavu,image) {
     EXPECT_TRUE (ret == FUNC_OK);
     memcpy (AITIMAGE_GET_DATA(img_2216), test_image_22x16, 22*16*4);
 
+    gimp_image_t * gi1g = getTestImage(1);
+    size_t sz_gi1g = gi1g->width*gi1g->height*gi1g->bytes_per_pixel;
+    ret = aitimage_new (&img_gi1g,
+                        gi1g->width, gi1g->height,
+                        AITIMAGE_RGBA8,
+                        sz_gi1g);
+    EXPECT_TRUE (gi1g->bytes_per_pixel == 4);
+    EXPECT_TRUE (ret == FUNC_OK);
+    memcpy (AITIMAGE_GET_DATA(img_gi1g), gi1g->pixel_data, sz_gi1g);
+
+
+
 
 
     aitown_dejavu_init (&dejavu, 16, 16);
+    dejavu.chg.kb = kb_aitown_dejavu_change_kb;
+    dejavu.chg.payload = img_1616;
 
     aitown_dejavu_feed (&dejavu, img_1616);
     aitown_dejavu_feed (&dejavu, img_1616);
 
     aitown_dejavu_end (&dejavu);
 
+
+
+    aitown_dejavu_init (&dejavu, 16, 32);
+    dejavu.chg.kb = kb_aitown_dejavu_change_kb;
+    dejavu.chg.payload = img_1632;
+
+    aitown_dejavu_feed (&dejavu, img_1632);
+    aitown_dejavu_feed (&dejavu, img_1632);
+
+    aitown_dejavu_end (&dejavu);
+
+
+
+    aitown_dejavu_init (&dejavu, 22, 16);
+    dejavu.chg.kb = kb_aitown_dejavu_change_kb;
+    dejavu.chg.payload = img_2216;
+
+    aitown_dejavu_feed (&dejavu, img_2216);
+    aitown_dejavu_feed (&dejavu, img_2216);
+
+    aitown_dejavu_end (&dejavu);
+
+
+
+    aitown_dejavu_init (&dejavu, img_gi1g->width, img_gi1g->height);
+    dejavu.chg.kb = kb_aitown_dejavu_change_kb;
+    dejavu.chg.payload = img_gi1g;
+
+    aitown_dejavu_feed (&dejavu, img_gi1g);
+    aitown_dejavu_feed (&dejavu, img_gi1g);
+
+    aitown_dejavu_end (&dejavu);
+
+
+
+
+
+    ret = aitimage_free (&img_gi1g);
+    EXPECT_TRUE (ret == FUNC_OK);
 
     ret = aitimage_free (&img_2216);
     EXPECT_TRUE (ret == FUNC_OK);
@@ -85,6 +173,43 @@ TEST(dejavu,image) {
 
     ret = aitimage_free (&img_1616);
     EXPECT_TRUE (ret == FUNC_OK);
+
+}
+/* ========================================================================= */
+
+TEST(dejavu,speed) {
+    aitimage_t *img_gi1g;
+    double startTime, endTime;
+    aitown_dejavu_t dejavu;
+
+    gimp_image_t * gi1g = getTestImage(1);
+    func_error_t ret;
+    size_t sz_gi1g = gi1g->width*gi1g->height*gi1g->bytes_per_pixel;
+    ret = aitimage_new (&img_gi1g,
+                        gi1g->width, gi1g->height,
+                        AITIMAGE_RGBA8,
+                        sz_gi1g);
+    EXPECT_TRUE (gi1g->bytes_per_pixel == 4);
+    EXPECT_TRUE (ret == FUNC_OK);
+    memcpy (AITIMAGE_GET_DATA(img_gi1g), gi1g->pixel_data, sz_gi1g);
+
+
+    aitown_dejavu_init (&dejavu, img_gi1g->width, img_gi1g->height);
+
+    startTime = getRealTime();
+    aitown_dejavu_feed (&dejavu, img_gi1g);
+    endTime = getRealTime();
+
+    aitown_dejavu_end (&dejavu);
+
+    printf ("- Feed took in %lf\n", (endTime - startTime) );
+
+
+
+
+    ret = aitimage_free (&img_gi1g);
+    EXPECT_TRUE (ret == FUNC_OK);
+
 
 }
 /* ========================================================================= */

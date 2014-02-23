@@ -1,3 +1,8 @@
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef struct _gimp_image_t{
     unsigned int 	 width;
     unsigned int 	 height;
@@ -7,3 +12,7 @@ typedef struct _gimp_image_t{
 #define GIMP_IMAGE_GET_DATA(__p__) (&(__p__)->pixel_data)
 
 gimp_image_t * getTestImage(int index);
+
+#ifdef __cplusplus
+}
+#endif
