@@ -5,25 +5,40 @@ title: aitown-dejavu
 
 
 <p>
+    <a href="{{ site.baseurl }}/reference/aitown-dejavu/dejavu-simple.png">
+    <img style="padding:1em;" align="right" width="25%" src="{{ site.baseurl }}/reference/aitown-dejavu/dejavu-simple.png"
+    alt="Simple overview of the dejavu sensor"></img>
+    </a>
+
     aitown-dejavu is a level I processing library for image input.
     It receives images as two dimensional arrays in argb format (32-bit per
     pixel - the only supported format) and it sends
     <a href="aitown-dstorage.html">aitown-dstorage</a> IDs to level
-    II processing.
+    II processing. Level I processing means that this is the first
+    module that a stream of data encounters when arriving at the
+    aitown "entity". Level I processing converts various inputs into
+    a common format and sends it to Level II processing (not yet defined
+    in theory or in code).
 </p>
 
 <p>
-    Initial input is being feeded to two processes: one that detects sudden
+    Initial input is being feeded to two logical processes: one that detects sudden
     changes in the entire picture and that is used to signal attention about
     interesting spots and one that processes the area of the image that is
-    under attention right now.
+    under attention right now. Theoretically, the two may
+    be executed sequential or in paralel. Current implementation has a sequential
+    implementation with OpenMP being first choice for paralelization.
 </p>
 
 <h2>Sudden changes</h2>
 <p>
     Each time an input image arrives, it is compared with previous state
-    to detect sudden changes. For this purpose the image is divided by a grid
-    and the values for all pixels belonging to a grid are averaged.
+    to detect sudden changes using aitown_dejavu_change_detect().
+    For this purpose the image is divided by a grid
+    and the values for all pixels belonging to each cell of that
+    grid are converted to something resembling grey (a single value
+    for the three components - red, green, blue) and are averaged.
+    Results what we call a grey "virtual pixel".
     The values computed in this manner are substracted from cached values
     from previous run. If a particular area has a high absolute difference
     compared with the differences from other cells or if a group of cells
@@ -42,12 +57,17 @@ title: aitown-dejavu
 </p>
 
 <p>
+    The implementation is open for optimisation. A naive implementation was
+    partially implemented to allow testing the concept.
+</p>
+
+<p>
     <span style="color: blue;">Open questions</span>:
 </p>
 <ul>
     <li>
         Should the cells be fixed in size? Adaptable? Is the input allowed to
-        vary in size (width, height)?
+        vary in size (width, height)? There are preprocessor defines in place right now.
     </li>
 </ul>
 
@@ -55,7 +75,7 @@ title: aitown-dejavu
 <p>
     <a href="{{ site.baseurl }}/reference/aitown-dejavu/ar.png">
     <img style="padding:1em;" align="right" width="25%" src="{{ site.baseurl }}/reference/aitown-dejavu/ar.png"
-    alt="aitown-dejavu workflow"></img>
+    alt="attention rectangle overimposed on top of image pixels"></img>
     </a>
     Image processing for pattern recognition does not always takes the entire
     input into account; instead, an <em>attention rectangle</em> is implemented

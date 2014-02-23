@@ -1,0 +1,39 @@
+digraph		graph_name	{
+	bgcolor = transparent
+	node	[
+		style = filled
+		fillcolor = "#FCE975"
+		shape =note
+	]
+	edge	[
+		color ="#a6aa9c"
+	]
+	
+	subgraph cluster_name	{
+		label ="Level I processing"
+		fillcolor = "#ffff9f"
+		labelloc="bottom"
+		labelfontcolor = "#ff0000"
+		style = filled
+		a	[
+			label ="Sudden\nChange"
+		]
+
+		c	[
+			label ="AR\nProcessing"
+		]
+
+		
+		{rank=same a c}
+	}
+	b	[
+		label ="Attention"
+	]	
+	d	[
+		label ="Level II\nprocessing"
+	]
+	a -> b -> c 
+	c->d
+	input ->a
+	input ->c
+}
