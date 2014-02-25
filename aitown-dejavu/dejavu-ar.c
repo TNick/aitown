@@ -20,7 +20,7 @@
 //
 /*  INCLUDES    ------------------------------------------------------------ */
 
-#include "dejavu-ar.h"
+#include "aitown-dejavu.h"
 
 #include <aitown/dbg_assert.h>
 #include <aitown/aitown-image.h>
@@ -152,7 +152,7 @@ void aitown_dejavu_ar_reinit (
         aitown_dejavu_ar_t *ar, unsigned width, unsigned height)
 {
 #   ifdef AITOWN_DEJAVU_INPUT_IS_VARIABLE
-    adjust_to_size_change(ar, image);
+    adjust_to_size_change(ar, width, height);
 #   else
     dbg_message ("Input image dimensions (%dx%d) do not match fixed values (%dx%d)",
                  width,
@@ -164,10 +164,13 @@ void aitown_dejavu_ar_reinit (
 
 
 static func_error_t id_for_color (
-        aitown_dejavu_ar_t * ar, expanded_color_t *color)
+        aitown_dejavu_t * dejavu, expanded_color_t *color)
 {
     func_error_t ret = FUNC_OK;
     for (;;) {
+
+
+
 
         break;
     }
@@ -176,7 +179,7 @@ static func_error_t id_for_color (
 
 }
 
-static inline func_error_t ids_for_cell (aitown_dejavu_ar_t *ar, expanded_color_t * color)
+static inline func_error_t ids_for_cell (aitown_dejavu_t *dejavu, expanded_color_t * color)
 {
 
     // compute generalised colors
@@ -193,15 +196,15 @@ static inline func_error_t ids_for_cell (aitown_dejavu_ar_t *ar, expanded_color_
     func_error_t ret = FUNC_OK;
     for (;;) {
 
-        ret = id_for_color (ar, color);
+        ret = id_for_color (dejavu, color);
         if (FUNC_OK != ret) break;
-        ret = id_for_color (ar, &color_2);
+        ret = id_for_color (dejavu, &color_2);
         if (FUNC_OK != ret) break;
-        ret = id_for_color (ar, &color_4);
+        ret = id_for_color (dejavu, &color_4);
         if (FUNC_OK != ret) break;
-        ret = id_for_color (ar, &color_8);
+        ret = id_for_color (dejavu, &color_8);
         if (FUNC_OK != ret) break;
-        ret = id_for_color (ar, &color_16);
+        ret = id_for_color (dejavu, &color_16);
         if (FUNC_OK != ret) break;
 
         ret = FUNC_OK;
@@ -211,9 +214,11 @@ static inline func_error_t ids_for_cell (aitown_dejavu_ar_t *ar, expanded_color_
 }
 
 void aitown_dejavu_ar_process (
-        aitown_dejavu_ar_t *ar, const aitimage_t * image)
+        aitown_dejavu_t *dejavu, const aitimage_t * image)
 {
-    DBG_ASSERT (ar != NULL);
+    aitown_dejavu_ar_t *ar = &dejavu->attrect;
+
+    DBG_ASSERT (dejavu != NULL);
     DBG_ASSERT (image != NULL);
     DBG_ASSERT (image->width == ar->img_cols);
     DBG_ASSERT (image->height == ar->img_rows);
@@ -253,7 +258,7 @@ void aitown_dejavu_ar_process (
                         image_cols, &color);
 
             // now look-up this value and get coresponding id
-            ret = ids_for_cell (ar, &color);
+            ret = ids_for_cell (dejavu, &color);
             if (ret != FUNC_OK) {
                 // we're low on resources so drop the whole process
                 return;

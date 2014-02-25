@@ -41,7 +41,7 @@ extern "C" {
 /*  DEFINITIONS    --------------------------------------------------------- */
 
 struct _aitimage_t;
-
+struct _aitown_dejavu_t;
 
 // allow both undefined and 0 to mean the same thing in terms of input size
 #ifndef AITOWN_DEJAVU_FIX_WIDTH
@@ -178,7 +178,7 @@ aitown_dejavu_ar_reinit (
 ///
 AITOWN_EXPORT void
 aitown_dejavu_ar_process (
-        aitown_dejavu_ar_t *ar,
+        struct _aitown_dejavu_t *dejavu,
         const struct _aitimage_t * image);
 
 /*  FUNCTIONS    =========================================================== */

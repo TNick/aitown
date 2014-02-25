@@ -15,6 +15,7 @@
 
 #include <aitown/aitown-image.h>
 #include <aitown/aitown-dejavu.h>
+#include <aitown/aitown-core.h>
 
 /*  INCLUDES    ============================================================ */
 //
@@ -83,12 +84,15 @@ static void kb_aitown_dejavu_change_kb (
 
 TEST(dejavu,image) {
 
+    aitown_core_t core;
     aitown_dejavu_t dejavu;
     aitimage_t *img_1616;
     aitimage_t *img_1632;
     aitimage_t *img_2216;
     aitimage_t *img_gi1g;
     func_error_t ret;
+
+    aitown_core_init (&core);
 
     ret = aitimage_new (&img_1616, 16, 16, AITIMAGE_RGBA8, 16*16*4);
     EXPECT_TRUE (ret == FUNC_OK);
@@ -116,7 +120,7 @@ TEST(dejavu,image) {
 
 
 
-    aitown_dejavu_init (&dejavu, 16, 16, 16, 16);
+    aitown_dejavu_init (&dejavu, &core, 16, 16, 16, 16);
     dejavu.chg.kb = kb_aitown_dejavu_change_kb;
     dejavu.chg.payload = img_1616;
 
@@ -127,7 +131,7 @@ TEST(dejavu,image) {
 
 
 
-    aitown_dejavu_init (&dejavu, 16, 32, 16, 16);
+    aitown_dejavu_init (&dejavu, &core, 16, 32, 16, 16);
     dejavu.chg.kb = kb_aitown_dejavu_change_kb;
     dejavu.chg.payload = img_1632;
 
@@ -138,7 +142,7 @@ TEST(dejavu,image) {
 
 
 
-    aitown_dejavu_init (&dejavu, 22, 16, 16, 16);
+    aitown_dejavu_init (&dejavu, &core, 22, 16, 16, 16);
     dejavu.chg.kb = kb_aitown_dejavu_change_kb;
     dejavu.chg.payload = img_2216;
 
@@ -149,7 +153,7 @@ TEST(dejavu,image) {
 
 
 
-    aitown_dejavu_init (&dejavu, img_gi1g->width, img_gi1g->height, 16, 16);
+    aitown_dejavu_init (&dejavu, &core, img_gi1g->width, img_gi1g->height, 16, 16);
     dejavu.chg.kb = kb_aitown_dejavu_change_kb;
     dejavu.chg.payload = img_gi1g;
 
@@ -174,6 +178,8 @@ TEST(dejavu,image) {
     ret = aitimage_free (&img_1616);
     EXPECT_TRUE (ret == FUNC_OK);
 
+    aitown_core_end (&core);
+
 }
 /* ========================================================================= */
 
@@ -181,6 +187,9 @@ TEST(dejavu,speed) {
     aitimage_t *img_gi1g;
     double startTime, endTime;
     aitown_dejavu_t dejavu;
+
+    aitown_core_t core;
+    aitown_core_init (&core);
 
     gimp_image_t * gi1g = getTestImage(1);
     func_error_t ret;
@@ -194,7 +203,7 @@ TEST(dejavu,speed) {
     memcpy (AITIMAGE_GET_DATA(img_gi1g), gi1g->pixel_data, sz_gi1g);
 
 
-    aitown_dejavu_init (&dejavu, img_gi1g->width, img_gi1g->height, 16, 16);
+    aitown_dejavu_init (&dejavu, &core, img_gi1g->width, img_gi1g->height, 16, 16);
 
     startTime = getRealTime();
     int i = 0;
@@ -211,6 +220,7 @@ TEST(dejavu,speed) {
     ret = aitimage_free (&img_gi1g);
     EXPECT_TRUE (ret == FUNC_OK);
 
+    aitown_core_end (&core);
 
 }
 /* ========================================================================= */

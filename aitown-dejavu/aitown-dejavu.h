@@ -44,12 +44,14 @@ extern "C" {
 /*  DEFINITIONS    --------------------------------------------------------- */
 
 struct _aitimage_t;
+struct _aitown_core_t;
 
 //! describes a dejavu instance
 ///
 typedef struct _aitown_dejavu_t {
     aitown_dejavu_ar_t      attrect;    /**< attention rectangle \f$\mathcal{AR}\f$ handler */
     aitown_dejavu_change_t  chg;        /**< structure in charge of tracking changes */
+    struct _aitown_core_t * core;       /**< associated core */
 } aitown_dejavu_t;
 
 /*  DEFINITIONS    ========================================================= */
@@ -76,6 +78,7 @@ typedef struct _aitown_dejavu_t {
 AITOWN_EXPORT void
 aitown_dejavu_init (
         aitown_dejavu_t *dejavu,
+        struct _aitown_core_t * core,
         unsigned input_cols,
         unsigned input_rows,
         unsigned ar_cols,

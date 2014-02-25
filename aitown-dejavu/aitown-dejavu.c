@@ -25,6 +25,7 @@
 #include <aitown/dbg_assert.h>
 #include <aitown/aitown-image.h>
 #include <aitown/utils.h>
+#include <aitown/aitown-core.h>
 
 #include <stdlib.h>
 #include <string.h>
@@ -52,9 +53,13 @@
 
 void aitown_dejavu_init (
         aitown_dejavu_t *dejavu,
+        aitown_core_t * core,
         unsigned input_cols, unsigned input_rows,
         unsigned ar_cols, unsigned ar_rows)
 {
+    DBG_ASSERT (dejavu != NULL);
+    DBG_ASSERT (core != NULL);
+
     // clear all, including substructures
     memset (dejavu, 0, sizeof(aitown_dejavu_t));
 
@@ -65,6 +70,7 @@ void aitown_dejavu_init (
                 input_cols, input_rows,
                 ar_cols, ar_rows);
 
+    dejavu->core = core;
 }
 
 
@@ -99,7 +105,7 @@ void aitown_dejavu_feed (aitown_dejavu_t *dejavu, const aitimage_t * image)
     aitown_dejavu_change_detect (&dejavu->chg, image);
     
     // interpret the content of the AR
-    aitown_dejavu_ar_process (&dejavu->attrect, image);
+    aitown_dejavu_ar_process (dejavu, image);
 
 }
 
