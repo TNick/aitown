@@ -139,6 +139,7 @@ configure_file (
 # modules
 set ( lib_modules
     "aitown-utils"
+    "aitown-cfg"
     "aitown-core"
     "aitown-plugin"
     "aitown-dstorage"
