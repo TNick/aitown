@@ -68,6 +68,15 @@ Components
 Embedded libraries
 ------------------
 
+The code in this group originates in other open source projects.
+The source files were sometimes modified and files were added in some places.
+As a rule of thumb the libraries who'se name don't start with `aitown-`
+are considered "semi-external" and no dependency on other parts of
+aitown project should be induced. If an dependency is unavoidable then the
+directory should be renamed. For small changes a wrapper in
+[aitown-utils](http://tnick.github.io/aitown/reference/aitown-utils.html)
+can be created.
+
 - [sglib](sglib.html)
 - [inih](inih.html)
 - [cfgpath](cfgpath.html)
