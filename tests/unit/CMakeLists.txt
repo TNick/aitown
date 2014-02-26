@@ -10,6 +10,7 @@ set ( test_modules
     "kdtree"
     "aitown-db"
     "aitown-dejavu"
+    "aitown-cfg"
 )
 
 FOREACH ( mod ${test_modules} )

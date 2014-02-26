@@ -46,9 +46,15 @@ configure_file (
 # our library
 set ( LIB_SOURCES
     aitown-cfg.c
+    aitown-cfg-node.c
+    aitown-cfg-sect.c
+    aitown-cfg-leaf.c
 )
 set ( LIB_HEADERS
     aitown-cfg.h
+    aitown-cfg-node.h
+    aitown-cfg-sect.h
+    aitown-cfg-leaf.h
 )
 set (LIBS)
 

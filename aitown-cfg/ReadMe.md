@@ -17,3 +17,11 @@ aitown_cfg_end (&cfg);
 
 
 
+
+Take a fictional module "m" as example. It may provide two initialization
+functions:
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.c}
+m_init(m_t *module, const char *cfg_file);
+m_init(m_t *module, aitown_cfg_t *section);
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
