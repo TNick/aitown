@@ -6,5 +6,57 @@ title: aitown-cfg
 
 <p>
 
-    aitown-cfg ...
+    aitown-cfg provides an unified interface to settings for all modules
+    that are part of the package. It also serves to simplify the code in other
+    modules.
 </p>
+
+<p>
+    The settings are stored in files. The library either receives fully
+    qualified paths or relative paths that are resolved by the underlying
+    platform. In either case the library has no mechanism for guessing
+    files based on provided names.
+</p>
+
+<p>
+    A tree structure is employed, with sections acting as nodes
+    and keys-values pairs being the leafs. Each section may have a name
+    (null-terminated string, with each character being exactly one byte)
+    and each leaf has a name and a value of same king of string. The slash ('/')
+    can't be part of the section's name, as it is used as path separator.
+</p>
+
+<p>
+    Here is a simple example file:
+</p>
+
+<div class="codearea">
+; we define a section called "general"<br />
+[general]<br>
+; the key is "port" and the value is "29777"<br>
+port = 29777<br>
+</div>
+
+<p>
+    A more complex file, with "general" section hosting a subsection
+    (note that the order is not important, and "general" section
+    may be left out).
+</p>
+
+<div class="codearea">
+; a subsection for section "general"<br />
+[general/subsection]<br />
+; path for following key is general/subsection/key<br />
+key = 1<br />
+; "general" section can have leafs of its own<br />
+[general]<br>
+; the key is "port" and the value is "29777"<br />
+port = 29777<br>
+</div>
+
+<p>
+    This tree structure is used for stacking properties, in a way that allows
+    modules to be configured either with their own config file or with
+    settings from a general config file loaded by parent module.
+</p>
+
