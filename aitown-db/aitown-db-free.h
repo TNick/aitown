@@ -1,7 +1,7 @@
 /* ========================================================================= */
 /* ------------------------------------------------------------------------- */
 /*!
-  \file			aitown-db.c
+  \file			aitown-db-free.h
   \date			February 2014
   \author		TNick
 
@@ -14,16 +14,26 @@
 */
 /* ------------------------------------------------------------------------- */
 /* ========================================================================= */
+#ifndef AITOWN_db_free_h_INCLUDE
+#define AITOWN_db_free_h_INCLUDE
 //
 //
 //
 //
 /*  INCLUDES    ------------------------------------------------------------ */
 
-#include "aitown-db.h"
+#include <aitown/aitown_global.h>
 
-#include <stdlib.h>
-#include <string.h>
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+/** @name Freing aitown-db database memory chunk
+ *
+ *
+ *
+ */
+///@{
 
 /*  INCLUDES    ============================================================ */
 //
@@ -31,6 +41,9 @@
 //
 //
 /*  DEFINITIONS    --------------------------------------------------------- */
+
+struct _aitown_db_t;
+struct _aitown_db_mng_t;
 
 /*  DEFINITIONS    ========================================================= */
 //
@@ -46,15 +59,15 @@
 //
 /*  FUNCTIONS    ----------------------------------------------------------- */
 
-void aitown_db_init (aitown_db_t *db)
-{
-    memset (db, 0, sizeof(aitown_db_t));
-}
-
-void aitown_db_end (aitown_db_t *db)
-{
-    memset (db, 0, sizeof(aitown_db_t));
-}
+//! free a chunk of memory
+///
+/// The chunk of memory must have originated from this library
+///
+AITOWN_EXPORT void
+aitown_db_free (
+        struct _aitown_db_t*        db,     /**< the database; must be non-NULL */
+        const void **               chunk   /**< the chunk to free */
+        );
 
 /*  FUNCTIONS    =========================================================== */
 //
@@ -63,3 +76,10 @@ void aitown_db_end (aitown_db_t *db)
 //
 /* ------------------------------------------------------------------------- */
 /* ========================================================================= */
+
+///@}
+
+#ifdef __cplusplus
+}
+#endif
+#endif /* AITOWN_db_free_h_INCLUDE */

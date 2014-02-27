@@ -8,6 +8,7 @@
 
 #include "gtest/gtest.h"
 #include <aitown/aitown-cfg.h>
+#include <aitown/utils.h>
 
 /*  INCLUDES    ============================================================ */
 //
@@ -15,9 +16,6 @@
 //
 //
 /*  DEFINITIONS    --------------------------------------------------------- */
-
-#define xstr(s) str(s)
-#define str(s) #s
 
 #ifdef AITOWN_WIN32
 #define REAL_TREE_DIR_1 "C:"
@@ -404,14 +402,14 @@ void test_multiple_l1_section(aitown_cfg_t * cfg, const char * content)
     EXPECT_TRUE (strcmp(leaf2->value, "abcd") == 0);
 
 #define test_multiple_l1_section_check(nr) \
-    aitown_cfg_sect_t * s ## nr = aitown_cfg_get_sect( &cfg->root, "section" xstr(nr)); \
+    aitown_cfg_sect_t * s ## nr = aitown_cfg_get_sect( &cfg->root, "section" STRINGIFY(nr)); \
     EXPECT_FALSE (s ## nr == NULL); \
-    EXPECT_TRUE (strcmp(s ## nr->node.name, "section" xstr(nr) ) == 0); \
+    EXPECT_TRUE (strcmp(s ## nr->node.name, "section" STRINGIFY(nr) ) == 0); \
     \
     aitown_cfg_leaf_t * s ## nr ## leaf1 = aitown_cfg_get_leaf( s ## nr, "key_1"); \
     EXPECT_FALSE (s ## nr ## leaf1 == NULL); \
     EXPECT_TRUE (strcmp(s ## nr ## leaf1->node.name, "key_1") == 0); \
-    EXPECT_TRUE (strcmp(s ## nr ## leaf1->value, xstr(nr)) == 0);
+    EXPECT_TRUE (strcmp(s ## nr ## leaf1->value, STRINGIFY(nr)) == 0);
 
 
     test_multiple_l1_section_check(1);
@@ -483,11 +481,11 @@ void test_nested_sections(aitown_cfg_t * cfg, const char * content)
 
 #define test_nested_sections_check(nr) \
     EXPECT_FALSE (s ## nr == NULL); \
-    EXPECT_TRUE (strcmp(s ## nr->node.name, "section" xstr(nr) ) == 0); \
+    EXPECT_TRUE (strcmp(s ## nr->node.name, "section" STRINGIFY(nr) ) == 0); \
     \
     EXPECT_FALSE (s ## nr ## leaf1 == NULL); \
     EXPECT_TRUE (strcmp(s ## nr ## leaf1->node.name, "key_1") == 0); \
-    EXPECT_TRUE (strcmp(s ## nr ## leaf1->value, xstr(nr)) == 0);
+    EXPECT_TRUE (strcmp(s ## nr ## leaf1->value, STRINGIFY(nr)) == 0);
 
 
     aitown_cfg_sect_t * s1 = aitown_cfg_get_sect( &cfg->root, "section1");

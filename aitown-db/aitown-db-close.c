@@ -1,7 +1,7 @@
 /* ========================================================================= */
 /* ------------------------------------------------------------------------- */
 /*!
-  \file			aitown-db.c
+  \file			aitown-db-close.c
   \date			February 2014
   \author		TNick
 
@@ -21,6 +21,9 @@
 /*  INCLUDES    ------------------------------------------------------------ */
 
 #include "aitown-db.h"
+#include <aitown/aitown-db-mng.h>
+#include <aitown/aitown-db-driver.h>
+#include <aitown/dbg_assert.h>
 
 #include <stdlib.h>
 #include <string.h>
@@ -46,14 +49,18 @@
 //
 /*  FUNCTIONS    ----------------------------------------------------------- */
 
-void aitown_db_init (aitown_db_t *db)
+void aitown_db_close (aitown_db_t** db)
 {
-    memset (db, 0, sizeof(aitown_db_t));
-}
+    DBG_ASSERT (db != NULL);
+    aitown_db_t *database = *db;
 
-void aitown_db_end (aitown_db_t *db)
-{
-    memset (db, 0, sizeof(aitown_db_t));
+    if (database != NULL) {
+        DBG_ASSERT (database->driver != NULL);
+        DBG_ASSERT (database->driver->close != NULL);
+        if (FUNC_OK == database->driver->close (database)) {
+            *db = NULL;
+        }
+    }
 }
 
 /*  FUNCTIONS    =========================================================== */

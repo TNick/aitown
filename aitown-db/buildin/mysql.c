@@ -2,7 +2,7 @@
 /* ------------------------------------------------------------------------- */
 /*!
   \file			mysql.c
-  \date			September 2013
+  \date			February 2014
   \author		TNick
 
 *//*
@@ -24,6 +24,8 @@
 
 #include <aitown/aitown-db.h>
 #include <aitown/aitown-db-mng.h>
+#include <aitown/aitown-db-open.h>
+#include <aitown/aitown-db-close.h>
 #include <aitown/aitown-db-driver.h>
 #include <aitown/utils.h>
 #include <aitown/dbg_assert.h>
@@ -148,11 +150,10 @@ func_error_t aitown_db_mysql_open (aitown_db_open_t*data)
     size_t querry_buffer_sz;
     size_t querry_computed;
 
-    struct_ini_sect_t * cfg_mysql = NULL;
-    struct_ini_value_t * cfg_mysql_user = NULL;
-    struct_ini_value_t * cfg_mysql_pass = NULL;
-    char * mysql_user;
-    char * mysql_pass;
+    aitown_cfg_leaf_t * cfg_mysql_user = NULL;
+    aitown_cfg_leaf_t * cfg_mysql_pass = NULL;
+    const char * mysql_user;
+    const char * mysql_pass;
 
     for (;;) {
 
@@ -173,17 +174,34 @@ func_error_t aitown_db_mysql_open (aitown_db_open_t*data)
 
         int b_cfg_ok = 0;
         for (;;) {
-            // it requires configuration
-            if (data->cfg == NULL)
+            aitown_db_mng_t *db_mng = data->db_mng;
+
+            // get root section
+            aitown_cfg_sect_t * root_cfg_sect = db_mng->cfg_sect;
+            if (root_cfg_sect == NULL)
                 break;
 
-            // get the user and password from settings
-            cfg_mysql = struct_ini_find_section_0 (data->cfg, MYSQL_NAME);
-            if (cfg_mysql == NULL) break;
-            cfg_mysql_user = struct_ini_find_value_0 (cfg_mysql, MYSQL_KEY_USERNAME);
-            if (cfg_mysql_user == NULL) break;
-            cfg_mysql_pass = struct_ini_find_value_0 (cfg_mysql, MYSQL_KEY_PASS);
-            if (cfg_mysql_pass == NULL) break;
+            // get databases section
+            aitown_cfg_sect_t * cfg_sect_databases =
+                    aitown_cfg_get_sect( root_cfg_sect, "databases");
+            if (cfg_sect_databases == NULL)
+                break;
+
+            // get the section for our database
+            aitown_cfg_sect_t * cfg_sect_ourdb =
+                    aitown_cfg_get_sect( cfg_sect_databases, data->db_name);
+            if (cfg_sect_ourdb == NULL)
+                break;
+
+            cfg_mysql_user =
+                    aitown_cfg_get_leaf( cfg_sect_ourdb, MYSQL_KEY_USERNAME );
+            if ((cfg_mysql_user != NULL) && (cfg_mysql_user->value != NULL))
+                break;
+
+            cfg_mysql_pass =
+                    aitown_cfg_get_leaf( cfg_sect_ourdb, MYSQL_KEY_PASS );
+            if ((cfg_mysql_pass != NULL) && (cfg_mysql_pass->value != NULL))
+                break;
 
             b_cfg_ok = 1;
             break;
@@ -228,7 +246,7 @@ func_error_t aitown_db_mysql_open (aitown_db_open_t*data)
 
         // attempt to connect
         if (mysql_real_connect(
-                new_db->con, data->db_path_hint,
+                new_db->con, data->path_hint,
                 mysql_user, mysql_pass,
                 NULL, 0, NULL, 0) == NULL)
         {
@@ -255,7 +273,7 @@ func_error_t aitown_db_mysql_open (aitown_db_open_t*data)
         // attempt to connect
         new_db->con = mysql_init(NULL);
         if (mysql_real_connect(
-                new_db->con, data->db_path_hint,
+                new_db->con, data->path_hint,
                 cfg_mysql_user->value, cfg_mysql_pass->value,
                 data->db_name, 0, NULL, 0) == NULL)
         {
@@ -302,11 +320,10 @@ func_error_t aitown_db_mysql_open (aitown_db_open_t*data)
     return ret;
 }
 
-func_error_t aitown_db_mysql_close (aitown_db_mng_t * db_mng, aitown_db_t*db)
+func_error_t aitown_db_mysql_close (aitown_db_t*db)
 {
     DBG_ASSERT (db != NULL);
     DBG_ASSERT (db->driver != NULL);
-    DBG_ASSERT (db_mng != NULL);
 
     func_error_t ret = FUNC_OK;
     for (;;) {
@@ -332,7 +349,7 @@ func_error_t aitown_db_mysql_close (aitown_db_mng_t * db_mng, aitown_db_t*db)
     return ret;
 }
 
-func_error_t aitown_db_mysql_read (aitown_db_io_t * request)
+func_error_t aitown_db_mysql_read (aitown_db_read_t * request)
 {
     DBG_ASSERT (request != NULL);
 
@@ -380,7 +397,7 @@ func_error_t aitown_db_mysql_read (aitown_db_io_t * request)
 
         // copy the key
         iterator += mysql_real_escape_string(
-                    database->con, iterator, request->key.ptr, request->key_sz);
+                    database->con, iterator, request->key, request->key_sz);
 
         // copy second part
         MYSQL_APPEND_LITERAL(iterator,"';");
@@ -434,12 +451,11 @@ func_error_t aitown_db_mysql_read (aitown_db_io_t * request)
     }
 
     // either use the callback or set the value in request
-    if (request->kb.kb_read == NULL) {
-        *request->val.pp = vbuf;
-        *request->val_sz.pd = vsiz;
+    if (request->kb == NULL) {
+        *request->val = vbuf;
+        *request->val_sz = vsiz;
     } else {
-        request->kb.kb_read (
-                    request->db_mng,
+        request->kb (
                     request->db,
                     ret,
                     request->user,
@@ -450,7 +466,7 @@ func_error_t aitown_db_mysql_read (aitown_db_io_t * request)
     return ret;
 }
 
-func_error_t aitown_db_mysql_write (aitown_db_io_t * request)
+func_error_t aitown_db_mysql_write (aitown_db_write_t * request)
 {
     func_error_t    ret = FUNC_OK;
     char * querry_buffer = NULL;
@@ -471,7 +487,7 @@ func_error_t aitown_db_mysql_write (aitown_db_io_t * request)
                 sizeof(MYSQL_Q_INSERT) +
                 db_len +
                 request->key_sz*2 +
-                request->val_sz.d*2 +
+                request->val_sz*2 +
                 2;
 
         // allocate
@@ -492,14 +508,14 @@ func_error_t aitown_db_mysql_write (aitown_db_io_t * request)
 
         // copy the key
         iterator += mysql_real_escape_string(
-                    database->con, iterator, request->key.ptr, request->key_sz);
+                    database->con, iterator, request->key, request->key_sz);
 
         // copy separator
         MYSQL_APPEND_LITERAL(iterator,"','");
 
         // copy the value
         iterator += mysql_real_escape_string(
-                    database->con, iterator, request->val.p, request->val_sz.d);
+                    database->con, iterator, request->val, request->val_sz);
 
         // ending part
         MYSQL_APPEND_LITERAL(iterator,"') ON DUPLICATE KEY UPDATE MasterValue=values(MasterValue);");
@@ -521,9 +537,8 @@ func_error_t aitown_db_mysql_write (aitown_db_io_t * request)
     }
 
     // either use the callback or set the value in request
-    if (request->kb.kb_write != NULL) {
-        request->kb.kb_write (
-                    request->db_mng,
+    if (request->kb != NULL) {
+        request->kb (
                     request->db,
                     ret,
                     request->user
@@ -533,29 +548,29 @@ func_error_t aitown_db_mysql_write (aitown_db_io_t * request)
 }
 
 func_error_t aitown_db_mysql_free_chunk (
-        aitown_db_mng_t * db_mng, aitown_db_t*db, void * chunk)
+        aitown_db_t*db, void * chunk)
 {
     free (chunk);
     return FUNC_OK;
 }
 
-func_error_t aitown_db_mysql_read_k64 (aitown_db_io_t * request)
-{
-    aitown_db_io_t internal = *request;
-    internal.key.ptr = &request->key.u64;
-    internal.key_sz = 8;
-    return aitown_db_mysql_read (&internal);
-}
+//func_error_t aitown_db_mysql_read_k64 (aitown_db_io_t * request)
+//{
+//    aitown_db_io_t internal = *request;
+//    internal.key.ptr = &request->key.u64;
+//    internal.key_sz = 8;
+//    return aitown_db_mysql_read (&internal);
+//}
 
-func_error_t aitown_db_mysql_write_k64 (aitown_db_io_t * request)
-{
-    aitown_db_io_t internal = *request;
-    internal.key.ptr = &request->key.u64;
-    internal.key_sz = 8;
-    return aitown_db_mysql_write (&internal);
-}
+//func_error_t aitown_db_mysql_write_k64 (aitown_db_io_t * request)
+//{
+//    aitown_db_io_t internal = *request;
+//    internal.key.ptr = &request->key.u64;
+//    internal.key_sz = 8;
+//    return aitown_db_mysql_write (&internal);
+//}
 
-void aitown_db_mysql_init (aitown_db_mng_t *db_mng)
+func_error_t aitown_db_mysql_init (aitown_db_mng_t *db_mng)
 {
 
     // allocate memory for us
@@ -563,7 +578,7 @@ void aitown_db_mysql_init (aitown_db_mng_t *db_mng)
                 sizeof(aitown_db_driver_mysql_t));
     if (ret == NULL) {
         dbg_message ("Mysql failed to start due to a memory failure");
-        return;
+        return FUNC_MEMORY_ERROR;
     }
 
     // initialize it as a standard driver
@@ -575,18 +590,19 @@ void aitown_db_mysql_init (aitown_db_mng_t *db_mng)
     ret->header.read = aitown_db_mysql_read;
     ret->header.write = aitown_db_mysql_write;
     ret->header.free_chunk = aitown_db_mysql_free_chunk;
-    ret->header.read_k64 = aitown_db_mysql_read_k64;
-    ret->header.write_k64 = aitown_db_mysql_write_k64;
+//    ret->header.read_k64 = aitown_db_mysql_read_k64;
+//    ret->header.write_k64 = aitown_db_mysql_write_k64;
 
     // inform the manager about it
-    aitown_db_mng_driver_add (db_mng, (aitown_db_driver_t*)ret);
+    aitown_db_driver_add (db_mng, (aitown_db_driver_t*)ret);
+    return FUNC_OK;
 }
 
 void aitown_db_mysql_end (aitown_db_mng_t *db_mng)
 {
     // ask the manager to remove us from the list
     aitown_db_driver_t * instance;
-    if (FUNC_OK == aitown_db_mng_driver_rem_n (
+    if (FUNC_OK == aitown_db_driver_rem_n (
             db_mng, MYSQL_NAME, &instance))
     {
         aitown_db_driver_mysql_t * mysql = (aitown_db_driver_mysql_t*)instance;

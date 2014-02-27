@@ -2,7 +2,7 @@
 /* ------------------------------------------------------------------------- */
 /*!
   \file			tokyo.h
-  \date			September 2013
+  \date			February 2014
   \author		TNick
 
 *//*
@@ -23,6 +23,7 @@
 /*  INCLUDES    ------------------------------------------------------------ */
 
 #include <aitown/aitown_global.h>
+#include <aitown/error_codes.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -57,7 +58,7 @@ struct _aitown_db_mng_t;
 /// @warning This method is intended for driver writers and should not be
 /// called by the database users.
 ///
-AITOWN_EXPORT void
+AITOWN_EXPORT func_error_t
 aitown_db_tokyo_init (
         struct _aitown_db_mng_t *db_mng);
 

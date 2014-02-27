@@ -2,7 +2,7 @@
 /* ------------------------------------------------------------------------- */
 /*!
   \file			aitown-db.h
-  \date			September 2013
+  \date			February 2014
   \author		TNick
 
 *//*
@@ -36,11 +36,13 @@ extern "C" {
 /*  DEFINITIONS    --------------------------------------------------------- */
 
 struct _aitown_db_driver_t;
+struct _aitown_db_mng_t;
 
 
 //! describes a db instance
 ///
 typedef struct _aitown_db_t {
+    struct _aitown_db_mng_t *       manager; /**< the manager */
     struct _aitown_db_driver_t *    driver; /**< the driver that manages this database */
 
 } aitown_db_t;
@@ -78,9 +80,6 @@ aitown_db_init (
 AITOWN_EXPORT void
 aitown_db_end (
         aitown_db_t *db);
-
-
-
 
 
 /*  FUNCTIONS    =========================================================== */

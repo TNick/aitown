@@ -2,7 +2,7 @@
 /* ------------------------------------------------------------------------- */
 /*!
   \file			kyoto.c
-  \date			September 2013
+  \date			February 2014
   \author		TNick
 
 *//*
@@ -24,6 +24,8 @@
 
 #include <aitown/aitown-db.h>
 #include <aitown/aitown-db-mng.h>
+#include <aitown/aitown-db-open.h>
+#include <aitown/aitown-db-close.h>
 #include <aitown/aitown-db-driver.h>
 #include <aitown/utils.h>
 #include <aitown/dbg_assert.h>
@@ -89,7 +91,7 @@ func_error_t aitown_db_kyoto_open (aitown_db_open_t*data)
     for (;;) {
 
         // make sure prerequisites are in place
-        if ( (data->db_path_hint == NULL) || (data->db_name == NULL) ) {
+        if ( (data->path_hint == NULL) || (data->db_name == NULL) ) {
             ret = FUNC_BAD_INPUT;
             err_message("A database name and a path hint are required to open a kyoto database");
             break;
@@ -107,7 +109,7 @@ func_error_t aitown_db_kyoto_open (aitown_db_open_t*data)
         aitown_db_init (&new_db->header);
 
         // compute the path and name of the database
-        size_t path_l = strlen (data->db_path_hint);
+        size_t path_l = strlen (data->path_hint);
         size_t name_l = strlen (data->db_name);
         size_t suffix_l = sizeof(KYOTO_SUFFIX);
         path = (char*)malloc(path_l + 1 + name_l + suffix_l);
@@ -117,7 +119,7 @@ func_error_t aitown_db_kyoto_open (aitown_db_open_t*data)
         }
 
         // copy the path
-        memcpy (path, data->db_path_hint, path_l);
+        memcpy (path, data->path_hint, path_l);
         if ( (path[path_l-1] != '/') && (path[path_l-1] != '\\')) {
             path[path_l] = '/';
             path_l++;
@@ -158,11 +160,10 @@ func_error_t aitown_db_kyoto_open (aitown_db_open_t*data)
     return ret;
 }
 
-func_error_t aitown_db_kyoto_close (aitown_db_mng_t * db_mng, aitown_db_t*db)
+func_error_t aitown_db_kyoto_close ( aitown_db_t*db)
 {
     DBG_ASSERT (db != NULL);
     DBG_ASSERT (db->driver != NULL);
-    DBG_ASSERT (db_mng != NULL);
 
     func_error_t ret = FUNC_OK;
     for (;;) {
@@ -190,7 +191,7 @@ func_error_t aitown_db_kyoto_close (aitown_db_mng_t * db_mng, aitown_db_t*db)
     return ret;
 }
 
-func_error_t aitown_db_kyoto_read (aitown_db_io_t * request)
+func_error_t aitown_db_kyoto_read (aitown_db_read_t * request)
 {
     DBG_ASSERT (request != NULL);
 
@@ -206,7 +207,7 @@ func_error_t aitown_db_kyoto_read (aitown_db_io_t * request)
         // read data
         vbuf = (void*)kcdbget (
                     database->db,
-                    (const char*)request->key.ptr,
+                    (const char*)request->key,
                     request->key_sz,
                     &vsiz);
         if (vbuf == NULL) {
@@ -219,12 +220,11 @@ func_error_t aitown_db_kyoto_read (aitown_db_io_t * request)
     }
 
     // either use the callback or set the value in request
-    if (request->kb.kb_read == NULL) {
-        *request->val.pp = vbuf;
-        *request->val_sz.pd = vsiz;
+    if (request->kb == NULL) {
+        *request->val = vbuf;
+        *request->val_sz = vsiz;
     } else {
-        request->kb.kb_read (
-                    request->db_mng,
+        request->kb (
                     request->db,
                     ret,
                     request->user,
@@ -236,7 +236,7 @@ func_error_t aitown_db_kyoto_read (aitown_db_io_t * request)
     return ret;
 }
 
-func_error_t aitown_db_kyoto_write (aitown_db_io_t * request)
+func_error_t aitown_db_kyoto_write (aitown_db_write_t * request)
 {
     func_error_t    ret = FUNC_OK;
     for (;;) {
@@ -248,10 +248,10 @@ func_error_t aitown_db_kyoto_write (aitown_db_io_t * request)
         // do the writing
         if (!kcdbset (
                 database->db,
-                (const char*)request->key.ptr,
+                (const char*)request->key,
                 request->key_sz,
-                (const char*)request->val.p,
-                request->val_sz.d )) {
+                (const char*)request->val,
+                request->val_sz )) {
 
             err_message("Kyoto database - error writing record : %s",
                   kcecodename(kcdbecode(database->db)));
@@ -262,9 +262,8 @@ func_error_t aitown_db_kyoto_write (aitown_db_io_t * request)
     }
 
     // either use the callback or set the value in request
-    if (request->kb.kb_write != NULL) {
-        request->kb.kb_write (
-                    request->db_mng,
+    if (request->kb != NULL) {
+        request->kb (
                     request->db,
                     ret,
                     request->user
@@ -274,29 +273,29 @@ func_error_t aitown_db_kyoto_write (aitown_db_io_t * request)
 }
 
 func_error_t aitown_db_kyoto_free_chunk (
-        aitown_db_mng_t * db_mng, aitown_db_t*db, void * chunk)
+        aitown_db_t*db, void * chunk)
 {
     kcfree (chunk);
     return FUNC_OK;
 }
 
-func_error_t aitown_db_kyoto_read_k64 (aitown_db_io_t * request)
-{
-    aitown_db_io_t internal = *request;
-    internal.key.ptr = &request->key.u64;
-    internal.key_sz = 8;
-    return aitown_db_kyoto_read (&internal);
-}
+//func_error_t aitown_db_kyoto_read_k64 (aitown_db_io_t * request)
+//{
+//    aitown_db_io_t internal = *request;
+//    internal.key = &request->key.u64;
+//    internal.key_sz = 8;
+//    return aitown_db_kyoto_read (&internal);
+//}
 
-func_error_t aitown_db_kyoto_write_k64 (aitown_db_io_t * request)
-{
-    aitown_db_io_t internal = *request;
-    internal.key.ptr = &request->key.u64;
-    internal.key_sz = 8;
-    return aitown_db_kyoto_write (&internal);
-}
+//func_error_t aitown_db_kyoto_write_k64 (aitown_db_io_t * request)
+//{
+//    aitown_db_io_t internal = *request;
+//    internal.key = &request->key.u64;
+//    internal.key_sz = 8;
+//    return aitown_db_kyoto_write (&internal);
+//}
 
-void aitown_db_kyoto_init (aitown_db_mng_t *db_mng)
+func_error_t aitown_db_kyoto_init (aitown_db_mng_t *db_mng)
 {
 
     // allocate memory for us
@@ -304,7 +303,7 @@ void aitown_db_kyoto_init (aitown_db_mng_t *db_mng)
                 sizeof(aitown_db_driver_kyoto_t));
     if (ret == NULL) {
         dbg_message ("Kyoto cabinet failed to start due to a memory failure");
-        return;
+        return FUNC_MEMORY_ERROR;
     }
 
     // initialize it as a standard driver
@@ -316,18 +315,20 @@ void aitown_db_kyoto_init (aitown_db_mng_t *db_mng)
     ret->header.read = aitown_db_kyoto_read;
     ret->header.write = aitown_db_kyoto_write;
     ret->header.free_chunk = aitown_db_kyoto_free_chunk;
-    ret->header.read_k64 = aitown_db_kyoto_read_k64;
-    ret->header.write_k64 = aitown_db_kyoto_write_k64;
+    //ret->header.read_k64 = aitown_db_kyoto_read_k64;
+    //ret->header.write_k64 = aitown_db_kyoto_write_k64;
 
     // inform the manager about it
-    aitown_db_mng_driver_add (db_mng, (aitown_db_driver_t*)ret);
+    aitown_db_driver_add (db_mng, (aitown_db_driver_t*)ret);
+
+    return FUNC_OK;
 }
 
 void aitown_db_kyoto_end (aitown_db_mng_t *db_mng)
 {
     // ask the manager to remove us from the list
     aitown_db_driver_t * instance;
-    if (FUNC_OK == aitown_db_mng_driver_rem_n (
+    if (FUNC_OK == aitown_db_driver_rem_n (
             db_mng, KYOTO_NAME, &instance))
     {
         aitown_db_driver_kyoto_t * kyoto = (aitown_db_driver_kyoto_t*)instance;

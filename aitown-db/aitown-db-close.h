@@ -1,7 +1,7 @@
 /* ========================================================================= */
 /* ------------------------------------------------------------------------- */
 /*!
-  \file			aitown-db.c
+  \file			aitown-db-close.h
   \date			February 2014
   \author		TNick
 
@@ -14,16 +14,26 @@
 */
 /* ------------------------------------------------------------------------- */
 /* ========================================================================= */
+#ifndef AITOWN_db_close_h_INCLUDE
+#define AITOWN_db_close_h_INCLUDE
 //
 //
 //
 //
 /*  INCLUDES    ------------------------------------------------------------ */
 
-#include "aitown-db.h"
+#include <aitown/aitown_global.h>
 
-#include <stdlib.h>
-#include <string.h>
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+/** @name Closing aitown-db databases
+ *
+ *
+ *
+ */
+///@{
 
 /*  INCLUDES    ============================================================ */
 //
@@ -31,6 +41,8 @@
 //
 //
 /*  DEFINITIONS    --------------------------------------------------------- */
+
+struct _aitown_db_mng_t;
 
 /*  DEFINITIONS    ========================================================= */
 //
@@ -46,15 +58,16 @@
 //
 /*  FUNCTIONS    ----------------------------------------------------------- */
 
-void aitown_db_init (aitown_db_t *db)
-{
-    memset (db, 0, sizeof(aitown_db_t));
-}
 
-void aitown_db_end (aitown_db_t *db)
-{
-    memset (db, 0, sizeof(aitown_db_t));
-}
+//! close a database
+///
+/// Uppon closing the \b db parameter is set to NULL.
+///
+AITOWN_EXPORT void
+aitown_db_close (
+        struct _aitown_db_t**       db /**< the database to close */
+        );
+
 
 /*  FUNCTIONS    =========================================================== */
 //
@@ -63,3 +76,10 @@ void aitown_db_end (aitown_db_t *db)
 //
 /* ------------------------------------------------------------------------- */
 /* ========================================================================= */
+
+///@}
+
+#ifdef __cplusplus
+}
+#endif
+#endif /* AITOWN_db_close_h_INCLUDE */

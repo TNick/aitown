@@ -36,11 +36,21 @@ set ( LIB_SOURCES
     aitown-db.c
     aitown-db-mng.c
     aitown-db-driver.c
+    aitown-db-open.c
+    aitown-db-close.c
+    aitown-db-read.c
+    aitown-db-write.c
+    aitown-db-free.c
 )
 set ( LIB_HEADERS
     aitown-db.h
     aitown-db-mng.h
     aitown-db-driver.h
+    aitown-db-open.h
+    aitown-db-close.h
+    aitown-db-read.h
+    aitown-db-write.h
+    aitown-db-free.h
 )
 set (LIBS)
 
@@ -82,7 +92,7 @@ add_library( ${LOC_PRJ_NAME} SHARED
 target_link_libraries( ${LOC_PRJ_NAME}
     "aitown-core"
     "aitown-utils"
-    "inih"
+    "aitown-cfg"
     ${LIBS}
 )
 

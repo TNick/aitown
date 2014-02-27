@@ -1,7 +1,7 @@
 /* ========================================================================= */
 /* ------------------------------------------------------------------------- */
 /*!
-  \file			aitown-db.c
+  \file			aitown-db-free.c
   \date			February 2014
   \author		TNick
 
@@ -21,6 +21,10 @@
 /*  INCLUDES    ------------------------------------------------------------ */
 
 #include "aitown-db.h"
+#include <aitown/aitown-db-mng.h>
+#include <aitown/aitown-db-free.h>
+#include <aitown/aitown-db-driver.h>
+#include <aitown/dbg_assert.h>
 
 #include <stdlib.h>
 #include <string.h>
@@ -46,14 +50,22 @@
 //
 /*  FUNCTIONS    ----------------------------------------------------------- */
 
-void aitown_db_init (aitown_db_t *db)
+void aitown_db_free (
+        aitown_db_t*db, const void ** chunk)
 {
-    memset (db, 0, sizeof(aitown_db_t));
-}
+    DBG_ASSERT (chunk != NULL);
+    DBG_ASSERT (db != NULL);
+    DBG_ASSERT (db->driver != NULL);
+    DBG_ASSERT (db->driver->free_chunk != NULL);
 
-void aitown_db_end (aitown_db_t *db)
-{
-    memset (db, 0, sizeof(aitown_db_t));
+    if (*chunk == NULL) {
+        return;
+    }
+
+    if (FUNC_OK == db->driver->free_chunk (db, (void*)*chunk)) {
+        *chunk = NULL;
+    }
+
 }
 
 /*  FUNCTIONS    =========================================================== */

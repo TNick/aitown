@@ -150,7 +150,7 @@ void dstorage_init (
     }
 
     // start database manager
-    aitown_db_mng_init (&dstorage->db);
+    /** @todo aitown_db_mng_init (&dstorage->db); */
 
 
     // prepare the database for ids
