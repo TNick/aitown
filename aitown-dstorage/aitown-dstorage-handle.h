@@ -1,7 +1,7 @@
 /* ========================================================================= */
 /* ------------------------------------------------------------------------- */
 /*!
-  \file			dstorage_handle.h
+  \file			aitown-dstorage-handle.h
   \date			September 2013
   \author		TNick
 
@@ -73,17 +73,14 @@ typedef struct _dstorage_handle_t {
     dstorage_id_t               id;     /**< a 64-bit number that identifies the data */
     int64_t                     tstamp; /**< last access time */
     dstorage_sts_bytes_t        sts;/**< the data status */
-    /*char                        sts[8]; */
 
     struct _dstorage_handle_t * left;   /**< left link */
     struct _dstorage_handle_t * right;  /**< right link */
 } dstorage_handle_t;
 
-struct _dstorage_handle_mng_t;
-
 
 //! handle is red or black field
-#define dstorage_handle_red_status(h)   ((h)->sts.u & 0xFF)/*sts[0]*/
+#define dstorage_handle_red_status(h)   ((h)->sts.u & 0xFF)
 
 //! handle is red or black field
 #define dstorage_handle_red_status_unsafe   sts.c[0]
@@ -94,7 +91,7 @@ struct _dstorage_handle_mng_t;
 
 
 //! handle exclusive status field
-#define dstorage_handle_gen_status(h)   (((h)->sts.u >> 8) & 0xFF)/*sts[1]*/
+#define dstorage_handle_gen_status(h)   (((h)->sts.u >> 8) & 0xFF)
 
 //! tell if a handle is initialised or not
 #define dstorage_handle_is_init(h)   (dstorage_handle_gen_status(h) != DSTORAGE_H_UNINITIALISED)
@@ -136,7 +133,7 @@ struct _dstorage_handle_mng_t;
 
 
 //! associated buffer dirty or not
-#define dstorage_handle_dirty_status(h)  (((h)->sts.u >> 16) & 0xFF) /*sts[2]*/
+#define dstorage_handle_dirty_status(h)  (((h)->sts.u >> 16) & 0xFF)
 
 //! tell if a handle is dirty
 #define dstorage_handle_is_dirty(h)   (dstorage_handle_dirty_status(h) != DSTORAGE_H_CLEAN)
@@ -150,13 +147,13 @@ struct _dstorage_handle_mng_t;
 
 
 //! get the reference counter for a handle
-#define dstorage_handle_ref_count(h)   (((h)->sts.u >> 32) & 0xFFFFFFFF)/*(*(u_int32_t*)(&(h)->sts[4]))*/
+#define dstorage_handle_ref_count(h)   (((h)->sts.u >> 32) & 0xFFFFFFFF)
 
 //! increase the reference counter for a handle
-#define dstorage_handle_inc_ref(h,__u__)   (h)->sts.u += 0x100000000; /*((*((u_int32_t*)(&(h)->sts[4])))++);*/ VAR_UNUSED(__u__)
+#define dstorage_handle_inc_ref(h,__u__)   (h)->sts.u += 0x100000000; VAR_UNUSED(__u__)
 
 //! decrease the reference counter for a handle
-#define dstorage_handle_dec_ref(h,__u__)   (h)->sts.u -= 0x100000000; /*((*((u_int32_t*)(&(h)->sts[4])))--); */ VAR_UNUSED(__u__)
+#define dstorage_handle_dec_ref(h,__u__)   (h)->sts.u -= 0x100000000; VAR_UNUSED(__u__)
 
 
 
@@ -173,19 +170,6 @@ struct _dstorage_handle_mng_t;
 //
 //
 /*  FUNCTIONS    ----------------------------------------------------------- */
-
-//! initialize an empty handle
-DSTORAGE_FUNC dstorage_handle_t*
-dstorage_handle_init_empty (struct _dstorage_handle_mng_t *mng);
-
-//! initialize a handle with an id
-DSTORAGE_FUNC dstorage_handle_t*
-dstorage_handle_init (struct _dstorage_handle_mng_t *mng, dstorage_id_t id);
-
-//! terminate the handle
-DSTORAGE_FUNC void
-dstorage_handle_end (struct _dstorage_handle_mng_t *mng, dstorage_handle_t** h);
-
 
 /*  FUNCTIONS    =========================================================== */
 //

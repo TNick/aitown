@@ -1,10 +1,10 @@
 /* ========================================================================= */
 /* ------------------------------------------------------------------------- */
 /*!
-  \file			dstorage_handle.c
-  \date			September 2013
+  \file			aitown-dstorage-lku.h
+  \date			February 2014
   \author		TNick
-  
+
 *//*
 
 
@@ -14,22 +14,20 @@
 */
 /* ------------------------------------------------------------------------- */
 /* ========================================================================= */
+#ifndef AITOWN_dstorage_lku_h_INCLUDE
+#define AITOWN_dstorage_lku_h_INCLUDE
 //
 //
 //
 //
 /*  INCLUDES    ------------------------------------------------------------ */
 
-#include "dstorage_chunk.h"
-#include "dstorage_chunk_mng.h"
-
-#include <stdlib.h>
-#include <string.h>
+#include <aitown/aitown_global.h>
 #include <aitown/error_codes.h>
-#include <aitown/dbg_assert.h>
-#include <aitown/pointer_aritmetic.h>
-#include <aitown/char_buff.h>
-#include <aitown/utils_unused.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /*  INCLUDES    ============================================================ */
 //
@@ -37,6 +35,21 @@
 //
 //
 /*  DEFINITIONS    --------------------------------------------------------- */
+
+struct _aitown_db_t;
+struct _aitown_dstorage_t;
+struct _aitown_cfg_sect_t;
+struct _aitown_dstorage_handle_t;
+
+
+//! describes a look-up structure
+///
+typedef struct _aitown_dstorage_lku_t {
+
+    struct _aitown_db_t *               db; /**< the id database */
+    struct _aitown_dstorage_handle_t *  tree; /**< or map of id-handle pairs */
+
+} aitown_dstorage_lku_t;
 
 /*  DEFINITIONS    ========================================================= */
 //
@@ -52,19 +65,21 @@
 //
 /*  FUNCTIONS    ----------------------------------------------------------- */
 
-void dstorage_chunk_init (dstorage_chunk_mng_t *mng, dstorage_chunk_t *ck,
-                          size_t user_sz)
-{
-    VAR_UNUSED (mng);
-    memset (ck, 0, sizeof(dstorage_chunk_t));
-    ck->user_sz = user_sz;
-}
 
-void dstorage_chunk_end (dstorage_chunk_mng_t *mng, dstorage_chunk_t *ck)
-{
-    VAR_UNUSED (mng);
-    memset (ck, 0, sizeof(dstorage_chunk_t));
-}
+//! initialize a look-up structure
+///
+AITOWN_EXPORT func_error_t
+aitown_dstorage_lku_init (
+        struct _aitown_dstorage_t * dstorage,
+        struct _aitown_dstorage_lku_t *lku,
+        struct _aitown_cfg_sect_t * sect_dstorage);
+
+
+//! terminate a look-up structure
+///
+AITOWN_EXPORT void
+aitown_dstorage_lku_end (
+        struct _aitown_dstorage_lku_t *lku);
 
 
 /*  FUNCTIONS    =========================================================== */
@@ -74,5 +89,7 @@ void dstorage_chunk_end (dstorage_chunk_mng_t *mng, dstorage_chunk_t *ck)
 //
 /* ------------------------------------------------------------------------- */
 /* ========================================================================= */
-
-
+#ifdef __cplusplus
+}
+#endif
+#endif /* AITOWN_dstorage_lku_h_INCLUDE */

@@ -1,10 +1,10 @@
 /* ========================================================================= */
 /* ------------------------------------------------------------------------- */
 /*!
-  \file			dstorage_handle.c
-  \date			September 2013
+  \file			aitown-dstorage-ctrl.h
+  \date			February 2014
   \author		TNick
-  
+
 *//*
 
 
@@ -14,22 +14,20 @@
 */
 /* ------------------------------------------------------------------------- */
 /* ========================================================================= */
+#ifndef AITOWN_dstorage_ctrl_h_INCLUDE
+#define AITOWN_dstorage_ctrl_h_INCLUDE
 //
 //
 //
 //
 /*  INCLUDES    ------------------------------------------------------------ */
 
-#include "dstorage_handle.h"
-#include "dstorage_handle_mng.h"
-
-#include <stdlib.h>
-#include <string.h>
+#include <aitown/aitown_global.h>
 #include <aitown/error_codes.h>
-#include <aitown/dbg_assert.h>
-#include <aitown/pointer_aritmetic.h>
-#include <aitown/char_buff.h>
-#include <aitown/utils_unused.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /*  INCLUDES    ============================================================ */
 //
@@ -37,6 +35,19 @@
 //
 //
 /*  DEFINITIONS    --------------------------------------------------------- */
+
+struct _aitown_db_t;
+struct _aitown_dstorage_t;
+struct _aitown_cfg_sect_t;
+
+//! describes a controller
+///
+typedef struct _aitown_dstorage_ctrl_t {
+
+    struct _aitown_db_t * db; /**< the database we're wrapping */
+    struct _aitown_dstorage_ctrl_t * next; /**< the link in the chain */
+
+} aitown_dstorage_ctrl_t;
 
 /*  DEFINITIONS    ========================================================= */
 //
@@ -52,39 +63,31 @@
 //
 /*  FUNCTIONS    ----------------------------------------------------------- */
 
-dstorage_handle_t* dstorage_handle_init_empty (dstorage_handle_mng_t *mng)
-{
-    dstorage_handle_t *ret_p;
-    VAR_UNUSED (mng); /* will be used for better memory management */
-    ret_p = malloc (sizeof(dstorage_handle_t));
-    if (ret_p != NULL)
-    {
-        memset (ret_p, 0, sizeof(dstorage_handle_t));
-        dstorage_handle_mark_uninit (ret_p);
-    }
-    return ret_p;
-}
 
-dstorage_handle_t* dstorage_handle_init (dstorage_handle_mng_t *mng, dstorage_id_t id)
-{
-    dstorage_handle_t *ret_p;
-    VAR_UNUSED (mng); /* will be used for better memory management */
-    ret_p = malloc (sizeof(dstorage_handle_t));
-    if (ret_p != NULL)
-    {
-        memset (ret_p, 0, sizeof(dstorage_handle_t));
-        ret_p->id = id;
-        dstorage_handle_mark_init (ret_p);
-    }
-    return ret_p;
-}
+//! initialize a controller
+///
+AITOWN_EXPORT func_error_t
+aitown_dstorage_ctrl_init (
+        struct _aitown_dstorage_t * dstorage,
+        const char * database,
+        aitown_dstorage_ctrl_t **ctrl);
 
-void dstorage_handle_end (dstorage_handle_mng_t *mng, dstorage_handle_t** h)
-{
-    VAR_UNUSED (mng); /* will be used for better memory management */
-    free (*h);
-    *h = NULL;
-}
+
+//! terminate a controller
+///
+AITOWN_EXPORT void
+aitown_dstorage_ctrl_end (
+        struct _aitown_dstorage_ctrl_t **ctrl);
+
+
+//! load a list of controllers from [dstorage/controllers] config section
+///
+AITOWN_EXPORT func_error_t
+aitown_dstorage_ctrl_load_list (
+        struct _aitown_dstorage_t * dstorage,
+        struct _aitown_cfg_sect_t * sect
+        );
+
 
 /*  FUNCTIONS    =========================================================== */
 //
@@ -93,5 +96,7 @@ void dstorage_handle_end (dstorage_handle_mng_t *mng, dstorage_handle_t** h)
 //
 /* ------------------------------------------------------------------------- */
 /* ========================================================================= */
-
-
+#ifdef __cplusplus
+}
+#endif
+#endif /* AITOWN_dstorage_ctrl_h_INCLUDE */

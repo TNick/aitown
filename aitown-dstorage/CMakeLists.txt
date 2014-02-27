@@ -1,40 +1,3 @@
-
-
-
-
-
-
-
-
-
-
-
-
-
-#
-#   TODO
-#
-#   Refactor to use aitown-db for storage
-#
-#   Make sure the ref count is increased in controller
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 # ----------------------------------------------------------------------------
 # prepare
 
@@ -71,33 +34,16 @@ endif(CMAKE_BUILD_TYPE STREQUAL "Debug")
 # our library
 set ( LIB_SOURCES
     aitown-dstorage.c
-    dstorage_handle_mng.c
-    dstorage_handle.c
-    dstorage_lookup.c
-    dstorage_ctrl.c
-    dstorage_clist.c
-    dstorage_controllers.c
-    dstorage_chunk.c
-    dstorage_chunk_mng.c
-    dstorage_cdata.c
-    controllers/dstorage_ctrl_local_db.c
-    controllers/dstorage_ctrl_local_dir.c
+    aitown-dstorage-ctrl.c
+    aitown-dstorage-lku.c
+    aitown-dstorage-handle.c
 )
+
 set ( LIB_HEADERS
     aitown-dstorage.h
-    dstorage_handle_mng.h
-    dstorage_handle.h
-    dstorage_lookup.h
-    dstorage_id.h
-    dstorage_func.h
-    dstorage_ctrl.h
-    dstorage_clist.h
-    dstorage_controllers.h
-    dstorage_chunk.h
-    dstorage_chunk_mng.h
-    dstorage_cdata.h
-    controllers/dstorage_ctrl_local_db.h
-    controllers/dstorage_ctrl_local_dir.h
+    aitown-dstorage-ctrl.h
+    aitown-dstorage-lku.h
+    aitown-dstorage-handle.h
 )
 
 
@@ -107,6 +53,8 @@ add_library( ${LOC_PRJ_NAME} SHARED
 target_link_libraries( ${LOC_PRJ_NAME}
     "aitown-core"
     "aitown-utils"
+    "aitown-db"
+    "aitown-cfg"
     "inih"
 )
 
