@@ -122,6 +122,8 @@ func_error_t aitown_db_mng_finit ( aitown_db_mng_t *db_mng, const char * file)
     // release our reference (works both if previous call succeded or not)
     aitown_cfg_decref (cfg, cfg);
 
+    db_mng->manage_cfg = 1;
+
     return ret;
 }
 
@@ -146,10 +148,12 @@ void aitown_db_mng_end (aitown_db_mng_t *db_mng)
     // release our reference of the configuration file
     if (db_mng->cfg_sect != NULL) {
         if (db_mng->cfg_sect->node.root != NULL) {
+            if (db_mng->manage_cfg != 0 ) {
+                aitown_cfg_save (db_mng->cfg_sect->node.root, NULL);
+            }
             aitown_cfg_decref (db_mng->cfg_sect->node.root, db_mng);
         }
     }
-
 
     // clear the structure
     memset (db_mng, 0, sizeof(aitown_db_mng_t));
@@ -162,5 +166,3 @@ void aitown_db_mng_end (aitown_db_mng_t *db_mng)
 //
 /* ------------------------------------------------------------------------- */
 /* ========================================================================= */
-
-

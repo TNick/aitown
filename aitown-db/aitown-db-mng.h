@@ -50,6 +50,7 @@ typedef struct _aitown_db_mng_t {
 
     struct _aitown_db_driver_t *        first_driver; /**< list of drivers */
     struct _aitown_cfg_sect_t *         cfg_sect; /**< configuration section */
+    int                                 manage_cfg; /**< do we save the config at the end or not */
 } aitown_db_mng_t;
 
 
