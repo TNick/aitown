@@ -102,7 +102,7 @@ typedef struct _aitown_cfg_t {
 /*  FUNCTIONS    ----------------------------------------------------------- */
 
 
-//! initialize a cfg sensor
+//! initialize a config head structure
 ///
 /// @param cfg          address of the structure to initialise
 /// @param file_path    the file to parse
@@ -134,6 +134,18 @@ AITOWN_EXPORT void
 aitown_cfg_decref (
         aitown_cfg_t *cfg,
         void * owner);
+
+
+//! save the content to a file
+///
+/// @param cfg          address of the structure to save
+/// @param file_path    destination path (may be NULL to use associated path)
+///
+AITOWN_EXPORT func_error_t
+aitown_cfg_save (
+        aitown_cfg_t *cfg,
+        const char *file_path
+        );
 
 
 //! parse a file and load its content into this structure

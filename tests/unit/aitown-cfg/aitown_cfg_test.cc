@@ -19,6 +19,14 @@
 #define xstr(s) str(s)
 #define str(s) #s
 
+#ifdef AITOWN_WIN32
+#define REAL_TREE_DIR_1 "C:"
+#define REAL_TREE_DIR_2 getenv("TEMP")
+#else
+#define REAL_TREE_DIR_1 getenv("HOME")
+#define REAL_TREE_DIR_2 "/tmp"
+#endif
+
 
 /*  DEFINITIONS    ========================================================= */
 //
@@ -535,7 +543,75 @@ TEST(cfg,nested_sections) {
 /* ========================================================================= */
 
 
+/* ------------------------------------------------------------------------- */
+TEST(cfg,saving) {
 
+    aitown_cfg_t * cfg;
+    aitown_cfg_init (&cfg, NULL);
+
+    const char test_file_1[] = {
+        "key_1 = \"123\"\n"
+        "key_2 = \"abcd\"\n"
+        "[section1]\n"
+        "key_1 = \"1\"\n"
+        "[section1/section2]\n"
+        "key_1 = \"2\"\n"
+        "[section1/section2/section3]\n"
+        "key_1 = \"3\"\n"
+        "[section1/section2/section3/section4]\n"
+        "key_1 = \"4\"\n"
+        "[section1/section2/section3/section4/section5]\n"
+        "key_1 = \"5\"\n"
+        "[section2]\n"
+        "key_1 = \"2\"\n"
+        "[section3]\n"
+        "key_1 = \"3\"\n"
+        "[section 1]\n"
+        "key_1 = \"1\"\n"
+        "[section 1/section2]\n"
+        "key_1 = \"2\"\n"
+        "[section 1/section2/section3]\n"
+        "key_1 = \"3\"\n"
+        "[section 1/section2/section3/section4]\n"
+        "key_1 = \"4\"\n"
+        "[section 1/section2/section3/section4/section5]\n"
+        "key_1 = \"5\"\n"
+    };
+
+    unsigned err_line = 0xFFFF;
+    const char * err_string = NULL;
+    func_error_t ret = aitown_cfg_parse_buffer (
+                cfg, test_file_1, &err_line, &err_string);
+    EXPECT_TRUE (ret == FUNC_OK);
+    EXPECT_TRUE (err_line == 0xFFFF);
+    EXPECT_TRUE (err_string == NULL);
+
+    char tmp_file[128];
+    sprintf (tmp_file, "%s/%s", REAL_TREE_DIR_2, "test1.ini");
+
+    ret = aitown_cfg_save (cfg, tmp_file);
+
+    FILE * f = fopen(tmp_file, "r");
+    EXPECT_TRUE (f != NULL);
+    fseek (f, 0, SEEK_END);
+    size_t fsz = ftell (f);
+    fseek (f, 0, SEEK_SET);
+
+    char * content_back = (char*) malloc (fsz+1);
+    EXPECT_TRUE (content_back != NULL);
+    fread (content_back, fsz, 1, f);
+    content_back[fsz] = 0;
+
+    int discrep = strcmp (content_back, test_file_1);
+    EXPECT_TRUE( discrep == 0);
+
+    free (content_back);
+    fclose (f);
+
+
+    aitown_cfg_decref (cfg, cfg);
+}
+/* ========================================================================= */
 
 /*  FUNCTIONS    =========================================================== */
 //

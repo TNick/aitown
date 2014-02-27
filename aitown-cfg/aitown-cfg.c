@@ -146,6 +146,150 @@ void aitown_cfg_decref (aitown_cfg_t *cfg, void * owner)
     VAR_UNUSED (owner);
 }
 
+func_error_t save_a_leaf_chain (FILE * f, aitown_cfg_leaf_t  * leaf)
+{
+    DBG_ASSERT (f != NULL);
+    DBG_ASSERT (leaf != NULL);
+
+    func_error_t ret = FUNC_OK;
+
+    // save in reverse order
+    if (leaf->node.next != NULL) {
+        ret = save_a_leaf_chain (f, (aitown_cfg_leaf_t*)leaf->node.next);
+    }
+
+    // save us (!)
+    if (leaf->value == NULL) {
+        fprintf (f, "%s = \n", leaf->node.name);
+    } else {
+        fprintf (f, "%s = \"%s\"\n", leaf->node.name, leaf->value);
+    }
+    return ret;
+}
+
+typedef struct _text_chain_t {
+    const char * p_text;
+    struct _text_chain_t * p_next;
+} text_chain_t;
+
+typedef struct _save_a_sect_data {
+    FILE * f;
+    text_chain_t * p_first;
+} save_a_sect_data;
+
+func_error_t save_a_sect_chain (
+        save_a_sect_data * d, aitown_cfg_sect_t  * sect, text_chain_t * prev_s)
+{
+    DBG_ASSERT (d->f != NULL);
+    DBG_ASSERT (sect != NULL);
+
+    func_error_t ret = FUNC_OK;
+    text_chain_t * iter;
+
+    // save siblings in reverse order
+    if (sect->node.next != NULL) {
+        ret = save_a_sect_chain (d, (aitown_cfg_sect_t*)sect->node.next, prev_s);
+        if (ret != FUNC_OK) {
+            return ret;
+        }
+    }
+
+    // trim out empty sections
+    // if ((sect->first_leaf == NULL) && (sect->first_sect == NULL))
+    // {
+    //     return ret;
+    // }
+
+    // save our section name
+    if (sect->node.parent != NULL) {
+        fprintf (d->f, "[");
+        iter = d->p_first;
+        while (iter != NULL) {
+            fprintf (d->f, "%s/", iter->p_text);
+            iter = iter->p_next;
+        }
+        fprintf (d->f, "%s]\n", sect->node.name);
+    }
+
+    // save leafs
+    if (sect->first_leaf != NULL) {
+        ret = save_a_leaf_chain (d->f, sect->first_leaf);
+        if (ret != FUNC_OK) {
+            return ret;
+        }
+    }
+
+    // save child sections
+    text_chain_t me = {sect->node.name, NULL};
+    if (sect->first_sect != NULL) {
+        if (sect->node.parent == NULL) {
+            DBG_ASSERT (d->p_first == NULL);
+            DBG_ASSERT (prev_s == NULL);
+
+            ret = save_a_sect_chain (d, sect->first_sect, prev_s);
+        }
+        else if (prev_s == NULL) {
+            DBG_ASSERT (d->p_first == NULL);
+
+            d->p_first = &me;
+            ret = save_a_sect_chain (d, sect->first_sect, &me);
+            d->p_first = NULL;
+        } else {
+            DBG_ASSERT (d->p_first != NULL);
+            DBG_ASSERT (prev_s->p_next == NULL);
+
+            prev_s->p_next = &me;
+            ret = save_a_sect_chain (d, sect->first_sect, &me);
+            prev_s->p_next = NULL;
+        }
+    }
+
+    return ret;
+}
+
+func_error_t aitown_cfg_save ( aitown_cfg_t *cfg, const char *file_path)
+{
+    func_error_t ret = FUNC_OK;
+    FILE * f = NULL;
+
+    // check input
+    DBG_ASSERT (cfg != NULL);
+    if ((file_path == NULL) || (file_path[0] == 0)) {
+        file_path = cfg->file_path;
+        if ((file_path == NULL) || (file_path[0] == 0)) {
+            return FUNC_BAD_INPUT;
+        }
+    }
+
+    for (;;) {
+        // open the file
+        f = fopen (file_path, "w");
+        if (f == NULL) {
+            ret = FUNC_BAD_INPUT;
+            break;
+        }
+
+        // save top level values
+        ret = save_a_leaf_chain (f, cfg->root.first_leaf);
+        if (ret != FUNC_OK) {
+            break;
+        }
+
+        // save top level sections
+        save_a_sect_data sd = {f, NULL};
+        ret = save_a_sect_chain (&sd, cfg->root.first_sect, NULL);
+
+        break;
+    }
+
+    if (f != NULL) {
+        fclose (f);
+    }
+
+    return ret;
+}
+
+
 func_error_t aitown_cfg_parse_file ( aitown_cfg_t *cfg, const char *file_path )
 {
     // check input
