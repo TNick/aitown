@@ -42,6 +42,8 @@ manager is subject to config stacking.
 Reading and Writing
 -------------------
 
+    const char * val = aitown_db_read (db_handle, "key1");
+    aitown_db_write (db_handle, "key1", "new value");
 
 
 Drivers

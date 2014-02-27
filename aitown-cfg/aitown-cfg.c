@@ -149,7 +149,9 @@ void aitown_cfg_decref (aitown_cfg_t *cfg, void * owner)
 func_error_t save_a_leaf_chain (FILE * f, aitown_cfg_leaf_t  * leaf)
 {
     DBG_ASSERT (f != NULL);
-    DBG_ASSERT (leaf != NULL);
+    if (leaf == NULL) {
+        return FUNC_OK;
+    }
 
     func_error_t ret = FUNC_OK;
 

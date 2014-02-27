@@ -56,7 +56,7 @@ void aitown_core_init (aitown_core_t *core)
     memset (core, 0, sizeof(aitown_core_t));
 
     // start storage, including database
-    dstorage_init (&core->dstore, "todo", NULL);
+    //aitown_dstorage_init (&core->dstore, "todo", NULL);
 
     // start the brain, sensors and actuators
     core_brain_init (&core->brain);
@@ -73,7 +73,7 @@ void aitown_core_end (aitown_core_t *core)
     core_brain_end (&core->brain);
 
     // stop storage, including database
-    dstorage_end (&core->dstore);
+   // aitown_dstorage_end (&core->dstore);
 
     // clear the structure
     memset (core, 0, sizeof(aitown_core_t));

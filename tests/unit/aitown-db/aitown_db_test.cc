@@ -242,7 +242,7 @@ TEST(db,drivers) {
 #   endif // TOKYOCABINET_FOUND
 
 #   ifdef MYSQL_FOUND
-    // TOWDO: requires creditentials
+    // TODO: requires creditentials
     //aitown_db_common_test (MYSQL_NAME, tmp_file);
 #   endif // MYSQL_FOUND
 
