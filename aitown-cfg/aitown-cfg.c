@@ -932,6 +932,54 @@ aitown_cfg_leaf_t * aitown_cfg_get_leaf (
     return NULL;
 }
 
+aitown_cfg_sect_t * aitown_cfg_get_or_create_sect (
+        aitown_cfg_sect_t * section, const char * name )
+{
+    aitown_cfg_sect_t * ret = aitown_cfg_get_sect (section, name);
+    if (ret == NULL) {
+        if (FUNC_OK != aitown_cfg_sect_init (
+                    section->node.root, section,
+                    name, strlen (name), &ret)) {
+            ret = NULL;
+        }
+    }
+    return ret;
+}
+
+aitown_cfg_leaf_t * aitown_cfg_get_or_create_leaf (
+        aitown_cfg_sect_t * sect, const char * name )
+{
+    aitown_cfg_leaf_t * ret = aitown_cfg_get_leaf (sect, name);
+    if (ret == NULL) {
+        if (FUNC_OK != aitown_cfg_leaf_init (
+                    sect->node.root, sect,
+                    name, strlen (name), &ret)) {
+            ret = NULL;
+        }
+    }
+    return ret;
+}
+
+func_error_t aitown_cfg_set_leaf (
+        aitown_cfg_leaf_t * leaf, const char * value)
+{
+    if (leaf == NULL) {
+        return FUNC_BAD_INPUT;
+    }
+    if (leaf->value != NULL) {
+        free ((void*)leaf->value);
+    }
+    if (value == NULL) {
+        leaf->value = NULL;
+    } else {
+        leaf->value = strdup (value);
+        if (leaf->value == NULL) {
+            return FUNC_MEMORY_ERROR;
+        }
+    }
+    return FUNC_OK;
+}
+
 
 /*  FUNCTIONS    =========================================================== */
 //

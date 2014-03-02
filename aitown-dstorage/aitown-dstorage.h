@@ -2,9 +2,9 @@
 /* ------------------------------------------------------------------------- */
 /*!
   \file			aitown-dstorage.h
-  \date			September 2013
+  \date			February 2014
   \author		TNick
-  
+
 *//*
 
 
@@ -22,16 +22,19 @@
 //
 /*  INCLUDES    ------------------------------------------------------------ */
 
-#include <aitown/struct_ini.h>
+#include <aitown/aitown_global.h>
+#include <aitown/error_codes.h>
 #include <aitown/aitown-db-mng.h>
-#include <aitown/aitown-dstorage-lku.h>
+#include <aitown/dbg_assert.h>
 
-struct _aitown_db_mng_t;
-struct _aitown_dstorage_ctrl_t;
+#include <aitown/aitown-dstorage-h-mng.h>
+#include <aitown/aitown-dstorage-ctrl-mng.h>
+#include <aitown/aitown-dstorage-data.h>
+#include <aitown/aitown-dstorage-handle.h>
 
 #ifdef __cplusplus
 extern "C" {
-#endif 
+#endif
 
 /*  INCLUDES    ============================================================ */
 //
@@ -40,20 +43,15 @@ extern "C" {
 //
 /*  DEFINITIONS    --------------------------------------------------------- */
 
+struct _aitown_cfg_sect_t;
+
 //! describes a dstorage instance
-///
-/// One such structure holds data about an instance of a dstorage. There may
-/// be multiple, independent instances in the same program. It is the main
-/// interface for the module and the methods associated with it are the
-/// public API interface.
 ///
 typedef struct _aitown_dstorage_t {
 
+    struct _aitown_dstorage_ctrl_mng_t  ctrl_mng; /**< controller manager */
+    struct _aitown_dstorage_h_mng_t     h_mng; /**< handle manager */
     struct _aitown_db_mng_t             db_mng; /**< database manager */
-    struct _aitown_dstorage_lku_t       lku; /**< the database for the ids */
-
-    struct _aitown_dstorage_ctrl_t *    first_ctrl; /**< first controller in the chain */
-    struct _aitown_dstorage_ctrl_t *    last_ctrl; /**< last controller in the chain */
 
     struct _aitown_cfg_sect_t *         cfg_sect; /**< configuration section */
     int                                 manage_cfg; /**< do we save the config at the end or not */
@@ -75,13 +73,7 @@ typedef struct _aitown_dstorage_t {
 /*  FUNCTIONS    ----------------------------------------------------------- */
 
 
-//! initialize a dstorage structure
-///
-/// Before using a dstorage_t instance one needs to initialise it using a
-/// call to an init method. It initialises sub-components based on the settings
-/// provided by config section. This process includes loading controllers
-/// (and the plug-ins that provide them, if any). User should call
-/// dstorage_end() when dstorage_t instance is no longer needed.
+//! initialize a dstorage structure with settings from a section
 ///
 AITOWN_EXPORT func_error_t
 aitown_dstorage_init (
@@ -89,13 +81,7 @@ aitown_dstorage_init (
         struct _aitown_cfg_sect_t * cfg_sect);
 
 
-//! initialize a dstorage structure
-///
-/// Before using a dstorage_t instance one needs to initialise it using a
-/// call to an init method. It initialises sub-components based on the settings
-/// provided by config file. This process includes loading controllers
-/// (and the plug-ins that provide them, if any). User should call
-/// dstorage_end() when dstorage_t instance is no longer needed.
+//! initialize a dstorage structure with settings from a config file
 ///
 AITOWN_EXPORT func_error_t
 aitown_dstorage_finit (
@@ -105,11 +91,107 @@ aitown_dstorage_finit (
 
 //! terminate a dstorage structure
 ///
-/// Various subcomponents are terminated and all memory is freed.
 AITOWN_EXPORT void
 aitown_dstorage_end (
-        aitown_dstorage_t * dstorage);
+        struct _aitown_dstorage_t *dstorage);
 
+
+//! get a reference to a handle
+///
+static inline void
+aitown_dstorage_handle_incref (
+        struct _aitown_dstorage_handle_t *handle,
+        void * owner)
+{
+    aitown_dstorage_h_mng_handle_incref (handle, owner);
+}
+
+//! release a reference to a handle
+///
+static inline void
+aitown_dstorage_handle_decref (
+        struct _aitown_dstorage_t * mng,
+        struct _aitown_dstorage_handle_t *handle,
+        void * owner)
+{
+    aitown_dstorage_h_mng_handle_decref (&mng->h_mng, handle, owner);
+}
+
+
+//! create a new handle-id pair
+///
+static inline struct _aitown_dstorage_handle_t *
+aitown_dstorage_new_handle (
+        struct _aitown_dstorage_t *mng,
+        unsigned size)
+{
+    return aitown_dstorage_h_mng_new_handle (
+                &mng->h_mng,
+                aitown_dstorage_ctrl_mng_best (&mng->ctrl_mng),
+                size);
+}
+
+
+//! get the handle for a particular id
+///
+/// The function first looks the id in the list of those that have
+/// already been loaded and returns coresponding handle
+///
+/// In any case the caller gets a reference owned by the handle itself.
+///
+static inline struct _aitown_dstorage_handle_t *
+aitown_dstorage_handle (
+        struct _aitown_dstorage_t *mng,
+        aitown_dstorage_id_t id)
+{
+    return aitown_dstorage_h_mng_get_handle (&mng->h_mng, id);
+}
+
+
+//! resolve the handle for a particular id
+///
+/// The function first looks the id in the list of those that have
+/// already been loaded and returns coresponding handle
+///
+/// In any case the caller gets a reference owned by the handle itself.
+///
+AITOWN_EXPORT func_error_t
+aitown_dstorage_resolve_handle (
+        struct _aitown_dstorage_t * mng,
+        struct _aitown_dstorage_handle_t * handle);
+
+
+
+//! the size of the data associated with an ID
+///
+static inline unsigned
+aitown_dstorage_raw_size (
+        struct _aitown_dstorage_handle_t * handle)
+{
+    DBG_ASSERT (handle != NULL);
+    DBG_ASSERT (handle->data != NULL);
+    return handle->data->size;
+}
+
+
+//! pointer to raw data associated with an ID
+///
+static inline void *
+aitown_dstorage_raw (
+        struct _aitown_dstorage_handle_t * handle)
+{
+    DBG_ASSERT (handle != NULL);
+    DBG_ASSERT (handle->data != NULL);
+    return aitown_dstorage_data_buffer (handle->data);
+}
+
+//! set or replace raw data
+///
+AITOWN_EXPORT func_error_t
+aitown_dstorage_set_raw (
+        struct _aitown_dstorage_handle_t * handle,
+        const void * data,
+        unsigned data_size);
 
 
 /*  FUNCTIONS    =========================================================== */
@@ -121,5 +203,5 @@ aitown_dstorage_end (
 /* ========================================================================= */
 #ifdef __cplusplus
 }
-#endif 
+#endif
 #endif /* AITOWN_dstorage_h_INCLUDE */

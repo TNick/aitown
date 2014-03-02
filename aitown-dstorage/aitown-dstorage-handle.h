@@ -2,7 +2,7 @@
 /* ------------------------------------------------------------------------- */
 /*!
   \file			aitown-dstorage-handle.h
-  \date			September 2013
+  \date			February 2014
   \author		TNick
 
 *//*
@@ -23,12 +23,8 @@
 /*  INCLUDES    ------------------------------------------------------------ */
 
 #include <aitown/aitown_global.h>
-#include <aitown/utils.h>
 #include <aitown/error_codes.h>
-#include <aitown/pivotal_gmtime.h>
-#include <stddef.h>
-#include <aitown/dstorage_id.h>
-#include <aitown/dstorage_func.h>
+#include <aitown/aitown-dstorage-defs.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -41,10 +37,12 @@ extern "C" {
 //
 /*  DEFINITIONS    --------------------------------------------------------- */
 
+struct _aitown_dstorage_controller_t;
+struct _aitown_dstorage_data_t;
 
-//! describes the status of the memory
+//! describes the status of the handle
 typedef enum {
-    /* sts[0] */
+    /* sts[1] */
     DSTORAGE_H_UNINITIALISED = 0,/**< The structure is not used */
     DSTORAGE_H_NO_DATA = 1,      /**< no attempt was made to retrieve the data */
     DSTORAGE_H_WITH_DATA = 2,    /**< The data was resolved; the pointer is valid */
@@ -52,109 +50,45 @@ typedef enum {
     DSTORAGE_H_TEMP_FAILURE = 4, /**< Can't get data but try again in some time (secoonds-years) */
     DSTORAGE_H_LOST = 5,         /**< Data is permanently lost */
 
-    /* sts[1] */
+    /* sts[0] */
     DSTORAGE_H_RED = 1,          /**< The color is red :) */
 
     /* sts[2] */
-    DSTORAGE_H_CLEAN = 0,        /**< The buffer was not modified */
-    DSTORAGE_H_DIRTY = 1         /**< The buffer was modified */
+    DSTORAGE_H_CLEAN = 0x0000,   /**< The buffer was not modified */
+    DSTORAGE_H_DIRTY = 0x0001,   /**< The buffer was modified */
+
+    DSTORAGE_H_DBMEM = 0x0000,   /**< memory was allocated by the database */
+    DSTORAGE_H_LOCMEM = 0x0002   /**< memory was allocated by this module */
 
 
-} dstorage_sts_t;
+} aitown_dstorage_sts_t;
 
-typedef union _dstorage_sts_bytes_t {
+
+//! status bytes may be referenced either as a whole or as parts
+typedef union _aitown_dstorage_sts_bytes_t {
     uint64_t                    u;
     char                        c[8];
-} dstorage_sts_bytes_t;
+} aitown_dstorage_sts_bytes_t;
 
-//! describes a dstorage handle
-typedef struct _dstorage_handle_t {
-    struct _dstorage_chunk_t*   p_data; /**< pointer to data chunk */
-    dstorage_id_t               id;     /**< a 64-bit number that identifies the data */
-    int64_t                     tstamp; /**< last access time */
-    dstorage_sts_bytes_t        sts;/**< the data status */
+//! describes a dstorage instance
+///
+typedef struct _aitown_dstorage_handle_t {
 
-    struct _dstorage_handle_t * left;   /**< left link */
-    struct _dstorage_handle_t * right;  /**< right link */
-} dstorage_handle_t;
+    struct _aitown_dstorage_data_t * data; /**< associated data */
 
+    aitown_dstorage_id_t            id; /**< the ID that we're representing here */
+    aitown_dstorage_sts_bytes_t     sts; /**< the data status */
+    struct _aitown_dstorage_controller_t * ctrl; /**< the controller that manages this ID */
 
-//! handle is red or black field
-#define dstorage_handle_red_status(h)   ((h)->sts.u & 0xFF)
+    int                             ref_count; /**< number of references */
+
+    struct _aitown_dstorage_handle_t * left;   /**< left link in tree */
+    struct _aitown_dstorage_handle_t * right;  /**< right link in tree */
+
+} aitown_dstorage_handle_t;
 
 //! handle is red or black field
 #define dstorage_handle_red_status_unsafe   sts.c[0]
-
-//! tell if a handle is red or black
-#define dstorage_handle_is_red(h)   (dstorage_handle_red_status(h) != DSTORAGE_H_RED)
-
-
-
-//! handle exclusive status field
-#define dstorage_handle_gen_status(h)   (((h)->sts.u >> 8) & 0xFF)
-
-//! tell if a handle is initialised or not
-#define dstorage_handle_is_init(h)   (dstorage_handle_gen_status(h) != DSTORAGE_H_UNINITIALISED)
-
-//! tell if a handle is waiting for data
-#define dstorage_handle_is_waiting(h)   (dstorage_handle_gen_status(h) == DSTORAGE_H_WAITING_DATA)
-
-//! tell if a handle has data ready to be read
-#define dstorage_handle_is_resolved(h)   (dstorage_handle_gen_status(h) == DSTORAGE_H_WITH_DATA)
-
-//! tell if temporary errors prevented data retrieval
-#define dstorage_handle_temp_errors(h)   (dstorage_handle_gen_status(h) == DSTORAGE_H_TEMP_FAILURE)
-
-//! tell if definitive errors prevented data retrieval
-#define dstorage_handle_data_lost(h)   (dstorage_handle_gen_status(h) == DSTORAGE_H_LOST)
-
-
-//! change the status
-#define dstorage_handle_set_status(h,s)     (h)->sts.u = (((h)->sts.u & (~0xFF00)) | (s << 8))
-
-//! mark a handle as not initialised
-#define dstorage_handle_mark_uninit(h)      dstorage_handle_set_status(h, DSTORAGE_H_UNINITIALISED)
-
-//! mark a handle as initialised
-#define dstorage_handle_mark_init(h)        dstorage_handle_set_status(h, DSTORAGE_H_NO_DATA)
-
-//! mark a handle as waiting for data
-#define dstorage_handle_mark_waiting(h)     dstorage_handle_set_status(h, DSTORAGE_H_WAITING_DATA)
-
-//! mark a handle as having data ready to be read
-#define dstorage_handle_mark_resolved(h)    dstorage_handle_set_status(h, DSTORAGE_H_WITH_DATA)
-
-//! mark handle with temporary errors that prevented data retrieval
-#define dstorage_handle_mark_temp_errors(h) dstorage_handle_set_status(h, DSTORAGE_H_TEMP_FAILURE)
-
-//! mark the handle with definitive errors that prevented data retrieval
-#define dstorage_handle_mark_data_lost(h)   dstorage_handle_set_status(h, DSTORAGE_H_LOST)
-
-
-
-//! associated buffer dirty or not
-#define dstorage_handle_dirty_status(h)  (((h)->sts.u >> 16) & 0xFF)
-
-//! tell if a handle is dirty
-#define dstorage_handle_is_dirty(h)   (dstorage_handle_dirty_status(h) != DSTORAGE_H_CLEAN)
-
-//! mark a handle dirty
-#define dstorage_handle_mark_dirty(h)   (h)->sts.u = (((h)->sts.u & (~0xFF0000)) | (DSTORAGE_H_DIRTY << 16))
-
-//! mark a handle clean
-#define dstorage_handle_mark_clean(h)   (h)->sts.u = (((h)->sts.u & (~0xFF0000)) | (DSTORAGE_H_CLEAN << 16))
-
-
-
-//! get the reference counter for a handle
-#define dstorage_handle_ref_count(h)   (((h)->sts.u >> 32) & 0xFFFFFFFF)
-
-//! increase the reference counter for a handle
-#define dstorage_handle_inc_ref(h,__u__)   (h)->sts.u += 0x100000000; VAR_UNUSED(__u__)
-
-//! decrease the reference counter for a handle
-#define dstorage_handle_dec_ref(h,__u__)   (h)->sts.u -= 0x100000000; VAR_UNUSED(__u__)
-
 
 
 /*  DEFINITIONS    ========================================================= */
@@ -171,6 +105,130 @@ typedef struct _dstorage_handle_t {
 //
 /*  FUNCTIONS    ----------------------------------------------------------- */
 
+
+//! initialize a dstorage structure with settings from a section, ie [dstorage/handles/11]
+///
+AITOWN_EXPORT func_error_t
+aitown_dstorage_handle_init (
+        struct _aitown_dstorage_handle_t *handle,
+        aitown_dstorage_id_t id);
+
+
+//! terminate a dstorage structure
+///
+AITOWN_EXPORT void
+aitown_dstorage_handle_end (
+        struct _aitown_dstorage_handle_t *handle);
+
+
+//! get the reference counter (number of references)
+static inline int
+aitown_dstorage_handle_refcount(
+        struct _aitown_dstorage_handle_t *handle)
+{
+    return (int)((handle->sts.u >> 32) & 0xFFFFFFFF);
+}
+
+
+/* -------------- STATUS ------------------ */
+
+//! get handle status
+static inline aitown_dstorage_sts_t
+aitown_dstorage_handle_status(
+        struct _aitown_dstorage_handle_t *handle)
+{
+    return (aitown_dstorage_sts_t)((handle->sts.u & 0x0000FF00) >> 8);
+}
+
+//! set handle status
+static inline void
+aitown_dstorage_handle_set_status(
+        struct _aitown_dstorage_handle_t *handle, aitown_dstorage_sts_t sts)
+{
+    handle->sts.u = (aitown_dstorage_sts_t)(
+                handle->sts.u | ((sts & 0xFF) << 8));
+}
+
+
+/* -------------- FLAGS ------------------ */
+
+//! get handle flags
+static inline aitown_dstorage_sts_t
+aitown_dstorage_handle_flags(
+        struct _aitown_dstorage_handle_t *handle)
+{
+    return (aitown_dstorage_sts_t)((handle->sts.u & 0x00FF0000) >> 16);
+}
+
+//! set a flag
+static inline void
+aitown_dstorage_handle_set_flag(
+        struct _aitown_dstorage_handle_t *handle, int flag )
+{
+    handle->sts.u = (aitown_dstorage_sts_t)(
+                handle->sts.u | ((flag & 0xFF) << 16));
+}
+
+//! reset (clear) a flag
+static inline void
+aitown_dstorage_handle_reset_flag(
+        struct _aitown_dstorage_handle_t *handle, int flag )
+{
+    handle->sts.u = (aitown_dstorage_sts_t)(
+                handle->sts.u & (~((flag & 0xFF) << 16)));
+}
+
+
+//! tell if the buffer inside suffered changes
+static inline int
+aitown_dstorage_handle_dirty(
+        struct _aitown_dstorage_handle_t *handle)
+{
+    return (aitown_dstorage_handle_flags(handle) & DSTORAGE_H_DIRTY);
+}
+
+//! mark the handle as dirty
+static inline void
+aitown_dstorage_handle_set_dirty(
+        struct _aitown_dstorage_handle_t *handle)
+{
+    aitown_dstorage_handle_set_flag (handle, DSTORAGE_H_DIRTY);
+}
+
+//! mark the handle as clean
+static inline void
+aitown_dstorage_handle_set_clean(
+        struct _aitown_dstorage_handle_t *handle)
+{
+    aitown_dstorage_handle_reset_flag (handle, DSTORAGE_H_DIRTY);
+}
+
+
+//! tell if the buffer inside was allocated by this library
+static inline int
+aitown_dstorage_handle_local_mem(
+        struct _aitown_dstorage_handle_t *handle)
+{
+    return (aitown_dstorage_handle_flags(handle) & DSTORAGE_H_LOCMEM);
+}
+
+//! mark the buffer inside as being allocated by this library
+static inline void
+aitown_dstorage_handle_set_mem_local(
+        struct _aitown_dstorage_handle_t *handle)
+{
+    aitown_dstorage_handle_set_flag (handle, DSTORAGE_H_LOCMEM);
+}
+
+//! mark the buffer inside as being allocated by the database
+static inline void
+aitown_dstorage_handle_set_mem_db(
+        struct _aitown_dstorage_handle_t *handle)
+{
+    aitown_dstorage_handle_reset_flag (handle, DSTORAGE_H_LOCMEM);
+}
+
+
 /*  FUNCTIONS    =========================================================== */
 //
 //
@@ -181,4 +239,4 @@ typedef struct _dstorage_handle_t {
 #ifdef __cplusplus
 }
 #endif
-#endif // AITOWN_dstorage_handle_h_INCLUDE
+#endif /* AITOWN_dstorage_handle_h_INCLUDE */

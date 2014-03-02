@@ -34,16 +34,21 @@ endif(CMAKE_BUILD_TYPE STREQUAL "Debug")
 # our library
 set ( LIB_SOURCES
     aitown-dstorage.c
-    aitown-dstorage-ctrl.c
-    aitown-dstorage-lku.c
+    aitown-dstorage-controller.c
+    aitown-dstorage-ctrl-mng.c
     aitown-dstorage-handle.c
+    aitown-dstorage-h-mng.c
+    aitown-dstorage-data.c
 )
 
 set ( LIB_HEADERS
     aitown-dstorage.h
-    aitown-dstorage-ctrl.h
-    aitown-dstorage-lku.h
+    aitown-dstorage-controller.h
+    aitown-dstorage-ctrl-mng.h
     aitown-dstorage-handle.h
+    aitown-dstorage-h-mng.h
+    aitown-dstorage-defs.h
+    aitown-dstorage-data.h
 )
 
 

@@ -1,7 +1,7 @@
 /* ========================================================================= */
 /* ------------------------------------------------------------------------- */
 /*!
-  \file			aitown-dstorage-lku.c
+  \file			aitown-dstorage-data.c
   \date			February 2014
   \author		TNick
 
@@ -20,19 +20,15 @@
 //
 /*  INCLUDES    ------------------------------------------------------------ */
 
-#include "aitown-dstorage-lku.h"
 #include "aitown-dstorage.h"
+#include "aitown-dstorage-data.h"
+#include "aitown-dstorage-h-mng.h"
 
 #include <aitown/dbg_assert.h>
-#include <aitown/aitown-db-mng.h>
-#include <aitown/aitown-db-open.h>
-#include <aitown/aitown-db-close.h>
-#include <aitown/aitown-db.h>
+#include <aitown/pointer_aritmetic.h>
 
 #include <stdlib.h>
 #include <string.h>
-#include <limits.h>
-#include <stdio.h>
 
 /*  INCLUDES    ============================================================ */
 //
@@ -40,6 +36,7 @@
 //
 //
 /*  DEFINITIONS    --------------------------------------------------------- */
+
 
 /*  DEFINITIONS    ========================================================= */
 //
@@ -55,50 +52,50 @@
 //
 /*  FUNCTIONS    ----------------------------------------------------------- */
 
-func_error_t aitown_dstorage_lku_init (
-        aitown_dstorage_t * dstorage, aitown_dstorage_lku_t *lku,
-        aitown_cfg_sect_t * sect_dstorage)
+
+func_error_t aitown_dstorage_data_new (
+        aitown_dstorage_data_t **data_ptr, unsigned size)
 {
-
-    func_error_t result = FUNC_OK;
-    aitown_cfg_leaf_t * leaf_db;
-
-    // clear
-    memset (lku, 0, sizeof(aitown_dstorage_lku_t));
+    func_error_t ret = FUNC_OK;
+    aitown_dstorage_data_t *data = NULL;
 
     for (;;) {
 
-        // get the database name
-        leaf_db = aitown_cfg_get_leaf (sect_dstorage, "id_database");
-        if ((leaf_db == NULL) || (leaf_db->value == NULL)) {
-            result = FUNC_GENERIC_ERROR;
+        // allocate
+        unsigned sz = aitown_dstorage_data_buffer_size (size);
+        data = (aitown_dstorage_data_t *) malloc(sz+1);
+        if (data == NULL) {
+            ret = FUNC_MEMORY_ERROR;
             break;
         }
 
-        // attempt to load this database
-        result = aitown_db_open (&dstorage->db_mng, leaf_db->value, &lku->db);
-        if (result != FUNC_OK)
-            break;
+        // support null-terminated strings
+        char * p_end = PTR_ADD(data, sz);
+        *p_end = 0;
+
+        // set size
+        data->size = size;
 
         break;
     }
 
-    return result;
-
+    *data_ptr = data;
+    return ret;
 }
 
-void aitown_dstorage_lku_end (aitown_dstorage_lku_t *lku)
+void aitown_dstorage_data_free (
+        aitown_dstorage_data_t **data_ptr)
 {
+    DBG_ASSERT (data_ptr != NULL);
 
-    // close the database
-    if (lku->db != NULL) {
-        aitown_db_close (&lku->db);
-    }
+    aitown_dstorage_data_t * data = *data_ptr;
+    if (data == NULL) return;
 
-    // clear
-    memset (lku, 0, sizeof(aitown_dstorage_lku_t));
-
+    // and we're done
+    free (data);
+    *data_ptr = NULL;
 }
+
 
 /*  FUNCTIONS    =========================================================== */
 //

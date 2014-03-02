@@ -26,6 +26,7 @@
 #include "aitown-core.h"
 #include <string.h>
 #include <aitown/pointer_aritmetic.h>
+#include <aitown/utils_unused.h>
 #include <aitown/aitown-image.h>
 
 /*  INCLUDES    ============================================================ */
@@ -75,6 +76,7 @@ void kb_aitown_core_sensor_image (
                 (double *)AITIMAGE_GET_DATA (&s2->greyi)
                 );
     DBG_ASSERT (ret == FUNC_OK);
+    VAR_UNUSED (ret);
 
     // TODO: locate sudden changes in data
 

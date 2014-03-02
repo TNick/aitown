@@ -226,6 +226,34 @@ aitown_cfg_get_leaf (
         const char * name);
 
 
+//! locate a section inside a parent section
+///
+/// The string is searched exactly as it is, without any trimming or other
+/// adjustments. If the element does not exists it is created.
+///
+AITOWN_EXPORT aitown_cfg_sect_t *
+aitown_cfg_get_or_create_sect (
+        aitown_cfg_sect_t * section,
+        const char * name
+        );
+
+//! locate a leaf inside a section
+///
+/// The string is searched exactly as it is, without any trimming or other
+/// adjustments. If the element does not exists it is created.
+///
+AITOWN_EXPORT aitown_cfg_leaf_t *
+aitown_cfg_get_or_create_leaf (
+        aitown_cfg_sect_t * section,
+        const char * name);
+
+//! set the value of a leaf
+///
+AITOWN_EXPORT func_error_t
+aitown_cfg_set_leaf (
+        aitown_cfg_leaf_t * leaf,
+        const char * value);
+
 
 /*  FUNCTIONS    =========================================================== */
 //

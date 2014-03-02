@@ -1,7 +1,7 @@
 /* ========================================================================= */
 /* ------------------------------------------------------------------------- */
 /*!
-  \file			aitown-dstorage-ctrl.h
+  \file			aitown-dstorage-data.h
   \date			February 2014
   \author		TNick
 
@@ -14,8 +14,8 @@
 */
 /* ------------------------------------------------------------------------- */
 /* ========================================================================= */
-#ifndef AITOWN_dstorage_ctrl_h_INCLUDE
-#define AITOWN_dstorage_ctrl_h_INCLUDE
+#ifndef AITOWN_dstorage_data_h_INCLUDE
+#define AITOWN_dstorage_data_h_INCLUDE
 //
 //
 //
@@ -24,6 +24,7 @@
 
 #include <aitown/aitown_global.h>
 #include <aitown/error_codes.h>
+#include <aitown/pointer_aritmetic.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -36,18 +37,13 @@ extern "C" {
 //
 /*  DEFINITIONS    --------------------------------------------------------- */
 
-struct _aitown_db_t;
-struct _aitown_dstorage_t;
-struct _aitown_cfg_sect_t;
-
-//! describes a controller
+//! describes a dstorage instance
 ///
-typedef struct _aitown_dstorage_ctrl_t {
+typedef struct _aitown_dstorage_data_t {
 
-    struct _aitown_db_t * db; /**< the database we're wrapping */
-    struct _aitown_dstorage_ctrl_t * next; /**< the link in the chain */
+    uint64_t    size; /**< the size of the buffer, excluding the header */
 
-} aitown_dstorage_ctrl_t;
+} aitown_dstorage_data_t;
 
 /*  DEFINITIONS    ========================================================= */
 //
@@ -64,30 +60,39 @@ typedef struct _aitown_dstorage_ctrl_t {
 /*  FUNCTIONS    ----------------------------------------------------------- */
 
 
-//! initialize a controller
+//! initialize a data structure using specified size
 ///
-AITOWN_EXPORT func_error_t
-aitown_dstorage_ctrl_init (
-        struct _aitown_dstorage_t * dstorage,
-        const char * database,
-        aitown_dstorage_ctrl_t **ctrl);
-
-
-//! terminate a controller
+/// @param data_ptr receives the pointer
+/// @param size     the size of the buffer, excluding the header
 ///
-AITOWN_EXPORT void
-aitown_dstorage_ctrl_end (
-        struct _aitown_dstorage_ctrl_t **ctrl);
+func_error_t
+aitown_dstorage_data_new (
+        struct _aitown_dstorage_data_t ** data_ptr,
+        unsigned size);
 
 
-//! load a list of controllers from [dstorage/controllers] config section
+//! terminate a data structure
 ///
-AITOWN_EXPORT func_error_t
-aitown_dstorage_ctrl_load_list (
-        struct _aitown_dstorage_t * dstorage,
-        struct _aitown_cfg_sect_t * sect
-        );
+void
+aitown_dstorage_data_free (
+        struct _aitown_dstorage_data_t ** data);
 
+
+//! the size of the buffer needed
+///
+static inline unsigned
+aitown_dstorage_data_buffer_size (unsigned size) {
+    return sizeof(aitown_dstorage_data_t) + size;
+}
+
+
+//! the size of the buffer needed
+///
+static inline void *
+aitown_dstorage_data_buffer (
+        struct _aitown_dstorage_data_t * data) {
+    return (void*)(data+1);
+}
 
 /*  FUNCTIONS    =========================================================== */
 //
@@ -99,4 +104,4 @@ aitown_dstorage_ctrl_load_list (
 #ifdef __cplusplus
 }
 #endif
-#endif /* AITOWN_dstorage_ctrl_h_INCLUDE */
+#endif /* AITOWN_dstorage_data_h_INCLUDE */
