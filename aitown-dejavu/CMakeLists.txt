@@ -9,8 +9,8 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
 # options
 
 option(AITOWN_DEJAVU_INPUT_IS_VARIABLE "Input image size (w,h) may be changed after initialization" ON)
-set(AITOWN_DEJAVU_FIX_WIDTH "0" CACHE INTEGER "Input image fixed width (set to 0 for variable)")
-set(AITOWN_DEJAVU_FIX_HEIGHT "0" CACHE INTEGER "Input image fixed height (set to 0 for variable)")
+set(AITOWN_DEJAVU_INPUT_FIX_WIDTH "0" CACHE INTEGER "Input image fixed width (set to 0 for variable)")
+set(AITOWN_DEJAVU_INPUT_FIX_HEIGHT "0" CACHE INTEGER "Input image fixed height (set to 0 for variable)")
 option(AITOWN_DEJAVU_GRID_IS_SQUARE "Attention rectangle is a square (ON) or a rectangle (OFF)" ON)
 set(AITOWN_DEJAVU_CHANGE_ROWS "64" CACHE INTEGER "Number of rows in the sudden changes area")
 set(AITOWN_DEJAVU_CHANGE_COLS "64" CACHE INTEGER "Number of columns in the sudden changes area")

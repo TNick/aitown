@@ -112,28 +112,24 @@ void aitown_dejavu_ar_init (
         unsigned ar_cols, unsigned ar_rows)
 {
 
-    // save dimensions
-    ar->img_cols = input_cols;
-    ar->img_rows = input_rows;
-
     // save grid geometry
-#   if AITOWN_DEJAVU_FIX_WIDTH <= 0
-    ar->grid_cols = ar_cols;
-#   else
-    dejavu->width = AITOWN_DEJAVU_FIX_WIDTH;
-    if ((ar_cols != 0) && (ar_cols != AITOWN_DEJAVU_FIX_WIDTH)) {
-        dbg_message ("Warning! Width is fixed to %d", AITOWN_DEJAVU_FIX_WIDTH);
+#   if AITOWN_DEJAVU_INPUT_FIX_WIDTH > 0
+    if ((input_cols != 0) && (input_cols != AITOWN_DEJAVU_INPUT_FIX_WIDTH)) {
+        dbg_message ("Warning! Width is fixed to %d", AITOWN_DEJAVU_INPUT_FIX_WIDTH);
     }
+    input_cols = AITOWN_DEJAVU_INPUT_FIX_WIDTH;
 #   endif
 
-#   if AITOWN_DEJAVU_FIX_HEIGHT <= 0
-    ar->grid_rows = ar_rows;
-#   else
-    dejavu->height = AITOWN_DEJAVU_FIX_HEIGHT;
-    if ((ar_rows != 0) && (ar_cols != AITOWN_DEJAVU_FIX_HEIGHT)) {
-        dbg_message ("Warning! Height is fixed to %d", AITOWN_DEJAVU_FIX_HEIGHT);
+#   if AITOWN_DEJAVU_INPUT_FIX_HEIGHT > 0
+    if ((input_rows != 0) && (input_rows != AITOWN_DEJAVU_INPUT_FIX_HEIGHT)) {
+        dbg_message ("Warning! Height is fixed to %d", AITOWN_DEJAVU_INPUT_FIX_HEIGHT);
     }
+    input_rows = AITOWN_DEJAVU_INPUT_FIX_HEIGHT;
 #   endif
+
+    // save attention rectangle dimensions
+    ar->grid_cols = ar_cols;
+    ar->grid_rows = ar_rows;
 
     // as the structure is part of a bigger one and is quite large we refrain from wasting time
     // memset (ar, 0, sizeof(aitown_dejavu_ar_t));

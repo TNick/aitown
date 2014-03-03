@@ -45,6 +45,7 @@ extern "C" {
 
 struct _aitimage_t;
 struct _aitown_core_t;
+struct _aitown_cfg_sect_t;
 
 //! describes a dejavu instance
 ///
@@ -69,6 +70,24 @@ typedef struct _aitown_dejavu_t {
 /*  FUNCTIONS    ----------------------------------------------------------- */
 
 
+
+
+//! initialize sensor with settings from a section
+AITOWN_EXPORT func_error_t
+aitown_dejavu_init (
+        struct _aitown_dejavu_t *dejavu,
+        struct _aitown_core_t * core,
+        struct _aitown_cfg_sect_t * cfg_sect);
+
+//! initialize sensor with settings from a config file
+///
+AITOWN_EXPORT func_error_t
+aitown_dejavu_finit (
+        struct _aitown_dejavu_t * dejavu,
+        struct _aitown_core_t * core,
+        const char * file);
+
+
 //! initialize a dejavu sensor
 ///
 /// @param dejavu   address of the structure to initialise
@@ -76,8 +95,8 @@ typedef struct _aitown_dejavu_t {
 /// @param height   height of the input
 ///
 AITOWN_EXPORT void
-aitown_dejavu_init (
-        aitown_dejavu_t *dejavu,
+aitown_dejavu_init_explicit (
+        struct _aitown_dejavu_t *dejavu,
         struct _aitown_core_t * core,
         unsigned input_cols,
         unsigned input_rows,

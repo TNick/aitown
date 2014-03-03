@@ -9,7 +9,7 @@ to use and terminated when no longer needed:
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.c}
 aitown_dejavu_t dejavu;
-aitown_dejavu_init (&dejavu);
+aitown_dejavu_finit (&dejavu, settings_file);
 // ...
 aitown_dejavu_end (&dejavu);
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -56,15 +56,15 @@ A set of definitions control the way this libray is generated:
         size of the input and adjusts internal workings if a change is
         detected.
     </dd>
-    <dt>AITOWN_DEJAVU_FIX_WIDTH</dt>
+    <dt>AITOWN_DEJAVU_INPUT_FIX_WIDTH</dt>
     <dd>
         if defined, it must be a positive integer indicating the width of the
         input image; if undefined or 0 the width is assumed to be either
         set at initialisation time via aitown_dejavu_init() or fully variable.
     </dd>
-    <dt>AITOWN_DEJAVU_FIX_HEIGHT </dt>
+    <dt>AITOWN_DEJAVU_INPUT_FIX_HEIGHT </dt>
     <dd>
-        same as AITOWN_DEJAVU_FIX_WIDTH;
+        same as AITOWN_DEJAVU_INPUT_FIX_WIDTH;
     </dd>
     <dt>AITOWN_DEJAVU_GRID_IS_SQUARE</dt>
     <dd>

@@ -44,19 +44,19 @@ struct _aitimage_t;
 struct _aitown_dejavu_t;
 
 // allow both undefined and 0 to mean the same thing in terms of input size
-#ifndef AITOWN_DEJAVU_FIX_WIDTH
-#define AITOWN_DEJAVU_FIX_WIDTH 0
+#ifndef AITOWN_DEJAVU_INPUT_FIX_WIDTH
+#define AITOWN_DEJAVU_INPUT_FIX_WIDTH 0
 #endif
-#ifndef AITOWN_DEJAVU_FIX_HEIGHT
-#define AITOWN_DEJAVU_FIX_HEIGHT 0
+#ifndef AITOWN_DEJAVU_INPUT_FIX_HEIGHT
+#define AITOWN_DEJAVU_INPUT_FIX_HEIGHT 0
 #endif
 
 // if input is variable we can't have fixed sizes
 #ifdef AITOWN_DEJAVU_INPUT_IS_VARIABLE
-#undef AITOWN_DEJAVU_FIX_WIDTH
-#undef AITOWN_DEJAVU_FIX_HEIGHT
-#define AITOWN_DEJAVU_FIX_WIDTH 0
-#define AITOWN_DEJAVU_FIX_HEIGHT 0
+#undef AITOWN_DEJAVU_INPUT_FIX_WIDTH
+#undef AITOWN_DEJAVU_INPUT_FIX_HEIGHT
+#define AITOWN_DEJAVU_INPUT_FIX_WIDTH 0
+#define AITOWN_DEJAVU_INPUT_FIX_HEIGHT 0
 #endif
 
 
@@ -104,17 +104,17 @@ typedef struct _aitown_dejavu_ar_t {
 #endif
 
 //! macro that gets the width of the expected input in aitown_dejavu_ar_t
-#if AITOWN_DEJAVU_FIX_WIDTH == 0
+#if AITOWN_DEJAVU_INPUT_FIX_WIDTH == 0
 #define aitown_dejavu_image_cols(p)  ((p)->img_cols)
 #else
-#define aitown_dejavu_image_cols(p)  AITOWN_DEJAVU_FIX_WIDTH
+#define aitown_dejavu_image_cols(p)  AITOWN_DEJAVU_INPUT_FIX_WIDTH
 #endif
 
 //! macro that gets the height of the expected input in aitown_dejavu_ar_t
-#if AITOWN_DEJAVU_FIX_HEIGHT == 0
+#if AITOWN_DEJAVU_INPUT_FIX_HEIGHT == 0
 #define aitown_dejavu_image_rows(p)  ((p)->img_rows)
 #else
-#define aitown_dejavu_image_rows(p)  AITOWN_DEJAVU_FIX_HEIGHT
+#define aitown_dejavu_image_rows(p)  AITOWN_DEJAVU_INPUT_FIX_HEIGHT
 #endif
 
 

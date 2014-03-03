@@ -36,10 +36,10 @@ extern "C" {
 #cmakedefine AITOWN_DEJAVU_INPUT_IS_VARIABLE
 
 // Input image fixed width (set to 0 for variable)
-#define AITOWN_DEJAVU_FIX_WIDTH    @AITOWN_DEJAVU_FIX_WIDTH@
+#define AITOWN_DEJAVU_INPUT_FIX_WIDTH    @AITOWN_DEJAVU_INPUT_FIX_WIDTH@
 
 // Input image fixed height (set to 0 for variable)
-#define AITOWN_DEJAVU_FIX_HEIGHT   @AITOWN_DEJAVU_FIX_HEIGHT@
+#define AITOWN_DEJAVU_INPUT_FIX_HEIGHT   @AITOWN_DEJAVU_INPUT_FIX_HEIGHT@
 
 // Attention rectangle is a square (ON) or a rectangle (OFF)
 #cmakedefine AITOWN_DEJAVU_GRID_IS_SQUARE

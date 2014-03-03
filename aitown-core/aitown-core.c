@@ -51,8 +51,6 @@
 /*  FUNCTIONS    ----------------------------------------------------------- */
 
 
-
-
 func_error_t aitown_core_init (
         aitown_core_t *core, aitown_cfg_sect_t * cfg_sect)
 {
