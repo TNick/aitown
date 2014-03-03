@@ -1,12 +1,11 @@
 /* ========================================================================= */
 /* ------------------------------------------------------------------------- */
 /*!
-  \file			aitown-dstorage-handle.c
-  \date			February 2014
+  \file			config-builder.h
+  \date			September 2013
   \author		TNick
 
 *//*
-
 
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  Please read COPYING and README files in root folder
@@ -14,20 +13,17 @@
 */
 /* ------------------------------------------------------------------------- */
 /* ========================================================================= */
+#ifndef AITOWN_config_builder_h_INCLUDE
+#define AITOWN_config_builder_h_INCLUDE
 //
 //
 //
 //
 /*  INCLUDES    ------------------------------------------------------------ */
 
-#include "aitown-dstorage.h"
-#include "aitown-dstorage-handle.h"
-#include "aitown-dstorage-h-mng.h"
-
-#include <aitown/dbg_assert.h>
-
-#include <stdlib.h>
-#include <string.h>
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /*  INCLUDES    ============================================================ */
 //
@@ -36,6 +32,35 @@
 //
 /*  DEFINITIONS    --------------------------------------------------------- */
 
+//! how are we goiing to build the file
+typedef enum {
+
+    CFGTEST_DRIVERS = 0x000001,
+    CFGTEST_DRIVERS_KYOTO = CFGTEST_DRIVERS | 0x000002,
+    CFGTEST_DRIVERS_TOKYO = CFGTEST_DRIVERS | 0x000004,
+    CFGTEST_DRIVERS_MYSQL = CFGTEST_DRIVERS | 0x000008,
+    CFGTEST_DATABASES = 0x000010,
+    CFGTEST_DATABASE_ID = CFGTEST_DATABASES | 0x000020 | CFGTEST_DRIVERS_KYOTO,
+    CFGTEST_DSTORAGE = 0x000100,
+    CFGTEST_DSTORAGE_CTRL = CFGTEST_DSTORAGE | 0x000200,
+    CFGTEST_DSTORAGE_CTRL_1 = CFGTEST_DSTORAGE_CTRL | 0x000400,
+
+    CFGTEST_ALL = 0xFFFFFFFF
+} config_file_flags_t;
+
+
+#define KYOTO_NAME  "buildin-kyoto"
+#define TOKYO_NAME  "buildin-tokyo"
+#define MYSQL_NAME  "buildin-mysql"
+
+
+#ifdef AITOWN_WIN32
+#define REAL_TREE_DIR_1 "C:"
+#define OS_TEMPORARY_DIR getenv("TEMP")
+#else
+#define REAL_TREE_DIR_1 getenv("HOME")
+#define OS_TEMPORARY_DIR "/tmp"
+#endif
 
 /*  DEFINITIONS    ========================================================= */
 //
@@ -51,40 +76,9 @@
 //
 /*  FUNCTIONS    ----------------------------------------------------------- */
 
-
-func_error_t aitown_dstorage_handle_init (
-        aitown_dstorage_handle_t *handle, aitown_dstorage_id_t id)
-{
-    func_error_t ret = FUNC_OK;
-
-    for (;;) {
-
-        // clear it
-        memset (handle, 0, sizeof(aitown_dstorage_handle_t));
-        // status is DSTORAGE_H_UNINITIALISED
-
-        aitown_dstorage_handle_set_status (handle, DSTORAGE_H_NO_DATA);
-
-        // set the ID
-        handle->id = id;
-
-        break;
-    }
-
-    return ret;
-}
-
-void aitown_dstorage_handle_end (
-        aitown_dstorage_handle_t *handle)
-{
-    DBG_ASSERT (handle != NULL);
-
-    // clear it
-    memset (handle, 0, sizeof(aitown_dstorage_handle_t));
-    // status is DSTORAGE_H_UNINITIALISED
-}
-
-
+const char * write_config_file(
+        const char * name,
+        int flags);
 
 /*  FUNCTIONS    =========================================================== */
 //
@@ -93,3 +87,7 @@ void aitown_dstorage_handle_end (
 //
 /* ------------------------------------------------------------------------- */
 /* ========================================================================= */
+#ifdef __cplusplus
+}
+#endif
+#endif /* AITOWN_config_builder_h_INCLUDE */

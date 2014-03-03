@@ -14,22 +14,14 @@
 #include <aitown/cfgpath.h>
 #include <aitown/dir_utils.h>
 
+#include "../config-builder.h"
+
 /*  INCLUDES    ============================================================ */
 //
 //
 //
 //
 /*  DEFINITIONS    --------------------------------------------------------- */
-
-#define TEST_MAX_PATH   32
-
-#ifdef AITOWN_WIN32
-#define REAL_TREE_DIR_1 "C:"
-#define REAL_TREE_DIR_2 getenv("TEMP")
-#else
-#define REAL_TREE_DIR_1 getenv("HOME")
-#define REAL_TREE_DIR_2 "/tmp"
-#endif
 
 /*  DEFINITIONS    ========================================================= */
 //
@@ -49,8 +41,10 @@
 TEST(core_testing,aitown_core) {
     unsigned dims[2];
 
+    const char * tmp_file = write_config_file ("test_core", CFGTEST_ALL);
+
     aitown_core_t   core;
-    aitown_core_init (&core);
+    aitown_core_finit (&core, tmp_file);
 
 
     core_sensor_t * s0;

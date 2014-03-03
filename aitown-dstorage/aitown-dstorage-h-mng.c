@@ -233,7 +233,7 @@ void aitown_dstorage_h_mng_handle_decref (
         void * owner)
 {
     VAR_UNUSED (owner);
-    DBG_ASSERT (mng != NULL);
+    DBG_ASSERT (h_mng != NULL);
     DBG_ASSERT (handle != NULL);
 
     // release the reference

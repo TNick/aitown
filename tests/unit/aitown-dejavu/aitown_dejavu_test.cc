@@ -17,6 +17,8 @@
 #include <aitown/aitown-dejavu.h>
 #include <aitown/aitown-core.h>
 
+#include "../config-builder.h"
+
 /*  INCLUDES    ============================================================ */
 //
 //
@@ -92,7 +94,9 @@ TEST(dejavu,image) {
     aitimage_t *img_gi1g;
     func_error_t ret;
 
-    aitown_core_init (&core);
+    const char * tmp_file = write_config_file ("test_core", CFGTEST_ALL);
+
+    aitown_core_finit (&core, tmp_file);
 
     ret = aitimage_new (&img_1616, 16, 16, AITIMAGE_RGBA8, 16*16*4);
     EXPECT_TRUE (ret == FUNC_OK);
@@ -188,8 +192,10 @@ TEST(dejavu,speed) {
     double startTime, endTime;
     aitown_dejavu_t dejavu;
 
+    const char * tmp_file = write_config_file ("test_core", CFGTEST_ALL);
+
     aitown_core_t core;
-    aitown_core_init (&core);
+    aitown_core_finit (&core, tmp_file);
 
     gimp_image_t * gi1g = getTestImage(1);
     func_error_t ret;

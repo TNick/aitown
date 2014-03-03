@@ -18,25 +18,14 @@
 
 #include <aitown/dir_utils.h>
 
+#include "../config-builder.h"
+
 /*  INCLUDES    ============================================================ */
 //
 //
 //
 //
 /*  DEFINITIONS    --------------------------------------------------------- */
-
-#ifdef AITOWN_WIN32
-#define REAL_TREE_DIR_1 "C:"
-#define REAL_TREE_DIR_2 getenv("TEMP")
-#else
-#define REAL_TREE_DIR_1 getenv("HOME")
-#define REAL_TREE_DIR_2 "/tmp"
-#endif
-
-#define KYOTO_NAME  "buildin-kyoto"
-#define TOKYO_NAME  "buildin-tokyo"
-#define MYSQL_NAME  "buildin-mysql"
-
 
 /*  DEFINITIONS    ========================================================= */
 //
@@ -51,36 +40,6 @@
 //
 //
 /*  FUNCTIONS    ----------------------------------------------------------- */
-
-/* ------------------------------------------------------------------------- */
-void prepare_db_run(const char * file_ini) {
-
-    FILE * f = fopen(file_ini, "w");
-    EXPECT_TRUE (f != NULL);
-
-    fprintf (f,
-             "[drivers]\n"
-             "\n"
-             "[drivers/" KYOTO_NAME "]\n"
-             "\n"
-             "[drivers/" TOKYO_NAME "]\n"
-             "\n"
-             "[drivers/" MYSQL_NAME "]\n"
-             "\n"
-             "\n"
-             "[databases]\n"
-             "\n"
-             "[databases/test1]\n"
-             "  \n"
-             "  driver = " KYOTO_NAME "\n"
-             "  path_hint = %s\n"
-             "  key_len = \n"
-             "  value_len = \n"
-             , REAL_TREE_DIR_2
-             );
-    fclose (f);
-}
-/* ========================================================================= */
 
 /* ------------------------------------------------------------------------- */
 void aitown_db_common_test (const char * driver_name, const char * cfg_file)
@@ -99,7 +58,7 @@ void aitown_db_common_test (const char * driver_name, const char * cfg_file)
 
     aitown_db_preopen (&ovr, &dbmng, "test1", &db_handle);
     ovr.driver = driver_name;
-    ovr.path_hint = is_mysql ? "localhost" : REAL_TREE_DIR_2;
+    ovr.path_hint = is_mysql ? "localhost" : OS_TEMPORARY_DIR;
     func_error_t ret_open = aitown_db_open_ovr (&ovr);
     EXPECT_TRUE (ret_open == FUNC_OK);
     EXPECT_FALSE (db_handle == NULL);
@@ -112,7 +71,7 @@ void aitown_db_common_test (const char * driver_name, const char * cfg_file)
 //    open_data.value_len = 0;
 //    open_data.driver = driver_name;
 //    open_data.db_name = "test1";
-//    open_data.db_path_hint = is_mysql ? "localhost" : REAL_TREE_DIR_2;
+//    open_data.db_path_hint = is_mysql ? "localhost" : OS_TEMPORARY_DIR;
 //    open_data.cfg_file = cfg_file;
 //    open_data.cfg = NULL;
 //    open_data.out = &db_handle;
@@ -201,7 +160,7 @@ void aitown_db_common_test (const char * driver_name, const char * cfg_file)
 /* ------------------------------------------------------------------------- */
 //char * get_mysql_cfg()
 //{
-//    const char * path = REAL_TREE_DIR_2;
+//    const char * path = OS_TEMPORARY_DIR;
 //    size_t s_path = strlen(path) + sizeof("aitown-mysql-test.cfg") + 1;
 //    char * ret = (char*)malloc(s_path);
 //    sprintf(ret, "%s/%s", path, "aitown-mysql-test.cfg");
@@ -229,9 +188,7 @@ void aitown_db_common_test (const char * driver_name, const char * cfg_file)
 /* ------------------------------------------------------------------------- */
 TEST(db,drivers) {
 
-    char tmp_file[128];
-    sprintf (tmp_file, "%s/%s", REAL_TREE_DIR_2, "test_db.ini");
-    prepare_db_run (tmp_file);
+    const char * tmp_file = write_config_file ("test_db", CFGTEST_ALL);
 
 #   ifdef KYOTOCABINET_FOUND
     aitown_db_common_test (KYOTO_NAME, tmp_file);
@@ -254,9 +211,7 @@ TEST(db,drivers) {
 /* ------------------------------------------------------------------------- */
 TEST(db,aitown_db_open) {
 
-    char tmp_file[128];
-    sprintf (tmp_file, "%s/%s", REAL_TREE_DIR_2, "test_db.ini");
-    prepare_db_run (tmp_file);
+    const char * tmp_file = write_config_file ("test_db", CFGTEST_ALL);
 
     aitown_db_mng_t manager;
     aitown_db_mng_finit (&manager, tmp_file);
@@ -277,9 +232,8 @@ TEST(db,aitown_db_open) {
 /* ------------------------------------------------------------------------- */
 TEST(db,aitown_db_open_ovr) {
 
-    char tmp_file[128];
-    sprintf (tmp_file, "%s/%s", REAL_TREE_DIR_2, "test_db.ini");
-    prepare_db_run (tmp_file);
+    const char * tmp_file = write_config_file ("test_db", CFGTEST_ALL);
+
 
     aitown_db_mng_t manager;
     aitown_db_mng_finit (&manager, tmp_file);
@@ -292,7 +246,7 @@ TEST(db,aitown_db_open_ovr) {
     aitown_db_preopen (&ovr, &manager, "test1", &db_handle);
     ovr.key_len = 8;
     ovr.driver = KYOTO_NAME;
-    ovr.path_hint = REAL_TREE_DIR_2;
+    ovr.path_hint = OS_TEMPORARY_DIR;
     func_error_t ret = aitown_db_open_ovr (&ovr);
     EXPECT_TRUE (ret == FUNC_OK);
     if (ret == FUNC_OK) {

@@ -20,10 +20,10 @@
 
 #ifdef AITOWN_WIN32
 #define REAL_TREE_DIR_1 "C:"
-#define REAL_TREE_DIR_2 getenv("TEMP")
+#define OS_TEMPORARY_DIR getenv("TEMP")
 #else
 #define REAL_TREE_DIR_1 getenv("HOME")
-#define REAL_TREE_DIR_2 "/tmp"
+#define OS_TEMPORARY_DIR "/tmp"
 #endif
 
 
@@ -62,11 +62,11 @@ TEST(dir_utils,du_cd) {
 	EXPECT_EQ(err_code, FUNC_OK);
 	EXPECT_EQ(strcmp (du_pwd (NULL), REAL_TREE_DIR_1), 0);
 	
-	char * cpy = strdup (REAL_TREE_DIR_2);
+	char * cpy = strdup (OS_TEMPORARY_DIR);
 	EXPECT_TRUE(cpy != NULL);
 	err_code = du_cd_ptr (cpy);
 	EXPECT_EQ(err_code, FUNC_OK);
-	EXPECT_EQ(strcmp (du_pwd (NULL), REAL_TREE_DIR_2), 0);
+	EXPECT_EQ(strcmp (du_pwd (NULL), OS_TEMPORARY_DIR), 0);
 	
 }
 /* ========================================================================= */

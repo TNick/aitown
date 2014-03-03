@@ -56,6 +56,7 @@ set ( LIB_HEADERS
     utils_offset.h
     stack_buff.h
     pivotal_gmtime.h
+    zmq_wrapper.h
 )
 
 add_library( ${LOC_PRJ_NAME} SHARED

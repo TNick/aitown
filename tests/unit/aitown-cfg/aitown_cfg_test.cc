@@ -19,10 +19,10 @@
 
 #ifdef AITOWN_WIN32
 #define REAL_TREE_DIR_1 "C:"
-#define REAL_TREE_DIR_2 getenv("TEMP")
+#define OS_TEMPORARY_DIR getenv("TEMP")
 #else
 #define REAL_TREE_DIR_1 getenv("HOME")
-#define REAL_TREE_DIR_2 "/tmp"
+#define OS_TEMPORARY_DIR "/tmp"
 #endif
 
 
@@ -585,7 +585,7 @@ TEST(cfg,saving) {
     EXPECT_TRUE (err_string == NULL);
 
     char tmp_file[128];
-    sprintf (tmp_file, "%s/%s", REAL_TREE_DIR_2, "test1.ini");
+    sprintf (tmp_file, "%s/%s", OS_TEMPORARY_DIR, "test1.ini");
 
     ret = aitown_cfg_save (cfg, tmp_file);
 
