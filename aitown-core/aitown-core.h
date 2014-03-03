@@ -52,6 +52,10 @@ typedef struct _aitown_core_t {
     core_actuator_mng_t     amng;       /**< manager for actuators */
     core_sensor_mng_t       smng;       /**< manager for sensors */
     aitown_dstorage_t       dstore;     /**< manager for storage (includes database manager) */
+
+    struct _aitown_cfg_sect_t *         cfg_sect; /**< configuration section */
+    int                                 manage_cfg; /**< do we save the config at the end or not */
+
 } aitown_core_t;
 
 /*  DEFINITIONS    ========================================================= */
@@ -68,9 +72,18 @@ typedef struct _aitown_core_t {
 //
 /*  FUNCTIONS    ----------------------------------------------------------- */
 
-//! initialize core
-AITOWN_EXPORT void
-aitown_core_init (aitown_core_t *core);
+//! initialize core with settings from a section
+AITOWN_EXPORT func_error_t
+aitown_core_init (
+        struct _aitown_core_t *core,
+        struct _aitown_cfg_sect_t * cfg_sect);
+
+//! initialize core with settings from a config file
+///
+AITOWN_EXPORT func_error_t
+aitown_core_finit (
+        struct _aitown_core_t * dstorage,
+        const char * file);
 
 //! terminate core
 AITOWN_EXPORT void
@@ -79,36 +92,37 @@ aitown_core_end (aitown_core_t *core);
 
 //! perform some opperations and return
 AITOWN_EXPORT void
-aitown_core_tick (aitown_core_t *core);
+aitown_core_tick (
+        struct _aitown_core_t *core);
 
 
 //! add a new sensor
 AITOWN_EXPORT func_error_t
 aitown_core_add_sensor (
-        aitown_core_t *core,
+        struct _aitown_core_t *core,
         const char *name,
         const char *description,
         unsigned dimension,
         unsigned *sizes,
-        core_sensor_t ** out);
+        struct _core_sensor_t ** out);
 
 //! add a new image sensor
 AITOWN_EXPORT func_error_t
 aitown_core_add_image_sensor (
-        aitown_core_t *core,
+        struct _aitown_core_t *core,
         const char *name,
         const char *description,
         unsigned width,
         unsigned height,
-        core_sensor_t ** out);
+        struct _core_sensor_t ** out);
 
 //! add a new sensor; it will provide a stream of 64-bit integers
 static inline func_error_t
 aitown_core_add_sensor_0 (
-        aitown_core_t *core,
+        struct _aitown_core_t *core,
         const char *name,
         const char *description,
-        core_sensor_t ** out)
+        struct _core_sensor_t ** out)
 {
     return aitown_core_add_sensor (core, name, description, 0, NULL, out);
 }
@@ -116,11 +130,11 @@ aitown_core_add_sensor_0 (
 //! add a new sensor; it will provide a stream of 64-bit vectors
 static inline func_error_t
 aitown_core_add_sensor_1 (
-        aitown_core_t *core,
+        struct _aitown_core_t *core,
         const char *name,
         const char *description,
         unsigned size,
-        core_sensor_t ** out)
+        struct _core_sensor_t ** out)
 {
     return aitown_core_add_sensor (core, name, description, 1, &size, out);
 }
@@ -128,12 +142,12 @@ aitown_core_add_sensor_1 (
 //! add a new sensor; it will provide a stream of 64-bit matrices
 static inline func_error_t
 aitown_core_add_sensor_2 (
-        aitown_core_t *core,
+        struct _aitown_core_t *core,
         const char *name,
         const char *description,
         unsigned size1,
         unsigned size2,
-        core_sensor_t ** out)
+        struct _core_sensor_t ** out)
 {
     unsigned sizes[2];
     sizes[0] = size1;
@@ -145,62 +159,62 @@ aitown_core_add_sensor_2 (
 //! add a new actuator
 AITOWN_EXPORT func_error_t
 aitown_core_add_actuator (
-        aitown_core_t *core,
+        struct _aitown_core_t *core,
         const char *name,
         const char *description,
         unsigned dimension,
         unsigned *sizes,
-        core_actuator_t ** out);
+        struct _core_actuator_t ** out);
 
 
 //! remove a sensor
 AITOWN_EXPORT func_error_t
 aitown_core_rem_sensor (
-        aitown_core_t *core,
-        core_sensor_t ** out);
+        struct _aitown_core_t *core,
+        struct _core_sensor_t ** out);
 
 //! remove an actuator
 AITOWN_EXPORT func_error_t
 aitown_core_rem_actuator (
-        aitown_core_t *core,
-        core_actuator_t ** out);
+        struct _aitown_core_t *core,
+        struct _core_actuator_t ** out);
 
 
 //! disable a sensor
 AITOWN_EXPORT func_error_t
 aitown_core_disable_sensor (
-        aitown_core_t *core,
-        core_sensor_t * out);
+        struct _aitown_core_t *core,
+        struct _core_sensor_t * out);
 
 //! disable an actuator
 AITOWN_EXPORT func_error_t
 aitown_core_disable_actuator (
-        aitown_core_t *core,
-        core_actuator_t * out);
+        struct _aitown_core_t *core,
+        struct _core_actuator_t * out);
 
 //! enable a sensor
 AITOWN_EXPORT func_error_t
 aitown_core_enable_sensor (
-        aitown_core_t *core,
-        core_sensor_t * out);
+        struct _aitown_core_t *core,
+        struct _core_sensor_t * out);
 
 //! enable an actuator
 AITOWN_EXPORT func_error_t
 aitown_core_enable_actuator (
-        aitown_core_t *core,
-        core_actuator_t * out);
+        struct _aitown_core_t *core,
+        struct _core_actuator_t * out);
 
 
 //! find a sensor by name
 AITOWN_EXPORT core_sensor_t *
 aitown_core_find_sensor (
-        aitown_core_t *core,
+        struct _aitown_core_t *core,
         const char *name);
 
 //! find an actuator by name
 AITOWN_EXPORT core_actuator_t *
 aitown_core_find_actuator (
-        aitown_core_t *core,
+        struct _aitown_core_t *core,
         const char *name);
 
 

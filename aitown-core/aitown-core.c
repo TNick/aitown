@@ -50,19 +50,55 @@
 //
 /*  FUNCTIONS    ----------------------------------------------------------- */
 
-void aitown_core_init (aitown_core_t *core)
+
+
+
+func_error_t aitown_core_init (
+        aitown_core_t *core, aitown_cfg_sect_t * cfg_sect)
 {
-    // initialise
-    memset (core, 0, sizeof(aitown_core_t));
+    func_error_t ret = FUNC_OK;
 
-    // start storage, including database
-    //aitown_dstorage_init (&core->dstore, "todo", NULL);
+    for (;;) {
 
-    // start the brain, sensors and actuators
-    core_brain_init (&core->brain);
-    core_actuator_mng_init (&core->amng);
-    core_sensor_mng_init (&core->smng);
+        // initialise
+        memset (core, 0, sizeof(aitown_core_t));
 
+        // start storage, including database
+        ret = aitown_dstorage_init (&core->dstore, cfg_sect);
+        if (ret != FUNC_OK) break;
+
+        // start the brain, sensors and actuators
+        core_brain_init (&core->brain);
+        core_actuator_mng_init (&core->amng);
+        core_sensor_mng_init (&core->smng);
+
+        break;
+    }
+
+    return ret;
+}
+
+func_error_t aitown_core_finit (
+        aitown_core_t * core, const char * file)
+{
+    func_error_t ret;
+
+    // load config file
+    aitown_cfg_t * cfg;
+    ret = aitown_cfg_init (&cfg, file);
+    if (ret != FUNC_OK) {
+        return ret;
+    }
+
+    // load manager from the root section
+    ret = aitown_core_init (core, &cfg->root);
+
+    // release our reference (works both if previous call succeded or not)
+    aitown_cfg_decref (cfg, cfg);
+
+    core->manage_cfg = 1;
+
+    return ret;
 }
 
 void aitown_core_end (aitown_core_t *core)
