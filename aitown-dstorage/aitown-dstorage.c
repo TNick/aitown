@@ -26,6 +26,7 @@
 
 #include <aitown/aitown-cfg.h>
 #include <aitown/dbg_assert.h>
+#include <aitown/utils.h>
 
 #include <aitown/aitown-db-read.h>
 #include <aitown/aitown-db-write.h>
@@ -78,26 +79,27 @@ func_error_t aitown_dstorage_init (
             }
         }
 
+        aitown_cfg_sect_t * sect_dstorage = aitown_cfg_get_sect (
+                    cfg_sect, "dstorage");
+        if (sect_dstorage == NULL) {
+            err_message ("[dstorage] section missing");
+            ret = FUNC_BAD_INPUT;
+            break;
+        }
+
         // start-up the database
         ret = aitown_db_mng_init (&dstorage->db_mng, cfg_sect);
         if (ret != FUNC_OK) break;
 
         // controllers
         ret = aitown_dstorage_ctrl_mng_init (
-                    &dstorage->db_mng, &dstorage->ctrl_mng, cfg_sect);
-        if (ret != FUNC_OK) break;
-
-        // handlers
-        ret = aitown_dstorage_h_mng_init (
-                    &dstorage->db_mng, &dstorage->h_mng, cfg_sect);
+                    &dstorage->db_mng, &dstorage->ctrl_mng, sect_dstorage);
         if (ret != FUNC_OK) break;
 
         // handles
         ret = aitown_dstorage_h_mng_init (
-                    &dstorage->db_mng, &dstorage->h_mng, cfg_sect);
+                    &dstorage->db_mng, &dstorage->h_mng, sect_dstorage);
         if (ret != FUNC_OK) break;
-
-
 
         break;
     }

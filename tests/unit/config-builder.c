@@ -68,7 +68,31 @@ const char * write_config_file(const char * name, int flags) {
                  "\n");
     }
 
-    IF_FLAG_IS_SET(CFGTEST_DATABASES) {
+    IF_FLAG_IS_SET(CFGTEST_DATABASE_1) {
+        fprintf (f,
+                 "[databases/test1]\n"
+                 "  \n"
+                 "  driver = " KYOTO_NAME "\n"
+                 "  path_hint = %s\n"
+                 "  key_len = 8\n"
+                 "  value_len = \n"
+                 "\n"
+                 , OS_TEMPORARY_DIR);
+    }
+
+    IF_FLAG_IS_SET(CFGTEST_DATABASE_2) {
+        fprintf (f,
+                 "[databases/test2]\n"
+                 "  \n"
+                 "  driver = " TOKYO_NAME "\n"
+                 "  path_hint = %s\n"
+                 "  key_len = 8\n"
+                 "  value_len = \n"
+                 "\n"
+                 , OS_TEMPORARY_DIR);
+    }
+
+    IF_FLAG_IS_SET(CFGTEST_DATABASE_ID) {
         fprintf (f,
                  "[databases/iddatabase]\n"
                  "  \n"
@@ -98,15 +122,27 @@ const char * write_config_file(const char * name, int flags) {
     IF_FLAG_IS_SET(CFGTEST_DSTORAGE_CTRL_1) {
         fprintf (f,
                  "[databases/ctrl1]\n"
-                 "  \n"
                  "  driver = " KYOTO_NAME "\n"
                  "  path_hint = %s\n"
                  "  key_len = 8\n"
                  "  value_len = \n"
                  "\n"
                  "[dstorage/controllers/0]\n"
+                 "  status = TEMP_ERR\n"
+                 "  performance = 30\n"
                  "  database = \"ctrl1\"\n"
                  "\n", OS_TEMPORARY_DIR);
+    }
+
+    IF_FLAG_IS_SET(CFGTEST_DSTORAGE_HANDLES) {
+        fprintf (f,
+                 "[dstorage/handlers]\n"
+                 "  database = \"iddatabase\"\n"
+                 "  next_id = 1\n"
+                 "  handle_max = 1024\n"
+                 "  free_max = 1024\n"
+                 "  cache_max = 512\n"
+                 "\n");
     }
 
 
