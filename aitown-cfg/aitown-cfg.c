@@ -608,6 +608,8 @@ func_error_t aitown_cfg_parse_buffer (
         case CFG_PSTS_IN_KEY: {
             // end of line => empty value
             if (crlf_trick != 0) {
+                if (first_white == NULL)
+                    first_white = file_content - 1;
                 ret = add_empty_leaf (
                             crt_sect, first_non_white,
                             first_white - first_non_white,
@@ -681,6 +683,8 @@ func_error_t aitown_cfg_parse_buffer (
             }
 
             // found the end
+            if (first_white == NULL)
+                first_white = file_content - 1;
             if (old_sts == CFG_PSTS_IN_LINE_CONTIN) {
                 append_value_to_leaf (
                             crt_leaf, first_non_white,
