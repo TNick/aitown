@@ -1,3 +1,6 @@
 [submodule "aitown-compress/builtin/fse"]
 	path = aitown-compress/builtin/fse
 	url = https://github.com/Cyan4973/FiniteStateEntropy.git
+[submodule "ccan"]
+	path = ccan
+	url = git@github.com:rustyrussell/ccan.git
