@@ -150,6 +150,7 @@ set ( lib_modules
 )
 
 set ( modules
+    "ccan"
     "sglib"
     "inih"
     "cfgpath"
