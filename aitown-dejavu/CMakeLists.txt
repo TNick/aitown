@@ -55,11 +55,19 @@ set ( LIB_SOURCES
     aitown-dejavu.c
     dejavu-change.c
     dejavu-ar.c
+    dejavu-level-I.c
+    dejavu-level-II.c
+    dejavu-level-I-mng.c
+    dejavu-level-II-mng.c
 )
 set ( LIB_HEADERS
     aitown-dejavu.h
     dejavu-change.h
     dejavu-ar.h
+    dejavu-level-I.h
+    dejavu-level-II.h
+    dejavu-level-I-mng.h
+    dejavu-level-II-mng.h
 )
 set (LIBS)
 

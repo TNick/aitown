@@ -25,6 +25,19 @@
 #include <aitown/dbg_assert.h>
 #include <aitown/aitown-image.h>
 #include <aitown/utils.h>
+#include <aitown/utils_unused.h>
+
+#include <aitown/aitown-cfg.h>
+#include <aitown/aitown-dstorage.h>
+#include <aitown/sglib.h>
+
+#include <aitown/aitown-db.h>
+#include <aitown/aitown-db-mng.h>
+#include <aitown/aitown-db-open.h>
+#include <aitown/aitown-db-close.h>
+#include <aitown/aitown-db-read.h>
+#include <aitown/aitown-db-write.h>
+#include <aitown/aitown-db-free.h>
 
 #include <stdlib.h>
 #include <string.h>
@@ -51,6 +64,7 @@ typedef struct _expanded_color_rgbg_t {
     unsigned                red;
     unsigned                green;
     unsigned                blue;
+    uint64_t                packed;
 } expanded_color_rgbg_t;
 
 //! a color
@@ -66,12 +80,12 @@ static inline void expanded_color_generalise (
         unsigned factor);
 
 
-static inline u_int64_t expanded_color_pack_64(
+static inline uint64_t expanded_color_pack_64(
         expanded_color_t *source);
 
 
 static inline void expanded_color_unpack_64(
-        u_int64_t source,
+        uint64_t source,
         expanded_color_t *destination);
 
 
@@ -92,6 +106,22 @@ static inline void average_sample (
         expanded_color_t *color);
 
 
+//! an entry describing a level II item and its probability
+typedef struct _aitown_dejavu_level_II_t {
+    aitown_dstorage_id_t    id;
+    uint64_t probab_sum;
+    uint64_t probab_count;
+    int red;
+    struct _aitown_dejavu_level_II_t * left;
+    struct _aitown_dejavu_level_II_t * right;
+} aitown_dejavu_level_II_t;
+
+#define AITOWN_DEJAVU_LEVELII_CMPARATOR(x,y) ((x->id)-(y->id))
+
+SGLIB_DEFINE_RBTREE_PROTOTYPES(aitown_dejavu_level_II_t, left, right, red, AITOWN_DEJAVU_LEVELII_CMPARATOR)
+SGLIB_DEFINE_RBTREE_FUNCTIONS(aitown_dejavu_level_II_t, left, right, red, AITOWN_DEJAVU_LEVELII_CMPARATOR)
+
+
 /*  DEFINITIONS    ========================================================= */
 //
 //
@@ -106,11 +136,15 @@ static inline void average_sample (
 //
 /*  FUNCTIONS    ----------------------------------------------------------- */
 
-void aitown_dejavu_ar_init (
-        aitown_dejavu_ar_t *ar,
+func_error_t aitown_dejavu_ar_init (
+        aitown_dejavu_ar_t * ar,
+        aitown_db_mng_t * db_mng,
+        aitown_cfg_sect_t * cfg_sect,
         unsigned input_cols, unsigned input_rows,
         unsigned ar_cols, unsigned ar_rows)
 {
+    VAR_UNUSED(cfg_sect);
+    func_error_t ret = FUNC_OK;
 
     // save grid geometry
 #   if AITOWN_DEJAVU_INPUT_FIX_WIDTH > 0
@@ -136,10 +170,26 @@ void aitown_dejavu_ar_init (
 
     adjust_to_size_change (ar, input_cols, input_rows);
 
+
+    for (;;) {
+
+        ret = dejavu_level_I_mng_init (&ar->level_I_mng, db_mng, cfg_sect);
+        if (ret == FUNC_OK) break;
+        ret = dejavu_level_II_mng_init (&ar->level_II_mng, db_mng, cfg_sect);
+        if (ret == FUNC_OK) break;
+
+        break;
+    }
+
+    return ret;
 }
 
 void aitown_dejavu_ar_end (aitown_dejavu_ar_t *ar)
 {
+    // stop level managers
+    dejavu_level_I_mng_end (&ar->level_I_mng);
+    dejavu_level_II_mng_end (&ar->level_II_mng);
+
     // as the structure is part of a bigger one and is quite large we refrain from wasting time
     // memset (ar, 0, sizeof(aitown_dejavu_ar_t));
 }
@@ -165,7 +215,72 @@ static func_error_t id_for_color (
     func_error_t ret = FUNC_OK;
     for (;;) {
 
+    //        // read the list
+    //        const void * data;
+    //        size_t datasz;
+    //        aitown_db_read_t param;
+    //        param.db = dejavu->attrect.db;
+    //        param.key = &color->grgb.packed;
+    //        param.key_sz = sizeof(uint64_t);
+    //        param.val = &data;
+    //        param.val_sz = &datasz;
+    //        param.kb = NULL;
+    //        param.user = NULL;
+    //        ret = aitown_db_read_ex (&param);
+    //        if (ret == FUNC_NOT_FOUND) {
+    //            // no record for this, yet
+    //        } else if (ret != FUNC_OK) {
+    //            break;
+    //        }
 
+    //        // we're expecting a list of id-probability pairs
+    //        aitown_dstorage_id_t * level_II_id = (aitown_dstorage_id_t*)data;
+    //        uint64_t * probab = (uint64_t *)PTR_ADD(data, sizeof(aitown_dstorage_id_t));
+    //        size_t step = sizeof(aitown_dstorage_id_t) + sizeof(uint64_t);
+    //        size_t data_parsed = 0;
+    //        aitown_dejavu_level_II_t * loc_it = NULL;
+    //        aitown_dejavu_level_II_t * loc_it_used = NULL;
+    //        aitown_dstorage_id_t crt_levelII_id;
+    //        while (data_parsed < datasz) {
+
+    //            // allocate a new structure for this entry
+    //            crt_levelII_id = *level_II_id;
+    //            if (loc_it == NULL) {
+    //                loc_it = new_level_II (&dejavu->attrect, crt_levelII_id);
+    //                if (loc_it == NULL) {
+    //                    ret = FUNC_MEMORY_ERROR;
+    //                    break;
+    //                }
+    //            } else {
+    //                loc_it->id = crt_levelII_id;
+    //            }
+
+    //            // insert it only if not already there
+    //            if (0 == sglib_aitown_dejavu_level_II_t_add_if_not_member (
+    //                        &dejavu->attrect.tree_level_II, loc_it, &loc_it_used) ) {
+    //                // was not inserted because i already in the tree
+    //                DBG_ASSERT (loc_it_used->probab_sum > 0);
+    //                DBG_ASSERT (loc_it_used->probab_count > 0);
+    //            } else {
+    //                // was inserted
+    //                loc_it = NULL; // on next pass we'll have to get a new one
+    //                DBG_ASSERT (loc_it_used->probab_sum == 0);
+    //                DBG_ASSERT (loc_it_used->probab_count == 0);
+    //            }
+
+    //            // add the probability for this id
+    //            loc_it_used->probab_sum += *probab;
+    //            loc_it_used->probab_count += 1;
+
+
+    //            // step to next pair
+    //            level_II_id = (aitown_dstorage_id_t*)PTR_ADD(level_II_id, step);
+    //            probab = (uint64_t *)PTR_ADD(probab, step);
+    //            data_parsed += step;
+    //        }
+
+    //        // free the chunk that we have received from database
+    //        aitown_db_free (dejavu->attrect.db, &data);
 
 
         break;
@@ -267,7 +382,7 @@ void aitown_dejavu_ar_process (
         // step to next row
         p_image_row += image_cols;
     }
-
+/** @todo what else ? */
 
 }
 
@@ -352,23 +467,25 @@ static inline void expanded_color_generalise (
     destination->grgb.green = source->grgb.green / factor;
     destination->grgb.blue = source->grgb.blue / factor;
     destination->grgb.grey = source->grgb.grey / factor;
+    destination->grgb.packed = expanded_color_pack_64 (source);
 }
 
-static inline u_int64_t expanded_color_pack_64(expanded_color_t *source)
+static inline uint64_t expanded_color_pack_64(expanded_color_t *source)
 {
     return
-            ((u_int64_t)(source->grgb.grey & 0xFFFF) << 48) |
-            ((u_int64_t)(source->grgb.red & 0xFFFF) << 32) |
-            ((u_int64_t)(source->grgb.green & 0xFFFF) << 16) |
-            ((u_int64_t)(source->grgb.blue & 0xFFFF) << 0);
+            ((uint64_t)(source->grgb.grey & 0xFFFF) << 48) |
+            ((uint64_t)(source->grgb.red & 0xFFFF) << 32) |
+            ((uint64_t)(source->grgb.green & 0xFFFF) << 16) |
+            ((uint64_t)(source->grgb.blue & 0xFFFF) << 0);
 }
 
-static inline void expanded_color_unpack_64(u_int64_t source, expanded_color_t *destination)
+static inline void expanded_color_unpack_64(uint64_t source, expanded_color_t *destination)
 {
     destination->grgb.grey = (source >> 48) & 0xFFFF;
     destination->grgb.red = (source >> 32) & 0xFFFF;
     destination->grgb.green = (source >> 16) & 0xFFFF;
     destination->grgb.blue = (source >> 0) & 0xFFFF;
+    destination->grgb.packed = source;
 }
 
 static inline uint32_t expanded_color_pack_32(expanded_color_t *source)
@@ -386,7 +503,10 @@ static inline void expanded_color_unpack_32(uint32_t source, expanded_color_t *d
     destination->grgb.red = (source >> 16) & 0xFF;
     destination->grgb.green = (source >> 8) & 0xFF;
     destination->grgb.blue = (source >> 0) & 0xFF;
+    destination->grgb.packed = expanded_color_pack_64 (destination);
 }
+
+
 
 /*  FUNCTIONS    =========================================================== */
 //

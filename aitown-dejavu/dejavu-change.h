@@ -2,7 +2,7 @@
 /* ------------------------------------------------------------------------- */
 /*!
   \file			dejavu-change.h
-  \date			September 2013
+  \date			March 2014
   \author		TNick
 
   This file defines aitown_dejavu_change_t data structure that groups
@@ -57,6 +57,7 @@ extern "C" {
 /*  DEFINITIONS    --------------------------------------------------------- */
 
 struct _aitimage_t;
+struct _aitown_cfg_sect_t;
 
 // the number of rows and columns that we store
 #ifndef AITOWN_DEJAVU_CHANGE_ROWS
@@ -137,9 +138,10 @@ typedef struct _aitown_dejavu_change_t {
 /// @param width    width of the input image
 /// @param height   height of the input image
 ///
-AITOWN_EXPORT void
+AITOWN_EXPORT func_error_t
 aitown_dejavu_change_init (
-        aitown_dejavu_change_t *chg,
+        struct _aitown_dejavu_change_t *chg,
+        struct _aitown_cfg_sect_t * cfg_sect,
         unsigned width,
         unsigned height);
 
@@ -150,7 +152,7 @@ aitown_dejavu_change_init (
 ///
 AITOWN_EXPORT void
 aitown_dejavu_change_end (
-        aitown_dejavu_change_t *chg);
+        struct _aitown_dejavu_change_t *chg);
 
 
 //! informed that the geometry of the image has changed
@@ -161,7 +163,7 @@ aitown_dejavu_change_end (
 ///
 AITOWN_EXPORT void
 aitown_dejavu_change_reinit (
-        aitown_dejavu_change_t *chg,
+        struct _aitown_dejavu_change_t *chg,
         unsigned width,
         unsigned height);
 
@@ -175,7 +177,7 @@ aitown_dejavu_change_reinit (
 ///
 AITOWN_EXPORT void
 aitown_dejavu_change_detect (
-        aitown_dejavu_change_t *chg,
+        struct _aitown_dejavu_change_t *chg,
         const struct _aitimage_t * image);
 
 /*  FUNCTIONS    =========================================================== */

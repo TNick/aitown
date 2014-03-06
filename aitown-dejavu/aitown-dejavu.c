@@ -2,7 +2,7 @@
 /* ------------------------------------------------------------------------- */
 /*!
   \file			aitown-dejavu.c
-  \date			September 2013
+  \date			March 2014
   \author		TNick
 
 *//*
@@ -51,74 +51,77 @@
 //
 /*  FUNCTIONS    ----------------------------------------------------------- */
 
-void aitown_dejavu_init_explicit (
-        aitown_dejavu_t *dejavu,
-        aitown_core_t * core,
-        unsigned input_cols, unsigned input_rows,
-        unsigned ar_cols, unsigned ar_rows)
-{
-    DBG_ASSERT (dejavu != NULL);
-    DBG_ASSERT (core != NULL);
-
-    // clear all, including substructures
-    memset (dejavu, 0, sizeof(aitown_dejavu_t));
-
-    // initialize the sub-structures
-    aitown_dejavu_change_init (&dejavu->chg, input_cols, input_rows);
-    aitown_dejavu_ar_init (
-                &dejavu->attrect,
-                input_cols, input_rows,
-                ar_cols, ar_rows);
-
-    dejavu->core = core;
-}
-
 func_error_t aitown_dejavu_init (
-        aitown_dejavu_t *dejavu, aitown_core_t * core, aitown_cfg_sect_t * cfg_sect)
+        aitown_dejavu_t *dejavu, aitown_core_t * core,
+        aitown_cfg_sect_t * cfg_sect)
 {
 
     func_error_t ret = FUNC_OK;
     int cfg_err = 1;
 
+    aitown_cfg_leaf_t * leaf_ar_cols;
+    aitown_cfg_leaf_t * leaf_ar_rows;
+    aitown_cfg_leaf_t * leaf_input_cols;
+    aitown_cfg_leaf_t * leaf_input_rows;
+    aitown_cfg_sect_t * sect_dejavu;
+
+    unsigned input_cols;
+    unsigned input_rows;
+    unsigned ar_cols;
+    unsigned ar_rows;
+
     for (;;) {
 
         // initialise
-        memset (core, 0, sizeof(aitown_core_t));
+        memset (dejavu, 0, sizeof(aitown_dejavu_t));
 
         for (;;) {
-            aitown_cfg_sect_t * sect_dejavu =
+            sect_dejavu =
                     aitown_cfg_get_sect (cfg_sect, "dejavu");
             if (sect_dejavu == NULL) break;
-            aitown_cfg_leaf_t * leaf_input_cols =
+            leaf_input_cols =
                     aitown_cfg_get_leaf (sect_dejavu, "input_cols");
             if ( (leaf_input_cols == NULL) || (leaf_input_cols->value == NULL) )break;
-            aitown_cfg_leaf_t * leaf_input_rows =
+            leaf_input_rows =
                     aitown_cfg_get_leaf (sect_dejavu, "input_rows");
             if ( (leaf_input_rows == NULL) || (leaf_input_rows->value == NULL) )break;
-            aitown_cfg_leaf_t * leaf_ar_cols =
+            leaf_ar_cols =
                     aitown_cfg_get_leaf (sect_dejavu, "ar_cols");
             if ( (leaf_ar_cols == NULL) || (leaf_ar_cols->value == NULL) )break;
-            aitown_cfg_leaf_t * leaf_ar_rows =
+            leaf_ar_rows =
                     aitown_cfg_get_leaf (sect_dejavu, "ar_rows");
             if ( (leaf_ar_rows == NULL) || (leaf_ar_rows->value == NULL) )break;
-
-            unsigned input_cols = (unsigned)atoi (leaf_input_cols->value);
-            unsigned input_rows = (unsigned)atoi (leaf_input_rows->value);
-            unsigned ar_cols = (unsigned)atoi (leaf_ar_cols->value);
-            unsigned ar_rows = (unsigned)atoi (leaf_ar_rows->value);
-            aitown_dejavu_init_explicit (
-                        dejavu, core,
-                        input_cols, input_rows,
-                        ar_cols, ar_rows);
 
             cfg_err = 0;
             break;
         }
-        if (cfg_err == 0) {
+        if (cfg_err) {
             err_message ("[dejavu] section with input_cols, input_rows, ar_cols, ar_rows required");
             ret = FUNC_BAD_INPUT;
             break;
         }
+
+        // parameters from config file
+        input_cols = (unsigned)atoi (leaf_input_cols->value);
+        input_rows = (unsigned)atoi (leaf_input_rows->value);
+        ar_cols = (unsigned)atoi (leaf_ar_cols->value);
+        ar_rows = (unsigned)atoi (leaf_ar_rows->value);
+
+        // initialize the sub-structures
+        ret = aitown_dejavu_change_init (
+                    &dejavu->chg,
+                    sect_dejavu,
+                    input_cols, input_rows);
+        if (ret != FUNC_OK) break;
+        aitown_dejavu_ar_init (
+                    &dejavu->attrect,
+                    &core->dstore.db_mng,
+                    sect_dejavu,
+                    input_cols, input_rows,
+                    ar_cols, ar_rows);
+        if (ret != FUNC_OK) break;
+
+        dejavu->core = core;
 
         break;
     }

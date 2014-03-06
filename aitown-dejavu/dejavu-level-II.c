@@ -1,11 +1,12 @@
 /* ========================================================================= */
 /* ------------------------------------------------------------------------- */
 /*!
-  \file			aitown-dejavu-config.h.in
+  \file			dejavu-level-II.c
   \date			March 2014
   \author		TNick
 
 *//*
+
 
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  Please read COPYING and README files in root folder
@@ -13,17 +14,21 @@
 */
 /* ------------------------------------------------------------------------- */
 /* ========================================================================= */
-#ifndef AITOWN_dejavu_config_h_INCLUDE
-#define AITOWN_dejavu_config_h_INCLUDE
 //
 //
 //
 //
 /*  INCLUDES    ------------------------------------------------------------ */
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+#include "dejavu-level-II.h"
+
+#include <aitown/dbg_assert.h>
+#include <aitown/aitown-image.h>
+#include <aitown/utils.h>
+#include <aitown/aitown-core.h>
+
+#include <stdlib.h>
+#include <string.h>
 
 /*  INCLUDES    ============================================================ */
 //
@@ -31,25 +36,6 @@ extern "C" {
 //
 //
 /*  DEFINITIONS    --------------------------------------------------------- */
-
-// Input image size (w,h) may be changed after initialization
-#cmakedefine AITOWN_DEJAVU_INPUT_IS_VARIABLE
-
-// Input image fixed width (set to 0 for variable)
-#define AITOWN_DEJAVU_INPUT_FIX_WIDTH    @AITOWN_DEJAVU_INPUT_FIX_WIDTH@
-
-// Input image fixed height (set to 0 for variable)
-#define AITOWN_DEJAVU_INPUT_FIX_HEIGHT   @AITOWN_DEJAVU_INPUT_FIX_HEIGHT@
-
-// Attention rectangle is a square (ON) or a rectangle (OFF)
-#cmakedefine AITOWN_DEJAVU_GRID_IS_SQUARE
-
-// Number of rows in the sudden changes area
-#define AITOWN_DEJAVU_CHANGE_ROWS  @AITOWN_DEJAVU_CHANGE_ROWS@
-
-// Number of columns in the sudden changes area
-#define AITOWN_DEJAVU_CHANGE_COLS  @AITOWN_DEJAVU_CHANGE_COLS@
-
 
 /*  DEFINITIONS    ========================================================= */
 //
@@ -65,6 +51,32 @@ extern "C" {
 //
 /*  FUNCTIONS    ----------------------------------------------------------- */
 
+func_error_t dejavu_level_II_init (
+        dejavu_level_II_t *id_level_II, aitown_db_mng_t * db_mng,
+        aitown_cfg_sect_t * cfg_sect)
+{
+
+    func_error_t ret = FUNC_OK;
+
+    for (;;) {
+
+        // initialise
+        memset (id_level_II, 0, sizeof(dejavu_level_II_t));
+
+        break;
+    }
+
+    return ret;
+}
+
+void dejavu_level_II_end (dejavu_level_II_t *id_level_I)
+{
+
+
+    // clear all
+    memset (id_level_I, 0, sizeof(dejavu_level_II_t));
+}
+
 /*  FUNCTIONS    =========================================================== */
 //
 //
@@ -72,7 +84,3 @@ extern "C" {
 //
 /* ------------------------------------------------------------------------- */
 /* ========================================================================= */
-#ifdef __cplusplus
-}
-#endif
-#endif /* AITOWN_dejavu_config_h_INCLUDE */

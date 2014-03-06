@@ -2,9 +2,11 @@
 /* ------------------------------------------------------------------------- */
 /*!
   \file			dejavu-change.c
-  \date			September 2013
+  \date			March 2014
   \author		TNick
 
+
+  @todo set change callback to point to attention
 *//*
 
 
@@ -25,6 +27,9 @@
 #include <aitown/dbg_assert.h>
 #include <aitown/aitown-image.h>
 #include <aitown/utils.h>
+#include <aitown/utils_unused.h>
+
+#include <aitown/aitown-cfg.h>
 
 #include <stdlib.h>
 #include <string.h>
@@ -51,14 +56,18 @@
 //
 /*  FUNCTIONS    ----------------------------------------------------------- */
 
-void aitown_dejavu_change_init (
-        aitown_dejavu_change_t *chg, unsigned width, unsigned height)
+func_error_t aitown_dejavu_change_init (
+        aitown_dejavu_change_t *chg, aitown_cfg_sect_t * cfg_sect,
+        unsigned width, unsigned height)
 {
+    VAR_UNUSED(cfg_sect);
+
     // as the structure is part of a bigger one and is quite large we refrain from wasting time
     // memset (chg, 0, sizeof(aitown_dejavu_change_t));
 
     aitown_dejavu_change_reinit (chg, width, height);
 
+    return FUNC_OK;
 }
 
 

@@ -27,6 +27,9 @@
 #include <aitown/aitown_global.h>
 #include <aitown/aitown-image.h>
 
+#include <aitown/dejavu-level-I-mng.h>
+#include <aitown/dejavu-level-II-mng.h>
+
 #include <inttypes.h>
 
 #ifdef __cplusplus
@@ -41,7 +44,10 @@ extern "C" {
 /*  DEFINITIONS    --------------------------------------------------------- */
 
 struct _aitimage_t;
+struct _aitown_db_t;
 struct _aitown_dejavu_t;
+struct _aitown_cfg_sect_t;
+struct _aitown_db_mng_t;
 
 // allow both undefined and 0 to mean the same thing in terms of input size
 #ifndef AITOWN_DEJAVU_INPUT_FIX_WIDTH
@@ -71,6 +77,9 @@ typedef struct _aitown_dejavu_ar_t {
     unsigned                grid_rows;  /**< number of rows in grid */
     unsigned                pix_horiz;  /**< number of pixels in each cell in horizontal direction (width) */
     unsigned                pix_vert;   /**< number of pixels in each cell in vertical direction (height) */
+
+    dejavu_level_I_mng_t    level_I_mng;
+    dejavu_level_II_mng_t   level_II_mng;
 
 } aitown_dejavu_ar_t;
 
@@ -138,9 +147,11 @@ typedef struct _aitown_dejavu_ar_t {
 /// @param width    width of the input image
 /// @param height   height of the input image
 ///
-AITOWN_EXPORT void
+AITOWN_EXPORT func_error_t
 aitown_dejavu_ar_init (
-        aitown_dejavu_ar_t *ar,
+        struct _aitown_dejavu_ar_t * ar,
+        struct _aitown_db_mng_t * db_mng,
+        struct _aitown_cfg_sect_t * cfg_sect,
         unsigned input_cols,
         unsigned input_rows,
         unsigned ar_cols,
@@ -153,7 +164,7 @@ aitown_dejavu_ar_init (
 ///
 AITOWN_EXPORT void
 aitown_dejavu_ar_end (
-        aitown_dejavu_ar_t *ar);
+        struct _aitown_dejavu_ar_t * ar);
 
 
 //! informed that the geometry of the image has changed
@@ -164,7 +175,7 @@ aitown_dejavu_ar_end (
 ///
 AITOWN_EXPORT void
 aitown_dejavu_ar_reinit (
-        aitown_dejavu_ar_t *chg,
+        struct _aitown_dejavu_ar_t * chg,
         unsigned width,
         unsigned height);
 
@@ -178,7 +189,7 @@ aitown_dejavu_ar_reinit (
 ///
 AITOWN_EXPORT void
 aitown_dejavu_ar_process (
-        struct _aitown_dejavu_t *dejavu,
+        struct _aitown_dejavu_t * dejavu,
         const struct _aitimage_t * image);
 
 /*  FUNCTIONS    =========================================================== */

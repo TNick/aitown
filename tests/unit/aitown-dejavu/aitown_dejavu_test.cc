@@ -94,7 +94,7 @@ TEST(dejavu,image) {
     aitimage_t *img_gi1g;
     func_error_t ret;
 
-    const char * tmp_file = write_config_file ("test_core", CFGTEST_ALL);
+    const char * tmp_file = write_config_file ("test_dejavu", CFGTEST_ALL);
 
     aitown_core_finit (&core, tmp_file);
 
@@ -121,10 +121,35 @@ TEST(dejavu,image) {
     memcpy (AITIMAGE_GET_DATA(img_gi1g), gi1g->pixel_data, sz_gi1g);
 
 
+    // load config file
+    aitown_cfg_t * cfg;
+    ret = aitown_cfg_init (&cfg, tmp_file);
+    EXPECT_TRUE (ret == FUNC_OK);
+
+    aitown_cfg_leaf_t * leaf_ar_cols;
+    aitown_cfg_leaf_t * leaf_ar_rows;
+    aitown_cfg_leaf_t * leaf_input_cols;
+    aitown_cfg_leaf_t * leaf_input_rows;
+    aitown_cfg_sect_t * sect_dejavu;
+    sect_dejavu =
+            aitown_cfg_get_sect (&cfg->root, "dejavu");
+    leaf_input_cols =
+            aitown_cfg_get_leaf (sect_dejavu, "input_cols");
+    leaf_input_rows =
+            aitown_cfg_get_leaf (sect_dejavu, "input_rows");
+    leaf_ar_cols =
+            aitown_cfg_get_leaf (sect_dejavu, "ar_cols");
+    leaf_ar_rows =
+            aitown_cfg_get_leaf (sect_dejavu, "ar_rows");
 
 
+    aitown_cfg_set_leaf (leaf_ar_cols, "16");
+    aitown_cfg_set_leaf (leaf_ar_rows, "16");
+    aitown_cfg_set_leaf (leaf_input_cols, "16");
+    aitown_cfg_set_leaf (leaf_input_rows, "16");
+    ret = aitown_dejavu_init (&dejavu, &core, &cfg->root);
+    EXPECT_TRUE (ret == FUNC_OK);
 
-    aitown_dejavu_init_explicit (&dejavu, &core, 16, 16, 16, 16);
     dejavu.chg.kb = kb_aitown_dejavu_change_kb;
     dejavu.chg.payload = img_1616;
 
@@ -135,7 +160,14 @@ TEST(dejavu,image) {
 
 
 
-    aitown_dejavu_init_explicit (&dejavu, &core, 16, 32, 16, 16);
+
+    aitown_cfg_set_leaf (leaf_ar_cols, "16");
+    aitown_cfg_set_leaf (leaf_ar_rows, "16");
+    aitown_cfg_set_leaf (leaf_input_cols, "16");
+    aitown_cfg_set_leaf (leaf_input_rows, "32");
+    ret = aitown_dejavu_init (&dejavu, &core, &cfg->root);
+    EXPECT_TRUE (ret == FUNC_OK);
+
     dejavu.chg.kb = kb_aitown_dejavu_change_kb;
     dejavu.chg.payload = img_1632;
 
@@ -146,7 +178,13 @@ TEST(dejavu,image) {
 
 
 
-    aitown_dejavu_init_explicit (&dejavu, &core, 22, 16, 16, 16);
+    aitown_cfg_set_leaf (leaf_ar_cols, "16");
+    aitown_cfg_set_leaf (leaf_ar_rows, "16");
+    aitown_cfg_set_leaf (leaf_input_cols, "22");
+    aitown_cfg_set_leaf (leaf_input_rows, "16");
+    ret = aitown_dejavu_init (&dejavu, &core, &cfg->root);
+    EXPECT_TRUE (ret == FUNC_OK);
+
     dejavu.chg.kb = kb_aitown_dejavu_change_kb;
     dejavu.chg.payload = img_2216;
 
@@ -156,8 +194,17 @@ TEST(dejavu,image) {
     aitown_dejavu_end (&dejavu);
 
 
+    char buf_w[16];
+    char buf_h[16];
+    sprintf (buf_w, "%u", img_gi1g->width);
+    sprintf (buf_h, "%u", img_gi1g->height);
+    aitown_cfg_set_leaf (leaf_ar_cols, "16");
+    aitown_cfg_set_leaf (leaf_ar_rows, "16");
+    aitown_cfg_set_leaf (leaf_input_cols, buf_w);
+    aitown_cfg_set_leaf (leaf_input_rows, buf_h);
+    ret = aitown_dejavu_init (&dejavu, &core, &cfg->root);
+    EXPECT_TRUE (ret == FUNC_OK);
 
-    aitown_dejavu_init_explicit (&dejavu, &core, img_gi1g->width, img_gi1g->height, 16, 16);
     dejavu.chg.kb = kb_aitown_dejavu_change_kb;
     dejavu.chg.payload = img_gi1g;
 
@@ -167,8 +214,7 @@ TEST(dejavu,image) {
     aitown_dejavu_end (&dejavu);
 
 
-
-
+    aitown_cfg_decref(cfg, cfg);
 
     ret = aitimage_free (&img_gi1g);
     EXPECT_TRUE (ret == FUNC_OK);
@@ -183,6 +229,7 @@ TEST(dejavu,image) {
     EXPECT_TRUE (ret == FUNC_OK);
 
     aitown_core_end (&core);
+
 
 }
 /* ========================================================================= */
@@ -209,7 +256,43 @@ TEST(dejavu,speed) {
     memcpy (AITIMAGE_GET_DATA(img_gi1g), gi1g->pixel_data, sz_gi1g);
 
 
-    aitown_dejavu_init_explicit (&dejavu, &core, img_gi1g->width, img_gi1g->height, 16, 16);
+
+
+    // load config file
+    aitown_cfg_t * cfg;
+    ret = aitown_cfg_init (&cfg, tmp_file);
+    EXPECT_TRUE (ret == FUNC_OK);
+
+    aitown_cfg_leaf_t * leaf_ar_cols;
+    aitown_cfg_leaf_t * leaf_ar_rows;
+    aitown_cfg_leaf_t * leaf_input_cols;
+    aitown_cfg_leaf_t * leaf_input_rows;
+    aitown_cfg_sect_t * sect_dejavu;
+    sect_dejavu =
+            aitown_cfg_get_sect (&cfg->root, "dejavu");
+    leaf_input_cols =
+            aitown_cfg_get_leaf (sect_dejavu, "input_cols");
+    leaf_input_rows =
+            aitown_cfg_get_leaf (sect_dejavu, "input_rows");
+    leaf_ar_cols =
+            aitown_cfg_get_leaf (sect_dejavu, "ar_cols");
+    leaf_ar_rows =
+            aitown_cfg_get_leaf (sect_dejavu, "ar_rows");
+
+
+
+    char buf_w[16];
+    char buf_h[16];
+    sprintf (buf_w, "%u", img_gi1g->width);
+    sprintf (buf_h, "%u", img_gi1g->height);
+    aitown_cfg_set_leaf (leaf_ar_cols, "16");
+    aitown_cfg_set_leaf (leaf_ar_rows, "16");
+    aitown_cfg_set_leaf (leaf_input_cols, buf_w);
+    aitown_cfg_set_leaf (leaf_input_rows, buf_h);
+
+
+    ret = aitown_dejavu_init (&dejavu, &core, &cfg->root);
+    EXPECT_TRUE (ret == FUNC_OK);
 
     startTime = getRealTime();
     int i = 0;
@@ -219,8 +302,11 @@ TEST(dejavu,speed) {
     endTime = getRealTime();
 
     aitown_dejavu_end (&dejavu);
-
     printf ("- Feed %d times took in %lf\n", i, (endTime - startTime) );
+
+
+
+    aitown_cfg_decref(cfg, cfg);
 
 
     ret = aitimage_free (&img_gi1g);

@@ -1,26 +1,22 @@
 /* ========================================================================= */
 /* ------------------------------------------------------------------------- */
 /*!
-  \file			aitown-dejavu.h
+  \file			dejavu-level-I.h
   \date			March 2014
   \author		TNick
-
-  This file defines aitown_dejavu_t data structure that represents a visual
-  sensor and related functions.
-
 
 
 *//*
 
 
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
- Please read COPYING and README files in root folder
+ Please  COPYING and ME files in root folder
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 /* ------------------------------------------------------------------------- */
 /* ========================================================================= */
-#ifndef AITOWN_dejavu_h_INCLUDE
-#define AITOWN_dejavu_h_INCLUDE
+#ifndef AITOWN_dejavu_level_I_h_INCLUDE
+#define AITOWN_dejavu_level_I_h_INCLUDE
 //
 //
 //
@@ -28,9 +24,7 @@
 /*  INCLUDES    ------------------------------------------------------------ */
 
 #include <aitown/aitown_global.h>
-#include <aitown/aitown-dejavu-config.h>
-#include <aitown/dejavu-change.h>
-#include <aitown/dejavu-ar.h>
+#include <aitown/error_codes.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -43,17 +37,14 @@ extern "C" {
 //
 /*  DEFINITIONS    --------------------------------------------------------- */
 
-struct _aitimage_t;
-struct _aitown_core_t;
 struct _aitown_cfg_sect_t;
+struct _aitown_db_mng_t;
 
-//! describes a dejavu instance
+//! describes a level I ID instance
 ///
-typedef struct _aitown_dejavu_t {
-    aitown_dejavu_ar_t      attrect;    /**< attention rectangle \f$\mathcal{AR}\f$ handler */
-    aitown_dejavu_change_t  chg;        /**< structure in charge of tracking changes */
-    struct _aitown_core_t * core;       /**< associated core */
-} aitown_dejavu_t;
+typedef struct _dejavu_level_I_t {
+
+} dejavu_level_I_t;
 
 /*  DEFINITIONS    ========================================================= */
 //
@@ -69,43 +60,20 @@ typedef struct _aitown_dejavu_t {
 //
 /*  FUNCTIONS    ----------------------------------------------------------- */
 
-
-
-
-//! initialize sensor with settings from a section
+//! initialize
 AITOWN_EXPORT func_error_t
-aitown_dejavu_init (
-        struct _aitown_dejavu_t *dejavu,
-        struct _aitown_core_t * core,
+dejavu_level_I_init (
+        struct _dejavu_level_I_t *id_level_I,
+        struct _aitown_db_mng_t * db_mng,
         struct _aitown_cfg_sect_t * cfg_sect);
 
-//! initialize sensor with settings from a config file
-///
-AITOWN_EXPORT func_error_t
-aitown_dejavu_finit (
-        struct _aitown_dejavu_t * dejavu,
-        struct _aitown_core_t * core,
-        const char * file);
-
-
-//! terminate a dejavu sensor
+//! terminate
 ///
 /// @param dejavu   address of the structure to terminate
 ///
 AITOWN_EXPORT void
-aitown_dejavu_end (
-        aitown_dejavu_t *dejavu);
-
-
-//! feed data to dejavu sensor
-///
-/// @param dejavu   address of the structure to terminate
-/// @param image    input image; the ownership remains with the caller
-///
-AITOWN_EXPORT void
-aitown_dejavu_feed (
-        aitown_dejavu_t *dejavu,
-        const struct _aitimage_t * image);
+dejavu_level_I_end (
+        dejavu_level_I_t *id_level_I);
 
 
 /*  FUNCTIONS    =========================================================== */
@@ -118,4 +86,4 @@ aitown_dejavu_feed (
 #ifdef __cplusplus
 }
 #endif
-#endif /* AITOWN_dejavu_h_INCLUDE */
+#endif /* AITOWN_dejavu_level_I_h_INCLUDE */
