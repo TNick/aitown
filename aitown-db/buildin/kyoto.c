@@ -211,11 +211,12 @@ func_error_t aitown_db_kyoto_read (aitown_db_read_t * request)
                     request->key_sz,
                     &vsiz);
         if (vbuf == NULL) {
-            err_message("Kyoto database - error reading record : %s",
-                  kcecodename (kcdbecode (database->db)));
-            ret = FUNC_GENERIC_ERROR; break;
+            int32_t err = kcdbecode (database->db);
+            dbg_message("Kyoto database - error reading record : %s",
+                  kcecodename (err));
+            ret = (err == KCENOREC ? FUNC_NOT_FOUND : FUNC_GENERIC_ERROR);
+            break;
         }
-
         break;
     }
 

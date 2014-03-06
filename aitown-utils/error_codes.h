@@ -4,7 +4,7 @@
   \file			error_codes.h
   \date			September 2013
   \author		TNick
-    
+
 *//*
 
 
@@ -35,10 +35,11 @@ extern "C" {
 
 //! generic exit codes
 typedef enum {
-	FUNC_OK = 0,
-	FUNC_GENERIC_ERROR,
+    FUNC_OK = 0,
+    FUNC_GENERIC_ERROR,
     FUNC_MEMORY_ERROR,
     FUNC_BAD_INPUT,
+    FUNC_NOT_FOUND,
     FUNC_NOT_IMPLEMENTED
 } func_error_t;
 

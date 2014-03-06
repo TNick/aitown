@@ -145,6 +145,25 @@ const char * write_config_file(const char * name, int flags) {
                  "\n");
     }
 
+    IF_FLAG_IS_SET(CFGTEST_DEJAVU) {
+        fprintf (f,
+                 "[dejavu]\n"
+                 "  input_cols = 16\n"
+                 "  input_rows = 16\n"
+                 "  ar_cols = 16\n"
+                 "  ar_rows = 16\n"
+                 "\n"
+                "[databases/dejavu_level1]\n"
+                "  \n"
+                "  driver = " KYOTO_NAME "\n"
+                "  path_hint = %s\n"
+                "  key_len = 8\n"
+                "  value_len = \n"
+                "\n", OS_TEMPORARY_DIR);
+    }
+
+
+
 
     fclose (f);
 
