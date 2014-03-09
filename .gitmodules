@@ -3,4 +3,7 @@
 	url = https://github.com/Cyan4973/FiniteStateEntropy.git
 [submodule "ccan"]
 	path = ccan
-	url = git@github.com:rustyrussell/ccan.git
+	url = git@github.com:TNick/ccan.git
+[submodule "c_can"]
+	path = c_can
+	url = git@github.com:TNick/ccan.git
